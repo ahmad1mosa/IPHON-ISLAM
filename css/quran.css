@@ -360,6 +360,8 @@
   text-align: justify;
   font-size: 28px;
   color: var(--text-main);
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .basmalah-container {

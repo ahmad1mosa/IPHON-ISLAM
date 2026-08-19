@@ -746,6 +746,53 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    // ==============================================================
+    // التكبير والتصغير بإصبعين (Pinch-to-Zoom Gesture for Verses)
+    // ==============================================================
+    const surahContent = document.getElementById("quran-surah-content");
+    let pinchStartDistance = 0;
+    let pinchStartFontSize = 28;
+    let isPinchZooming = false;
+
+    function getTouchesDistance(e) {
+      if (!e.touches || e.touches.length < 2) return 0;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    if (surahContent) {
+      surahContent.addEventListener("touchstart", (e) => {
+        if (e.touches && e.touches.length === 2) {
+          isPinchZooming = true;
+          pinchStartDistance = getTouchesDistance(e);
+          pinchStartFontSize = quran.fontSize || 28;
+        }
+      }, { passive: true });
+
+      surahContent.addEventListener("touchmove", (e) => {
+        if (isPinchZooming && e.touches && e.touches.length === 2) {
+          const currentDistance = getTouchesDistance(e);
+          if (pinchStartDistance > 20 && currentDistance > 20) {
+            if (e.cancelable) e.preventDefault();
+            const ratio = currentDistance / pinchStartDistance;
+            const newFontSize = Math.round(pinchStartFontSize * ratio);
+            const clamped = Math.min(54, Math.max(18, newFontSize));
+            if (clamped !== quran.fontSize) {
+              quran.setFontSize(clamped);
+            }
+          }
+        }
+      }, { passive: false });
+
+      const stopPinch = () => {
+        isPinchZooming = false;
+      };
+
+      surahContent.addEventListener("touchend", stopPinch);
+      surahContent.addEventListener("touchcancel", stopPinch);
+    }
+
     function renderSurahList(filter = "") {
       if (!surahListContainer) return;
       surahListContainer.innerHTML = "";

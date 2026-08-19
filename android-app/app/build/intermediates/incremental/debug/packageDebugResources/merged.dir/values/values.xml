@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GS إسلام</string>
+    <string name="app_name">GS ISLAM</string>
     <style name="Theme.GSIslam" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">#061915</item>
         <item name="android:navigationBarColor">#061915</item>

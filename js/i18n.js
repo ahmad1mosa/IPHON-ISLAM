@@ -13,7 +13,7 @@ const APP_LANGUAGES = [
 const TRANSLATIONS = {
   ar: {
     dir: "rtl",
-    appName: "GS إسلام",
+    appName: "GS ISLAM",
     appSubtitle: "تطبيق إسلامي شامل",
     prayerTab: "المواقيت",
     quranTab: "القرآن",
@@ -220,7 +220,7 @@ const TRANSLATIONS = {
   },
   tr: {
     dir: "ltr",
-    appName: "GS İSLAM",
+    appName: "GS ISLAM",
     appSubtitle: "Kapsamlı İslami Uygulama",
     prayerTab: "Namaz Vakitleri",
     quranTab: "Kuran",
@@ -289,8 +289,8 @@ const TRANSLATIONS = {
   },
   ur: {
     dir: "rtl",
-    appName: "GS اسلام",
-    appSubtitle: "مکمل اسلامی ایپ",
+    appName: "GS ISLAM",
+    appSubtitle: "جامع اسلامی ایپ",
     prayerTab: "نماز کے اوقات",
     quranTab: "قرآن پاک",
     tasbeehTab: "تسبیح",
