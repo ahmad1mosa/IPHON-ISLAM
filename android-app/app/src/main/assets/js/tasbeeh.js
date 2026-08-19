@@ -143,12 +143,10 @@ class SmartTasbeeh {
     };
   }
 
-  // تصفير العداد
-  reset(resetRounds = false) {
+  // تصفير العداد وتصفير الدورات بالكامل
+  reset(resetRounds = true) {
     this.currentCount = 0;
-    if (resetRounds) {
-      this.currentRound = 0;
-    }
+    this.currentRound = 0;
     this.saveState();
     return {
       count: this.currentCount,

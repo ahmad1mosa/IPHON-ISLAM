@@ -663,7 +663,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
         if (confirm(i18n.t("confirmReset"))) {
-          tasbeeh.reset();
+          tasbeeh.reset(true);
           prevRounds = 0;
           updateUI();
         }
