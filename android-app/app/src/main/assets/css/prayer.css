@@ -161,14 +161,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 14px rgba(255, 215, 0, 0.9), 0 2px 6px rgba(0,0,0,0.6);
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.9), 0 2px 6px rgba(0, 0, 0, 0.6);
   border: 1.5px solid #ffffff;
   animation: meccaGlow 2s infinite alternate;
 }
 
 @keyframes meccaGlow {
-  0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
-  100% { transform: scale(1.1); box-shadow: 0 0 22px rgba(255, 215, 0, 1); }
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  }
+
+  100% {
+    transform: scale(1.1);
+    box-shadow: 0 0 22px rgba(255, 215, 0, 1);
+  }
 }
 
 .qibla-mecca-badge span {
@@ -447,4 +454,114 @@
   font-weight: 700;
   color: var(--text-gold);
   margin-bottom: 12px;
+}
+
+/* ==============================================================
+   نافذة تنبيه الأذان المبارك المرئية والصوتية (Adhan Alert Modal)
+   ============================================================== */
+.adhan-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.adhan-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.adhan-modal-box {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(212, 175, 55, 0.18) 100%), var(--bg-card);
+  border: 2px solid var(--gold-primary);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.45);
+  animation: adhanPulse 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes adhanPulse {
+  0% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+    transform: scale(1);
+  }
+
+  100% {
+    box-shadow: 0 0 45px rgba(212, 175, 55, 0.65);
+    transform: scale(1.02);
+  }
+}
+
+.adhan-modal-icon {
+  font-size: 3.2rem;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.adhan-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-gold);
+  margin-bottom: 6px;
+}
+
+.adhan-modal-prayer-name {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 6px;
+  text-shadow: 0 0 12px var(--gold-primary);
+}
+
+.adhan-modal-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.adhan-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.adhan-stop-btn {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: var(--radius-full);
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.adhan-stop-btn:active {
+  transform: scale(0.95);
+}
+
+.adhan-dua-btn {
+  background: var(--gold-gradient);
+  color: #061915;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
 }

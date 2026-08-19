@@ -1,5 +1,5 @@
 // التطبيق الرئيسي الشامل - GS إسلام (GS ISLAM)
-const APP_VERSION = "2.4.0";
+const APP_VERSION = "2.6.0";
 
 document.addEventListener("DOMContentLoaded", () => {
   checkVersionUpdate();
@@ -9,8 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
     currentTab: "prayer",
     selectedCity: DEFAULT_CITIES[0], // 🇵🇸 القدس الشريف (فلسطين)
     calculationMethod: "Egypt",
+    asrJuristic: 1, // 1 = الشافعي/الجمهور، 2 = الحنفي
     theme: "dark",
     adhanSound: true,
+    adhanMode: "sound", // sound = صوت كامل، vibrate = رجاج فقط، silent = ساكت/صامت
+    adhanVolume: 1.0, // 0.0 إلى 1.0
+    selectedAdhanVoice: "makkah",
+    lastTriggeredPrayer: "",
     compassHeading: 0,
     qiblaBearing: 157,
     compassMode: "sensor",
@@ -22,9 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const savedVersion = localStorage.getItem("gs_app_version");
       if (savedVersion !== APP_VERSION) {
         localStorage.setItem("gs_app_version", APP_VERSION);
-        if (!localStorage.getItem("gs_selected_city")) {
-          localStorage.setItem("gs_selected_city", JSON.stringify(DEFAULT_CITIES[0]));
-        }
+        // إعادة تعيين المدينة الافتراضية للتأكد من تصحيح أي منطقة زمنية قديمة تالفة
+        localStorage.setItem("gs_selected_city", JSON.stringify(DEFAULT_CITIES[0]));
+        state.selectedCity = DEFAULT_CITIES[0];
       }
     } catch (e) {}
   }
@@ -110,17 +115,34 @@ document.addEventListener("DOMContentLoaded", () => {
       const savedCity = localStorage.getItem("gs_selected_city");
       if (savedCity) {
         state.selectedCity = JSON.parse(savedCity);
+        const lng = state.selectedCity.lng || 35.2137;
+        const estTz = Math.round(lng / 15);
+        if (!state.selectedCity.timezone || isNaN(state.selectedCity.timezone) || (lng >= 20 && lng <= 65 && state.selectedCity.timezone <= 0) || Math.abs(state.selectedCity.timezone - estTz) > 4) {
+          state.selectedCity.timezone = (estTz >= 2 && estTz <= 4) ? estTz : 3;
+        }
       } else {
         state.selectedCity = DEFAULT_CITIES[0]; // القدس الشريف
       }
       const savedMethod = localStorage.getItem("gs_calc_method");
       if (savedMethod) state.calculationMethod = savedMethod;
 
+      const savedAsr = localStorage.getItem("gs_asr_juristic");
+      if (savedAsr) state.asrJuristic = parseInt(savedAsr, 10);
+
       const savedTheme = localStorage.getItem("gs_theme");
       if (savedTheme) state.theme = savedTheme;
 
       const savedAdhanSound = localStorage.getItem("gs_adhan_sound");
       if (savedAdhanSound !== null) state.adhanSound = savedAdhanSound === "true";
+
+      const savedAdhanMode = localStorage.getItem("gs_adhan_mode");
+      if (savedAdhanMode) state.adhanMode = savedAdhanMode;
+
+      const savedAdhanVolume = localStorage.getItem("gs_adhan_volume");
+      if (savedAdhanVolume !== null) state.adhanVolume = parseFloat(savedAdhanVolume);
+
+      const savedAdhanVoice = localStorage.getItem("gs_adhan_voice");
+      if (savedAdhanVoice) state.selectedAdhanVoice = savedAdhanVoice;
     } catch (e) {}
   }
 
@@ -228,21 +250,40 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderCitySelect() {
-    const citySelect = document.getElementById("city-select-input");
-    if (citySelect) {
-      citySelect.innerHTML = "";
-      const isArabic = window.I18nManager.currentLang === "ar" || window.I18nManager.currentLang === "ur";
+    const settingsCitySelect = document.getElementById("city-select-input");
+    const isArabic = window.I18nManager.currentLang === "ar" || window.I18nManager.currentLang === "ur";
+    const locText = document.getElementById("current-location-name");
+
+    if (locText) {
+      locText.textContent = isArabic ? state.selectedCity.name : (state.selectedCity.nameEn || state.selectedCity.name);
+    }
+
+    if (settingsCitySelect) {
+      settingsCitySelect.innerHTML = "";
+
+      if (state.selectedCity.isGps) {
+        const gpsOpt = document.createElement("option");
+        gpsOpt.value = "GPS";
+        gpsOpt.textContent = `📍 ${state.selectedCity.name}`;
+        gpsOpt.selected = true;
+        settingsCitySelect.appendChild(gpsOpt);
+      }
 
       DEFAULT_CITIES.forEach((c, idx) => {
         const opt = document.createElement("option");
-        opt.value = idx;
+        opt.value = idx.toString();
         opt.textContent = isArabic ? c.name : (c.nameEn || c.name);
-        if (c.name === state.selectedCity.name) opt.selected = true;
-        citySelect.appendChild(opt);
+        if (!state.selectedCity.isGps && c.name === state.selectedCity.name) {
+          opt.selected = true;
+        }
+        settingsCitySelect.appendChild(opt);
       });
 
-      citySelect.addEventListener("change", (e) => {
-        const city = DEFAULT_CITIES[e.target.value];
+      settingsCitySelect.onchange = (e) => {
+        const val = e.target.value;
+        if (val === "GPS") return;
+        const idx = parseInt(val, 10);
+        const city = DEFAULT_CITIES[idx];
         if (city) {
           state.selectedCity = city;
           try {
@@ -250,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
           } catch (err) {}
           calculateAndRenderPrayers();
         }
-      });
+      };
     }
   }
 
@@ -291,37 +332,71 @@ document.addEventListener("DOMContentLoaded", () => {
   function detectUserGPS() {
     const locText = document.getElementById("current-location-name");
     const i18n = window.I18nManager;
+    const isArabic = i18n.currentLang === "ar" || i18n.currentLang === "ur";
+
     if (!navigator.geolocation) {
-      alert("GPS is not supported in this browser.");
+      alert(isArabic ? "خاصية تحديد الموقع غير مدعومة في هذا المتصفح." : "GPS is not supported in this browser.");
       return;
     }
 
-    if (locText) locText.textContent = i18n.t("locating");
+    if (locText) {
+      locText.textContent = isArabic ? "جاري تحديد موقعك عبر GPS... ⏳" : "Locating your position via GPS... ⏳";
+    }
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        const tz = -(new Date().getTimezoneOffset() / 60);
+        const estTz = Math.round(lng / 15);
+        let tz = -(new Date().getTimezoneOffset() / 60);
+        if (isNaN(tz) || (lng >= 20 && lng <= 65 && tz <= 0) || Math.abs(tz - estTz) > 4) {
+          tz = (estTz >= 2 && estTz <= 4) ? estTz : 3;
+        }
 
         state.selectedCity = {
-          name: i18n.currentLang === "ar" ? "موقعي الحالي (GPS)" : "Current Location (GPS)",
+          name: isArabic ? "موقعي الحالي (GPS)" : "Current Location (GPS)",
           nameEn: "Current Location (GPS)",
           lat: lat,
           lng: lng,
-          timezone: tz
+          timezone: tz,
+          isGps: true
         };
+
         try {
           localStorage.setItem("gs_selected_city", JSON.stringify(state.selectedCity));
         } catch (e) {}
 
+        // محاولة جلب اسم المدينة بدقة عبر Reverse Geocoding
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`, {
+          headers: { "Accept-Language": isArabic ? "ar" : "en" }
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.address) {
+              const cityName = data.address.city || data.address.town || data.address.state || data.address.country || "موقعي الحالي";
+              const countryName = data.address.country || "";
+              state.selectedCity.name = countryName ? `${cityName} (${countryName})` : cityName;
+              state.selectedCity.nameEn = cityName;
+              try {
+                localStorage.setItem("gs_selected_city", JSON.stringify(state.selectedCity));
+              } catch (e) {}
+              renderCitySelect();
+              calculateAndRenderPrayers();
+            }
+          })
+          .catch(() => {});
+
+        renderCitySelect();
         calculateAndRenderPrayers();
       },
       (err) => {
         console.warn("GPS error", err);
+        if (locText) {
+          locText.textContent = isArabic ? "تعذر تحديد الموقع تلقائياً" : "Could not determine location";
+        }
         calculateAndRenderPrayers();
       },
-      { timeout: 8000, enableHighAccuracy: true }
+      { timeout: 10000, enableHighAccuracy: true }
     );
   }
 
@@ -337,7 +412,8 @@ document.addEventListener("DOMContentLoaded", () => {
       city.lat,
       city.lng,
       city.timezone,
-      state.calculationMethod
+      state.calculationMethod,
+      state.asrJuristic
     );
 
     state.rawTimes = result.rawTimes;
@@ -379,6 +455,122 @@ document.addEventListener("DOMContentLoaded", () => {
     updateClockAndCountdown();
   }
 
+  /* -------------------------------------------------------------
+     مشغل الأذان المبارك والتنبيهات المباشرة (Adhan Engine)
+  ------------------------------------------------------------- */
+  const adhanPlayer = new Audio();
+  let isTestingAdhan = false;
+  let isAdhanPlaying = false;
+
+  function triggerVibrationPattern() {
+    try {
+      if ("vibrate" in navigator) {
+        navigator.vibrate([600, 300, 600, 300, 600, 300, 1000]);
+      }
+    } catch (e) {}
+  }
+
+  function playAdhanAudio(voiceId) {
+    if (state.adhanMode === "silent") {
+      return;
+    }
+
+    if (state.adhanMode === "vibrate") {
+      triggerVibrationPattern();
+      return;
+    }
+
+    const voice = (window.ADHAN_VOICES || []).find(v => v.id === (voiceId || state.selectedAdhanVoice)) || (window.ADHAN_VOICES && window.ADHAN_VOICES[0]);
+    if (!voice) return;
+
+    adhanPlayer.src = voice.url;
+    adhanPlayer.volume = Math.max(0, Math.min(1, state.adhanVolume !== undefined ? state.adhanVolume : 1.0));
+    adhanPlayer.currentTime = 0;
+    isAdhanPlaying = true;
+
+    triggerVibrationPattern();
+
+    adhanPlayer.play().catch(err => {
+      console.warn("Adhan audio play error:", err);
+    });
+
+    adhanPlayer.onended = () => {
+      isAdhanPlaying = false;
+      isTestingAdhan = false;
+      updateAdhanTestBtnUI();
+      closeAdhanModal();
+    };
+  }
+
+  function stopAdhanAudio() {
+    try {
+      adhanPlayer.pause();
+      adhanPlayer.currentTime = 0;
+    } catch (e) {}
+    isAdhanPlaying = false;
+    isTestingAdhan = false;
+    updateAdhanTestBtnUI();
+  }
+
+  function updateAdhanTestBtnUI() {
+    const testBtn = document.getElementById("btn-test-adhan");
+    const testLabel = document.getElementById("test-adhan-label");
+    if (testBtn && testLabel) {
+      if (isTestingAdhan || isAdhanPlaying) {
+        testLabel.textContent = "إيقاف صوت الأذان ⏹️";
+        testBtn.style.background = "#ef4444";
+      } else {
+        testLabel.textContent = "تجربة صوت الأذان 🔊";
+        testBtn.style.background = "";
+      }
+    }
+  }
+
+  function triggerAdhanAlert(prayerName, prayerKey) {
+    if (!state.adhanSound || state.adhanMode === "silent") {
+      // إشعار صامت فقط بدون صوت
+    }
+
+    const todayDateStr = new Date().toDateString();
+    const triggerId = `${prayerKey}_${todayDateStr}`;
+    if (state.lastTriggeredPrayer === triggerId) return;
+    state.lastTriggeredPrayer = triggerId;
+
+    // 1. تشغيل الأذان / الاهتزاز بحسب الوضع المختار
+    if (state.adhanMode === "sound") {
+      playAdhanAudio(state.selectedAdhanVoice);
+    } else if (state.adhanMode === "vibrate") {
+      triggerVibrationPattern();
+    }
+
+    // 2. فتح نافذة التنبيه المرئية
+    const modal = document.getElementById("adhan-alert-modal");
+    const prayerText = document.getElementById("adhan-modal-prayer-text");
+    const cityText = document.getElementById("adhan-modal-city-text");
+    if (modal) {
+      if (prayerText) prayerText.textContent = `صلاة ${prayerName}`;
+      if (cityText) cityText.textContent = `حان الآن موعد الأذان المبارك في ${state.selectedCity.name}`;
+      modal.classList.add("active");
+    }
+
+    // 3. إرسال إشعار للمتصفح والنظام
+    if ("Notification" in window && Notification.permission === "granted") {
+      try {
+        new Notification(`🕌 موعد أذان صلاة ${prayerName}`, {
+          body: `حان الآن موعد رفع الأذان المبارك في ${state.selectedCity.name}`,
+          icon: "icons/icon-512.png",
+          badge: "icons/icon-512.png"
+        });
+      } catch (e) {}
+    }
+  }
+
+  function closeAdhanModal() {
+    const modal = document.getElementById("adhan-alert-modal");
+    if (modal) modal.classList.remove("active");
+    stopAdhanAudio();
+  }
+
   function updateClockAndCountdown() {
     if (!state.rawTimes) return;
 
@@ -394,6 +586,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const activeCard = document.getElementById(`prayer-card-${res.nextPrayer.key}`);
       if (activeCard) activeCard.classList.add("next-active");
     }
+
+    // فحص دقيق للحظة رفع الأذان: إذا كان الوقت المتبقي 0 ثانية أو خلال أول دقيقة من دخول الوقت
+    const now = new Date();
+    const currentHM = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    const prayerTimesMap = {
+      fajr: { name: "الفجر", time: window.PrayerCalculator.formatFloatHours(state.rawTimes.fajr) },
+      dhuhr: { name: "الظهر", time: window.PrayerCalculator.formatFloatHours(state.rawTimes.dhuhr) },
+      asr: { name: "العصر", time: window.PrayerCalculator.formatFloatHours(state.rawTimes.asr) },
+      maghrib: { name: "المغرب", time: window.PrayerCalculator.formatFloatHours(state.rawTimes.maghrib) },
+      isha: { name: "العشاء", time: window.PrayerCalculator.formatFloatHours(state.rawTimes.isha) }
+    };
+
+    Object.keys(prayerTimesMap).forEach(key => {
+      if (prayerTimesMap[key].time === currentHM && now.getSeconds() <= 2) {
+        triggerAdhanAlert(prayerTimesMap[key].name, key);
+      }
+    });
   }
 
   /* -------------------------------------------------------------
@@ -833,7 +1042,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // إتاحة الدالة عالمياً للاستدعاء الفوري المباشر
-    window.handleTasbeehClick = doTasbeehTap;
+    window.handleTasbeehClick = handleTapDown;
     window.updateTasbeehUI = updateUI;
 
     updateUI();
@@ -1300,16 +1509,126 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    const notifToggle = document.getElementById("notifications-toggle");
-    if (notifToggle) {
-      notifToggle.checked = state.adhanSound;
-      notifToggle.addEventListener("change", (e) => {
-        state.adhanSound = e.target.checked;
+    const asrMethodSelect = document.getElementById("asr-method-select");
+    if (asrMethodSelect) {
+      asrMethodSelect.value = state.asrJuristic.toString();
+      asrMethodSelect.addEventListener("change", (e) => {
+        state.asrJuristic = parseInt(e.target.value, 10);
         try {
-          localStorage.setItem("gs_adhan_sound", state.adhanSound.toString());
+          localStorage.setItem("gs_asr_juristic", state.asrJuristic.toString());
         } catch (err) {}
-        if (state.adhanSound && "Notification" in window) {
+        calculateAndRenderPrayers();
+      });
+    }
+
+    // وضع تنبيه الأذان (صوت / رجاج / ساكت)
+    const adhanModeSelect = document.getElementById("adhan-mode-select");
+    const volumeGroup = document.getElementById("adhan-volume-group");
+    const voiceGroup = document.getElementById("adhan-voice-group");
+
+    const updateAdhanControlsVisibility = () => {
+      const isSound = state.adhanMode === "sound";
+      if (volumeGroup) volumeGroup.style.display = isSound ? "block" : "none";
+      if (voiceGroup) voiceGroup.style.display = isSound ? "block" : "none";
+    };
+
+    if (adhanModeSelect) {
+      adhanModeSelect.value = state.adhanMode;
+      updateAdhanControlsVisibility();
+
+      adhanModeSelect.addEventListener("change", (e) => {
+        state.adhanMode = e.target.value;
+        try {
+          localStorage.setItem("gs_adhan_mode", state.adhanMode);
+        } catch (err) {}
+        updateAdhanControlsVisibility();
+        if (state.adhanMode !== "silent" && "Notification" in window) {
           Notification.requestPermission();
+        }
+      });
+    }
+
+    // شريط مستوى صوت الأذان
+    const volumeSlider = document.getElementById("adhan-volume-slider");
+    const volumeVal = document.getElementById("adhan-volume-val");
+    if (volumeSlider && volumeVal) {
+      const volPercent = Math.round(state.adhanVolume * 100);
+      volumeSlider.value = volPercent.toString();
+      volumeVal.textContent = `${volPercent}%`;
+
+      volumeSlider.addEventListener("input", (e) => {
+        const val = parseInt(e.target.value, 10);
+        state.adhanVolume = val / 100;
+        volumeVal.textContent = `${val}%`;
+        adhanPlayer.volume = state.adhanVolume;
+        try {
+          localStorage.setItem("gs_adhan_volume", state.adhanVolume.toString());
+        } catch (err) {}
+      });
+    }
+
+    const adhanVoiceSelect = document.getElementById("adhan-voice-select");
+    if (adhanVoiceSelect && window.ADHAN_VOICES) {
+      adhanVoiceSelect.innerHTML = "";
+      window.ADHAN_VOICES.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v.id;
+        opt.textContent = v.name;
+        if (v.id === state.selectedAdhanVoice) opt.selected = true;
+        adhanVoiceSelect.appendChild(opt);
+      });
+
+      adhanVoiceSelect.addEventListener("change", (e) => {
+        state.selectedAdhanVoice = e.target.value;
+        try {
+          localStorage.setItem("gs_adhan_voice", e.target.value);
+        } catch (err) {}
+        if (isAdhanPlaying || isTestingAdhan) {
+          playAdhanAudio(state.selectedAdhanVoice);
+        }
+      });
+    }
+
+    const testAdhanBtn = document.getElementById("btn-test-adhan");
+    if (testAdhanBtn) {
+      testAdhanBtn.addEventListener("click", () => {
+        if (isTestingAdhan || isAdhanPlaying) {
+          stopAdhanAudio();
+        } else {
+          isTestingAdhan = true;
+          playAdhanAudio(state.selectedAdhanVoice);
+          updateAdhanTestBtnUI();
+        }
+      });
+    }
+
+    const closeAdhanBtn = document.getElementById("btn-close-adhan-modal");
+    if (closeAdhanBtn) {
+      closeAdhanBtn.addEventListener("click", closeAdhanModal);
+    }
+
+    // زر تحديث التطبيق ومسح الكاش للآيفون والأجهزة الذكية
+    const forceUpdateBtn = document.getElementById("btn-force-update-cache");
+    if (forceUpdateBtn) {
+      forceUpdateBtn.addEventListener("click", async () => {
+        forceUpdateBtn.textContent = "جاري التحديث ومسح الذاكرة... ⏳";
+        try {
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => caches.delete(k)));
+          }
+          if ("serviceWorker" in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let reg of registrations) {
+              await reg.unregister();
+            }
+          }
+          localStorage.removeItem("gs_cache_ver");
+          setTimeout(() => {
+            window.location.reload(true);
+          }, 300);
+        } catch (e) {
+          window.location.reload(true);
         }
       });
     }

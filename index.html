@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="dark">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>GS ISLAM</title>
 
   <!-- PWA & Mobile Web App Settings -->
   <link rel="manifest" href="manifest.json?v=2.5.0">
   <meta name="theme-color" content="#061915">
   <meta name="application-name" content="GS ISLAM">
-  
+
   <!-- Apple iOS Safari Meta Tags (اسم الأيقونة الخارجية بالإنجليزية فقط) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,6 +26,7 @@
   <link rel="stylesheet" href="css/quran.css?v=2.5.0">
   <link rel="stylesheet" href="css/adhkar.css?v=2.5.0">
 </head>
+
 <body>
 
   <!-- ==================== الترويسة العلوية الاحترافية ==================== -->
@@ -62,11 +65,12 @@
 
     <!-- ==================== 1. تبويب مواقيت الصلاة والبوصلة ==================== -->
     <section class="tab-pane active" id="tab-prayer">
-      
+
       <!-- بطاقة الصلاة القادمة والعد التنازلي المباشر -->
       <div class="hero-countdown-card">
         <div class="next-prayer-tag">
-          <span>⏳</span> <span data-i18n="nextPrayer">الصلاة القادمة</span>: <strong id="next-prayer-name">الفجر</strong>
+          <span>⏳</span> <span data-i18n="nextPrayer">الصلاة القادمة</span>: <strong
+            id="next-prayer-name">الفجر</strong>
         </div>
         <div class="countdown-timer-display" id="next-prayer-countdown">00:00:00</div>
         <div class="countdown-subtext" data-i18n="remainingTime">الوقت المتبقي لرفع الأذان المبارك</div>
@@ -125,11 +129,12 @@
           <div class="ios-compass-dial-disc" id="compass-dial-disc">
             <svg class="compass-ticks-svg" id="compass-svg-element" viewBox="0 0 280 280">
               <!-- خطوط تقاطع المركز ودوائر التوجيه -->
-              <line x1="30" y1="140" x2="250" y2="140" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
-              <line x1="140" y1="30" x2="140" y2="250" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
-              <circle cx="140" cy="140" r="28" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-              <line x1="132" y1="140" x2="148" y2="140" stroke="#ffffff" stroke-width="1.5"/>
-              <line x1="140" y1="132" x2="140" y2="148" stroke="#ffffff" stroke-width="1.5"/>
+              <line x1="30" y1="140" x2="250" y2="140" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
+              <line x1="140" y1="30" x2="140" y2="250" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
+              <circle cx="140" cy="140" r="28" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.15)"
+                stroke-width="1" />
+              <line x1="132" y1="140" x2="148" y2="140" stroke="#ffffff" stroke-width="1.5" />
+              <line x1="140" y1="132" x2="140" y2="148" stroke="#ffffff" stroke-width="1.5" />
 
               <!-- خطوط الدرجات وعلامات البوصلة -->
               <g id="compass-ticks-group"></g>
@@ -150,7 +155,7 @@
 
     <!-- ==================== 2. تبويب القرآن الكريم ==================== -->
     <section class="tab-pane" id="tab-quran">
-      
+
       <!-- بطاقة استئناف آخر قراءة (Last Read Resume Banner) -->
       <div class="last-read-card" id="quran-last-read-card" style="display: none;">
         <div class="last-read-left">
@@ -167,7 +172,8 @@
       <div class="quran-search-bar">
         <div class="search-input-wrapper">
           <span class="search-icon-inside">🔍</span>
-          <input type="text" id="quran-search-input" data-i18n-placeholder="searchSurah" placeholder="ابحث عن اسم السورة أو رقمها...">
+          <input type="text" id="quran-search-input" data-i18n-placeholder="searchSurah"
+            placeholder="ابحث عن اسم السورة أو رقمها...">
         </div>
       </div>
 
@@ -180,9 +186,9 @@
 
     <!-- ==================== 3. تبويب المسبحة الإلكترونية مع الدائرة المزدوجة ==================== -->
     <section class="tab-pane" id="tab-tasbeeh">
-      
+
       <div class="tasbeeh-container">
-        
+
         <!-- بطاقة الذكر النشط واختياره -->
         <div class="active-dhikr-card">
           <div class="active-dhikr-title" id="tasbeeh-active-dhikr">سُبْحَانَ اللَّهِ</div>
@@ -201,15 +207,15 @@
 
         <!-- عداد المسبحة المزدوج (دائرة كبيرة للعد + دائرة صغيرة لعدد الدورات) -->
         <div class="tasbeeh-dual-wheels-wrapper">
-          
+
           <!-- الدائرة الكبيرة للعد النشط -->
           <div class="tasbeeh-main-wheel">
             <svg class="tasbeeh-svg-ring" viewBox="0 0 240 240">
               <defs>
                 <linearGradient id="goldGradientStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#ffe28a"/>
-                  <stop offset="50%" stop-color="#d4af37"/>
-                  <stop offset="100%" stop-color="#9e7a08"/>
+                  <stop offset="0%" stop-color="#ffe28a" />
+                  <stop offset="50%" stop-color="#d4af37" />
+                  <stop offset="100%" stop-color="#9e7a08" />
                 </linearGradient>
               </defs>
               <circle class="progress-track" cx="120" cy="120" r="110"></circle>
@@ -236,7 +242,7 @@
         <div class="tasbeeh-controls-row">
           <button class="tasbeeh-control-btn" id="tasbeeh-sound-btn" title="صوت النقر">🔊</button>
           <button class="tasbeeh-control-btn" id="tasbeeh-vibrate-btn" title="الاهتزاز اللمسي">📳</button>
-          
+
           <select class="custom-select" id="tasbeeh-target-select" style="width: auto; padding: 8px 12px;">
             <option value="33">33</option>
             <option value="99">99</option>
@@ -254,7 +260,7 @@
 
     <!-- ==================== 4. تبويب أذكار المسلم (سلايدات مغلقة) ==================== -->
     <section class="tab-pane" id="tab-adhkar">
-      
+
       <!-- قائمة سلايدات أقسام الأذكار المغلقة -->
       <div class="adhkar-accordion-list" id="adhkar-accordion-container">
         <!-- يتم ملء سلايدات الأذكار برمجياً -->
@@ -264,7 +270,7 @@
 
     <!-- ==================== 5. تبويب الإعدادات (سلايدات مغلقة) ==================== -->
     <section class="tab-pane" id="tab-settings">
-      
+
       <div class="settings-accordion-list">
 
         <!-- 1. سلايد اللغة -->
@@ -313,22 +319,55 @@
                 <!-- طرق الحساب -->
               </select>
             </div>
+            <div class="form-group">
+              <label class="form-label">حساب صلاة العصر (المذهب الفقهي):</label>
+              <select class="custom-select" id="asr-method-select">
+                <option value="1">الشافعي والمالكي والحنبلي (المعيار الأساسي)</option>
+                <option value="2">المذهب الحنفي (ظل الشيء مثليه)</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <!-- 3. سلايد التنبيهات والإشعارات -->
+        <!-- 3. سلايد التنبيهات وصوت الأذان -->
         <div class="settings-accordion" id="accordion-notifications">
           <div class="accordion-header">
             <div class="accordion-title-wrap">
               <span class="accordion-icon">🔔</span>
-              <span class="accordion-title" data-i18n="notificationsTitle">التنبيهات والإشعارات</span>
+              <span class="accordion-title" data-i18n="notificationsTitle">تنبيهات وصوت الأذان المبارك</span>
             </div>
             <span class="accordion-chevron">▼</span>
           </div>
           <div class="accordion-body">
-            <div class="toggle-switch">
-              <span data-i18n="enableNotifications">تفعيل إشعارات الأذان والأذكار</span>
-              <input type="checkbox" class="switch-input" id="notifications-toggle">
+            <div class="form-group">
+              <label class="form-label">وضع تنبيه الأذان (صوت / رجاج / ساكت):</label>
+              <select class="custom-select" id="adhan-mode-select">
+                <option value="sound">🔊 صوت الأذان كامل (صوت + إشعار + اهتزاز)</option>
+                <option value="vibrate">📳 رجاج فقط (اهتزاز + إشعار بدون صوت)</option>
+                <option value="silent">🔕 ساكت / صامت (إشعار مرئي فقط بدون صوت أو اهتزاز)</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="adhan-volume-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" style="margin-bottom: 0;">مستوى صوت الأذان:</label>
+                <span class="volume-val-badge" id="adhan-volume-val" style="font-size: 0.82rem; font-weight: 800; color: var(--text-gold);">100%</span>
+              </div>
+              <input type="range" class="font-slider" id="adhan-volume-slider" min="0" max="100" step="5" value="100" style="width: 100%;">
+            </div>
+
+            <div class="form-group" id="adhan-voice-group">
+              <label class="form-label">صوت الأذان المفضل:</label>
+              <select class="custom-select" id="adhan-voice-select">
+                <!-- أصوات الأذان الحقيقية -->
+              </select>
+            </div>
+
+            <div style="margin-top: 12px; display: flex; gap: 8px;">
+              <button class="btn-gps" id="btn-test-adhan"
+                style="flex: 1; padding: 10px 14px; font-size: 0.88rem; justify-content: center;">
+                <span>🔊</span> <span id="test-adhan-label">تجربة صوت الأذان</span>
+              </button>
             </div>
           </div>
         </div>
@@ -358,7 +397,8 @@
                     <div class="social-card-sub" data-i18n="facebookSub">goldensens</div>
                   </div>
                 </div>
-                <a href="https://www.facebook.com/groups/goldensens" target="_blank" rel="noopener noreferrer" class="social-btn facebook-btn" data-i18n="joinFacebook">
+                <a href="https://www.facebook.com/groups/goldensens" target="_blank" rel="noopener noreferrer"
+                  class="social-btn facebook-btn" data-i18n="joinFacebook">
                   الانضمام للمجموعة ↗
                 </a>
               </div>
@@ -374,7 +414,8 @@
                     <div class="social-card-sub">@GoldenSensitivity</div>
                   </div>
                 </div>
-                <a href="https://www.youtube.com/@GoldenSensitivity" target="_blank" rel="noopener noreferrer" class="social-btn youtube-btn">
+                <a href="https://www.youtube.com/@GoldenSensitivity" target="_blank" rel="noopener noreferrer"
+                  class="social-btn youtube-btn">
                   زيارة القناة ↗
                 </a>
               </div>
@@ -393,15 +434,18 @@
           </div>
           <div class="accordion-body">
             <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
-              <img src="icons/icon-512.png" alt="GS Logo" style="width: 58px; height: 58px; border-radius: 14px; border: 1.5px solid var(--gold-primary); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); object-fit: cover;">
+              <img src="icons/icon-512.png" alt="GS Logo"
+                style="width: 58px; height: 58px; border-radius: 14px; border: 1.5px solid var(--gold-primary); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); object-fit: cover;">
               <div>
                 <h3 style="color: var(--text-gold); font-size: 1.15rem; font-weight: 800;">GS إسلام (GS ISLAM)</h3>
-                <span style="font-size: 0.82rem; color: var(--emerald-primary); font-weight: 700;">شركة Golden Sens المحدودة 🏢</span>
+                <span style="font-size: 0.82rem; color: var(--emerald-primary); font-weight: 700;">شركة Golden Sens
+                  المحدودة 🏢</span>
               </div>
             </div>
 
             <!-- بطاقة حقوق الملكية والترخيص لشركة Golden Sens -->
-            <div class="license-info-box" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--gold-primary); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px;">
+            <div class="license-info-box"
+              style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--gold-primary); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px;">
               <div style="font-size: 0.86rem; font-weight: 800; color: var(--text-gold); margin-bottom: 4px;">
                 © حقوق الملكية والتراخيص (Copyright & Licenses)
               </div>
@@ -414,10 +458,17 @@
             </div>
 
             <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.7;" data-i18n="aboutText">
-              تطبيق <strong>GS إسلام</strong> هو تطبيق إسلامي شامل ومجاني تم تصميمه ليكون رفيقك اليومي في الذكر وتلاوة القرآن الكريم ومعرفة أوقات الصلاة. يدعم العمل دون اتصال بالإنترنت بالكامل ومتوافق مع أجهزة الآيفون والأندرويد.
+              تطبيق <strong>GS إسلام</strong> هو تطبيق إسلامي شامل ومجاني تم تصميمه ليكون رفيقك اليومي في الذكر وتلاوة
+              القرآن الكريم ومعرفة أوقات الصلاة. يدعم العمل دون اتصال بالإنترنت بالكامل ومتوافق مع أجهزة الآيفون
+              والأندرويد.
             </p>
+            <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+              <button class="btn-gps" id="btn-force-update-cache" style="width: 100%; padding: 11px; font-size: 0.88rem; justify-content: center; background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);">
+                <span>🔄</span> <span>تحديث التطبيق ومسح الذاكرة المؤقتة</span>
+              </button>
+            </div>
             <div style="margin-top: 10px; font-size: 0.78rem; color: var(--text-gold);">
-              الإصدار 2.4.1 • ملكية وتراخيص شركة Golden Sens
+              الإصدار 2.6.0 • ملكية وتراخيص شركة Golden Sens
             </div>
           </div>
         </div>
@@ -430,7 +481,7 @@
 
   <!-- ==================== نافذة قراءة السورة الكريمة ==================== -->
   <div class="quran-reader-modal" id="quran-reader-modal">
-    
+
     <!-- الترويسة مع زر الرجوع السلس -->
     <div class="reader-header-bar">
       <button class="reader-back-btn" id="btn-reader-back" title="رجوع لقائمة السور">
@@ -449,15 +500,18 @@
       </div>
 
       <div style="display: flex; align-items: center; gap: 4px;">
-        <button class="icon-btn" id="quran-prev-ayah-btn" style="width: 32px; height: 32px; font-size: 0.75rem;" title="الآية السابقة">
+        <button class="icon-btn" id="quran-prev-ayah-btn" style="width: 32px; height: 32px; font-size: 0.75rem;"
+          title="الآية السابقة">
           ⏮️
         </button>
 
-        <button class="icon-btn" id="quran-play-btn" style="width: 36px; height: 36px; font-size: 0.95rem;" title="تشغيل التلاوة">
+        <button class="icon-btn" id="quran-play-btn" style="width: 36px; height: 36px; font-size: 0.95rem;"
+          title="تشغيل التلاوة">
           <span id="quran-play-icon">▶️</span>
         </button>
 
-        <button class="icon-btn" id="quran-next-ayah-btn" style="width: 32px; height: 32px; font-size: 0.75rem;" title="الآية التالية">
+        <button class="icon-btn" id="quran-next-ayah-btn" style="width: 32px; height: 32px; font-size: 0.75rem;"
+          title="الآية التالية">
           ⏭️
         </button>
       </div>
@@ -479,9 +533,11 @@
       </div>
 
       <div class="font-zoom-slider-wrapper">
-        <button class="icon-btn" id="quran-font-decrease" style="width: 26px; height: 26px; font-size: 0.75rem;" title="تصغير">أ-</button>
+        <button class="icon-btn" id="quran-font-decrease" style="width: 26px; height: 26px; font-size: 0.75rem;"
+          title="تصغير">أ-</button>
         <input type="range" class="font-slider" id="quran-font-slider" min="18" max="46" step="2" value="28">
-        <button class="icon-btn" id="quran-font-increase" style="width: 26px; height: 26px; font-size: 0.75rem;" title="تكبير">أ+</button>
+        <button class="icon-btn" id="quran-font-increase" style="width: 26px; height: 26px; font-size: 0.75rem;"
+          title="تكبير">أ+</button>
       </div>
 
       <span class="font-size-val" id="quran-font-size-display">28px</span>
@@ -490,6 +546,19 @@
     <!-- المحتوى القرآني للآيات -->
     <div class="reader-scroll-content" id="quran-surah-content">
       <!-- نص السورة الكريمة -->
+    </div>
+  </div>
+
+  <!-- ==================== نافذة تنبيه الأذان المبارك المرئية (Adhan Alert Modal) ==================== -->
+  <div class="adhan-modal-overlay" id="adhan-alert-modal">
+    <div class="adhan-modal-box">
+      <div class="adhan-modal-icon">🕌</div>
+      <div class="adhan-modal-title">حان الآن موعد رفع الأذان المبارك</div>
+      <div class="adhan-modal-prayer-name" id="adhan-modal-prayer-text">صلاة الظهر</div>
+      <div class="adhan-modal-sub" id="adhan-modal-city-text">حيّ على الصلاة .. حيّ على الفلاح</div>
+      <div class="adhan-modal-actions">
+        <button class="adhan-stop-btn" id="btn-close-adhan-modal">🔕 إيقاف الأذان</button>
+      </div>
     </div>
   </div>
 
@@ -514,7 +583,8 @@
           <div class="app-work-desc">تطبيق الكشف المغناطيسي المجاني</div>
           <div class="app-work-dev">Golden Sens • Android</div>
         </div>
-        <a href="https://play.google.com/store/apps/details?id=com.gs.magnova.gs_magnova" target="_blank" rel="noopener noreferrer" class="app-store-btn free-btn" id="btn-magnolite">
+        <a href="https://play.google.com/store/apps/details?id=com.gs.magnova.gs_magnova" target="_blank"
+          rel="noopener noreferrer" class="app-store-btn free-btn" id="btn-magnolite">
           <span>📥</span> تحميل مجاني
         </a>
       </div>
@@ -523,8 +593,10 @@
       <div class="app-work-card paid-card">
         <div class="app-work-icon-wrap">
           <div class="app-work-badge paid-badge">احترافي ⭐</div>
-          <div class="app-work-icon-circle" style="background: radial-gradient(circle, #1a2332 0%, #0a1118 100%); border: 2px solid var(--gold-primary); overflow: hidden; padding: 4px;">
-            <img src="icons/gs-magnova.png" alt="GS MAGNOVA" style="width: 100%; height: 100%; object-fit: contain; border-radius: 14px;">
+          <div class="app-work-icon-circle"
+            style="background: radial-gradient(circle, #1a2332 0%, #0a1118 100%); border: 2px solid var(--gold-primary); overflow: hidden; padding: 4px;">
+            <img src="icons/gs-magnova.png" alt="GS MAGNOVA"
+              style="width: 100%; height: 100%; object-fit: contain; border-radius: 14px;">
           </div>
         </div>
         <div class="app-work-info">
@@ -532,7 +604,8 @@
           <div class="app-work-desc">تطبيق الكشف المغناطيسي الاحترافي</div>
           <div class="app-work-dev">Golden Sens • Android</div>
         </div>
-        <a href="https://play.google.com/store/apps/details?id=com.gs.magnova.gs_magnova" target="_blank" rel="noopener noreferrer" class="app-store-btn paid-btn" id="btn-magnol">
+        <a href="https://play.google.com/store/apps/details?id=com.gs.magnova.gs_magnova" target="_blank"
+          rel="noopener noreferrer" class="app-store-btn paid-btn" id="btn-magnol">
           <span>⭐</span> الإصدار الاحترافي
         </a>
       </div>
@@ -550,7 +623,7 @@
       <span class="nav-icon">🕌</span>
       <span class="nav-label" data-i18n="prayerTab">المواقيت</span>
     </button>
-    
+
     <button class="nav-item" id="nav-btn-quran" data-tab="quran">
       <span class="nav-icon">📖</span>
       <span class="nav-label" data-i18n="quranTab">القرآن</span>
@@ -578,19 +651,19 @@
   </nav>
 
   <!-- ==================== البرمجيات والسكربتات ==================== -->
-  <script src="js/i18n.js?v=2.5.0"></script>
-  <script src="js/adhkar-data.js?v=2.5.0"></script>
-  <script src="js/surah-data.js?v=2.5.0"></script>
-  <script src="js/prayer-calc.js?v=2.5.0"></script>
-  <script src="js/tasbeeh.js?v=2.5.0"></script>
-  <script src="js/quran.js?v=2.5.0"></script>
-  <script src="js/adhkar.js?v=2.5.0"></script>
-  <script src="js/app.js?v=2.5.0"></script>
+  <script src="js/i18n.js?v=2.6.0"></script>
+  <script src="js/adhkar-data.js?v=2.6.0"></script>
+  <script src="js/surah-data.js?v=2.6.0"></script>
+  <script src="js/prayer-calc.js?v=2.6.0"></script>
+  <script src="js/tasbeeh.js?v=2.6.0"></script>
+  <script src="js/quran.js?v=2.6.0"></script>
+  <script src="js/adhkar.js?v=2.6.0"></script>
+  <script src="js/app.js?v=2.6.0"></script>
 
   <!-- تسجيل الـ Service Worker لتمكين الأوفلاين -->
   <script>
     // مسح الكاش القديم فوراً عند تغيير الإصدار
-    const APP_CACHE_VER = '2.5.0';
+    const APP_CACHE_VER = '2.6.0';
     if (localStorage.getItem('gs_cache_ver') !== APP_CACHE_VER) {
       localStorage.setItem('gs_cache_ver', APP_CACHE_VER);
       if ('caches' in window) {
@@ -600,14 +673,15 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=2.5.0')
+        navigator.serviceWorker.register('sw.js?v=2.6.0')
           .then(reg => {
             reg.update();
-            console.log('Service Worker v2.5.0 Registered & Updated!');
+            console.log('Service Worker v2.6.0 Registered & Updated!');
           })
           .catch(err => console.log('Service Worker registration failed:', err));
       });
     }
   </script>
 </body>
+
 </html>

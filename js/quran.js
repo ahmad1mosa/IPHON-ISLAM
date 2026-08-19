@@ -113,7 +113,13 @@ class QuranManager {
       return this.cachedSurahs[surahNumber];
     }
 
-    // 2. فحص التخزين المحلي
+    // 2. فحص السور المحفوظة في قاعدة البيانات المدمجة المباشرة (OFFLINE_SURAHS)
+    if (typeof OFFLINE_SURAHS !== "undefined" && OFFLINE_SURAHS[surahNumber]) {
+      this.cachedSurahs[surahNumber] = OFFLINE_SURAHS[surahNumber];
+      return OFFLINE_SURAHS[surahNumber];
+    }
+
+    // 3. فحص التخزين المحلي
     try {
       const localData = localStorage.getItem(`gs_surah_${surahNumber}`);
       if (localData) {
@@ -123,7 +129,7 @@ class QuranManager {
       }
     } catch (e) {}
 
-    // 3. جلب من خادم القرآن الكريم السحابي (Al-Quran Cloud API)
+    // 4. جلب من خادم القرآن الكريم السحابي (Al-Quran Cloud API)
     try {
       const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}`);
       if (response.ok) {
@@ -148,7 +154,35 @@ class QuranManager {
         }
       }
     } catch (e) {
-      console.warn("Could not fetch online surah, trying fallback", e);
+      console.warn("Could not fetch online surah from primary API, trying secondary...", e);
+    }
+
+    // 5. محاولة جلب بديلة سريعة
+    try {
+      const response2 = await fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quranuthmani/${surahNumber}.json`);
+      if (response2.ok) {
+        const json2 = await response2.json();
+        if (json2 && json2.chapter) {
+          const surahObj = {
+            number: surahNumber,
+            name: surahMeta ? surahMeta.name : `سورة ${surahNumber}`,
+            englishName: surahMeta ? surahMeta.englishName : `Surah ${surahNumber}`,
+            ayahs: json2.chapter.map(a => ({
+              numberInSurah: a.verse,
+              text: a.text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim() || a.text
+            }))
+          };
+
+          this.cachedSurahs[surahNumber] = surahObj;
+          try {
+            localStorage.setItem(`gs_surah_${surahNumber}`, JSON.stringify(surahObj));
+          } catch (e) {}
+
+          return surahObj;
+        }
+      }
+    } catch (e2) {
+      console.warn("Fallback fetch also failed:", e2);
     }
 
     // Fallback في حال تعذر الاتصال
@@ -157,7 +191,7 @@ class QuranManager {
       name: surahMeta ? surahMeta.name : `سورة ${surahNumber}`,
       ayahs: [
         { numberInSurah: 1, text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ" },
-        { numberInSurah: 2, text: "تلاوة وقراءة السورة تتطلب اتصالاً بالإنترنت للمرة الأولى ليتم حفظها تلقائياً على هاتفك." }
+        { numberInSurah: 2, text: "تلاوة وقراءة السورة تتطلب اتصالاً بالإنترنت للمرة الأولى ليتم حفظها تلقائياً على هاتفك للعمل أوفلاين." }
       ]
     };
   }

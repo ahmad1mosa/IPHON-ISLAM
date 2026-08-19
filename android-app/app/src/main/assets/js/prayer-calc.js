@@ -89,7 +89,18 @@ class PrayerCalculator {
     const jd = this.getJulianDate(date);
     const sun = this.getSunPosition(jd);
 
-    const noon = 12 + timezone - longitude / 15 - sun.equationOfTime;
+    // حساب وضبط المنطقة الزمنية بدقة تامة لمنع أي انحراف
+    const lngEstimatedTz = Math.round(longitude / 15);
+    let tz = (timezone !== undefined && timezone !== null && !isNaN(timezone)) ? Number(timezone) : lngEstimatedTz;
+    
+    // إذا كانت المنطقة الزمنية سالبة في دول الشرق الأوسط أو غير منطقية مقارنة بخط الطول، صححها تلقائياً
+    if (longitude >= 20 && longitude <= 65 && tz <= 0) {
+      tz = (lngEstimatedTz >= 2 && lngEstimatedTz <= 4) ? lngEstimatedTz : 3;
+    } else if (Math.abs(tz - lngEstimatedTz) > 4) {
+      tz = lngEstimatedTz;
+    }
+
+    const noon = 12 + tz - longitude / 15 - sun.equationOfTime;
 
     const timeForAltitude = (angle) => {
       const cosH = (this.sinDeg(angle) - this.sinDeg(latitude) * this.sinDeg(sun.declination)) /
@@ -114,9 +125,10 @@ class PrayerCalculator {
 
     const dhuhr = noon + (2 / 60);
 
-    const asrAltitude = -this.atanDeg(1 / (asrJuristic + this.tanDeg(Math.abs(latitude - sun.declination))));
+    // حساب زاوية ارتفاع الشمس لوقت العصر بدقة فلكية تامة (ارتفاع موجب فوق الأفق)
+    const asrAltitude = this.atanDeg(1 / (asrJuristic + this.tanDeg(Math.abs(latitude - sun.declination))));
     const asrDiff = timeForAltitude(asrAltitude);
-    const asr = asrDiff !== null ? noon + asrDiff : noon + 3.2;
+    const asr = asrDiff !== null ? noon + asrDiff : noon + 3.6;
 
     const maghrib = sunset + (2 / 60);
 
@@ -203,6 +215,15 @@ class PrayerCalculator {
   }
 }
 
+const ADHAN_VOICES = [
+  { id: "makkah", name: "أذان المسجد الحرام (مكة المكرمة)", url: "audio/makkah.mp3" },
+  { id: "madinah", name: "أذان المسجد النبوي الشريف (المدينة المنورة)", url: "audio/madinah.mp3" },
+  { id: "alaqsa", name: "أذان المسجد الأقصى المبارك (القدس الشريف)", url: "audio/alaqsa.mp3" },
+  { id: "egypt", name: "أذان مساجد مصر والقاهرة", url: "audio/egypt.mp3" },
+  { id: "alafasy", name: "أذان الشيخ مشاري بن راشد العفاسي", url: "audio/alafasy.mp3" }
+];
+
 window.PrayerCalculator = new PrayerCalculator();
 window.PRAYER_METHODS = PRAYER_METHODS;
 window.DEFAULT_CITIES = DEFAULT_CITIES;
+window.ADHAN_VOICES = ADHAN_VOICES;
