@@ -91,6 +91,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    private float smoothedHeading = -1;
+    private long lastSendTime = 0;
+    private static final float ALPHA = 0.15f; // معامل تنعيم الفلتر
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         float heading = -1;
@@ -100,15 +104,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
             float[] orientation = new float[3];
             SensorManager.getOrientation(rotationMatrix, orientation);
-            // تحويل الزاوية إلى درجات (0 - 360)
             heading = (float) Math.toDegrees(orientation[0]);
             if (heading < 0) heading += 360;
         } else {
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                gravity = event.values.clone();
+                if (gravity == null) gravity = new float[3];
+                // فلترة الجاذبية
+                gravity[0] = gravity[0] * 0.8f + event.values[0] * 0.2f;
+                gravity[1] = gravity[1] * 0.8f + event.values[1] * 0.2f;
+                gravity[2] = gravity[2] * 0.8f + event.values[2] * 0.2f;
             }
             if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-                geomagnetic = event.values.clone();
+                if (geomagnetic == null) geomagnetic = new float[3];
+                // فلترة المجال المغناطيسي
+                geomagnetic[0] = geomagnetic[0] * 0.8f + event.values[0] * 0.2f;
+                geomagnetic[1] = geomagnetic[1] * 0.8f + event.values[1] * 0.2f;
+                geomagnetic[2] = geomagnetic[2] * 0.8f + event.values[2] * 0.2f;
             }
             if (gravity != null && geomagnetic != null) {
                 float[] R = new float[9];
@@ -122,16 +133,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
 
-        if (heading >= 0 && (lastHeading < 0 || Math.abs(heading - lastHeading) >= 0.8f)) {
-            lastHeading = heading;
-            final int roundedHeading = Math.round(heading);
-            if (webView != null) {
-                webView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        webView.evaluateJavascript("if(window.onAndroidHeadingUpdate){window.onAndroidHeadingUpdate(" + roundedHeading + ");}", null);
-                    }
-                });
+        if (heading >= 0) {
+            // فلتر الزوايا الدائري (Circular Low-Pass Filter) لمنع الرعشة والترقص
+            if (smoothedHeading < 0) {
+                smoothedHeading = heading;
+            } else {
+                float diff = (heading - smoothedHeading + 540) % 360 - 180;
+                // عتبة الحركة البسيطة لإلغاء ضجيج الحساس الميكروسكوبي
+                if (Math.abs(diff) < 0.4f) {
+                    return;
+                }
+                smoothedHeading = (smoothedHeading + ALPHA * diff + 360) % 360;
+            }
+
+            long now = System.currentTimeMillis();
+            // إرسال التحديث بمعدل سلس (35ms) لضمان ثبات وجمال الحركة
+            if (now - lastSendTime >= 35) {
+                lastSendTime = now;
+                final float finalHeading = smoothedHeading;
+                if (webView != null) {
+                    webView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            webView.evaluateJavascript(
+                                "if(window.onAndroidHeadingUpdate){window.onAndroidHeadingUpdate(" + String.format(java.util.Locale.US, "%.1f", finalHeading) + ");}",
+                                null
+                            );
+                        }
+                    });
+                }
             }
         }
     }

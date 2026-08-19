@@ -412,6 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    let smoothedWebHeading = -1;
     const handleOrientation = (event) => {
       if (state.compassMode !== "sensor") return;
 
@@ -422,21 +423,28 @@ document.addEventListener("DOMContentLoaded", () => {
         heading = event.webkitCompassHeading;
       } else if (event.alpha !== null && event.alpha !== undefined) {
         if (event.absolute === true) {
-          // Android absolute - alpha يزيد عكس عقارب الساعة من الشمال
-          // التحويل: compass_heading = 360 - alpha
           heading = (360 - event.alpha) % 360;
         } else {
-          // قيمة نسبية - نستخدمها مباشرة كتقريب
-          heading = event.alpha % 360;
+          heading = (360 - event.alpha) % 360;
         }
       }
 
       if (heading === null) return;
-      state.compassHeading = Math.round(heading);
+
+      // فلترة وتنعيم الزوايا لمنع الاهتزاز في المتصفح والآيفون
+      if (smoothedWebHeading < 0) {
+        smoothedWebHeading = heading;
+      } else {
+        const diff = (heading - smoothedWebHeading + 540) % 360 - 180;
+        if (Math.abs(diff) < 0.4) return;
+        smoothedWebHeading = (smoothedWebHeading + 0.18 * diff + 360) % 360;
+      }
+
+      state.compassHeading = Math.round(smoothedWebHeading);
       updateCompassNeedle();
     };
 
-    // استقبال درجات البوصلة مباشرة من هاردوير الأندرويد الأصلي (Android SensorManager)
+    // استقبال درجات البوصلة مباشرة من هاردوير الأندرويد الأصلي المفلتر
     window.onAndroidHeadingUpdate = (heading) => {
       if (state.compassMode !== "sensor") return;
       state.compassHeading = Math.round(heading);
