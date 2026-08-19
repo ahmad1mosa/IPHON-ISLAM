@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="192" height="192">
+  <defs>
+    <linearGradient id="bgGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07221d"/>
+      <stop offset="50%" stop-color="#0f3c34"/>
+      <stop offset="100%" stop-color="#081b17"/>
+    </linearGradient>
+    <linearGradient id="goldGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe28a"/>
+      <stop offset="50%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#aa820a"/>
+    </linearGradient>
+    <linearGradient id="glowGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#047857" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad192)"/>
+  <circle cx="256" cy="256" r="200" fill="url(#glowGrad192)"/>
+
+  <!-- Crescent Moon & Star -->
+  <path d="M 275 140 A 70 70 0 1 0 350 250 A 85 85 0 1 1 275 140 Z" fill="url(#goldGrad192)"/>
+  <polygon points="345,160 352,175 368,175 355,185 360,200 345,190 330,200 335,185 322,175 338,175" fill="url(#goldGrad192)"/>
+
+  <text x="256" y="425" text-anchor="middle" font-family="'Cairo', 'Tajawal', sans-serif" font-weight="900" font-size="56" fill="url(#goldGrad192)">gsاسلم</text>
+</svg>

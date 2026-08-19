@@ -1,0 +1,447 @@
+/* ==============================================================
+   تنسيقات بوصلة القبلة الاحترافية بطراز Apple iOS - تطبيق GS إسلام
+   ============================================================== */
+
+/* بطاقة بوصلة القبلة iOS Style */
+.compass-card {
+  padding: 16px 12px;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  margin-bottom: 14px;
+  position: relative;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.ios-compass-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 6px;
+}
+
+.compass-heading-large {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.compass-deg-val {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.compass-dir-label {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-gold);
+}
+
+/* قرص بوصلة الآيفون الدائري 3D */
+.ios-compass-stage {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  margin: 12px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  direction: ltr; /* منع RTL من عكس محاور التحويل */
+}
+
+/* مؤشر قمة البوصلة الثابت (الهاتف) */
+.ios-compass-fixed-top-marker {
+  position: absolute;
+  top: -4px;
+  left: calc(50% - 2px);
+  width: 4px;
+  height: 14px;
+  background: #ef4444;
+  border-radius: 2px;
+  z-index: 20;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+}
+
+/* قرص البوصلة الدوار */
+.ios-compass-dial-disc {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #0a2520 0%, #051510 70%, #000000 100%);
+  border: 3px solid rgba(212, 175, 55, 0.5);
+  box-shadow:
+    0 0 25px rgba(0, 0, 0, 0.8),
+    inset 0 0 30px rgba(0, 0, 0, 0.9),
+    inset 0 0 8px rgba(16, 185, 129, 0.05);
+  transition: transform 0.12s ease-out;
+  overflow: hidden;
+}
+
+/* خطوط وأرقام درجات البوصلة (SVG) */
+.compass-ticks-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* علامات الاتجاهات N, E, S, W */
+.compass-cardinal {
+  position: absolute;
+  font-size: 0.95rem;
+  font-weight: 900;
+  z-index: 5;
+}
+
+.cardinal-n {
+  top: 10px;
+  left: calc(50% - 7px);
+  color: #ef4444;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+}
+
+.cardinal-s {
+  bottom: 10px;
+  left: calc(50% - 5px);
+  color: #ffffff;
+}
+
+.cardinal-e {
+  right: 10px;
+  top: calc(50% - 10px);
+  color: #ffffff;
+}
+
+.cardinal-w {
+  left: 10px;
+  top: calc(50% - 10px);
+  color: #ffffff;
+}
+
+/* رأس سهم القبلة ومكة المكرمة - طبقة فوق القرص (لا تدور) */
+.qibla-pointer-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.qibla-needle-stem {
+  position: absolute;
+  top: 8px;
+  left: calc(50% - 16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 16px 117px;
+}
+
+.qibla-mecca-badge {
+  background: radial-gradient(circle, #ffe28a 0%, #d4af37 70%, #9e7a08 100%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.9), 0 2px 6px rgba(0,0,0,0.6);
+  border: 1.5px solid #ffffff;
+  animation: meccaGlow 2s infinite alternate;
+}
+
+@keyframes meccaGlow {
+  0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
+  100% { transform: scale(1.1); box-shadow: 0 0 22px rgba(255, 215, 0, 1); }
+}
+
+.qibla-mecca-badge span {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.qibla-arrow-head {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 28px solid #10b981;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.9));
+  margin-top: 2px;
+}
+
+/* نقطة المركز وتقاطع الآيفون (Level Crosshairs) */
+.ios-compass-center {
+  position: absolute;
+  top: calc(50% - 16px);
+  left: calc(50% - 16px);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1.5px solid var(--gold-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15;
+}
+
+.ios-compass-cross-h {
+  position: absolute;
+  width: 14px;
+  height: 2px;
+  background: var(--gold-primary);
+}
+
+.ios-compass-cross-v {
+  position: absolute;
+  width: 2px;
+  height: 14px;
+  background: var(--gold-primary);
+}
+
+.qibla-info-footer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.qibla-degree-badge {
+  background: var(--bg-secondary);
+  border: 1px solid var(--gold-primary);
+  color: var(--text-gold);
+  padding: 5px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+/* بطاقات مواقيت الصلاة */
+.prayer-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.prayer-card.next-active {
+  border-color: var(--gold-primary);
+  background: rgba(212, 175, 55, 0.12);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.2);
+}
+
+.prayer-icon {
+  font-size: 1.4rem;
+}
+
+.prayer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.prayer-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.prayer-time {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.prayer-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* بطاقة العد التنازلي للصلاة القادمة */
+.hero-countdown-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(212, 175, 55, 0.12) 100%);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px 14px;
+  text-align: center;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.next-prayer-tag {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.next-prayer-tag strong {
+  color: var(--text-gold);
+  font-weight: 800;
+}
+
+.countdown-timer-display {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+  line-height: 1.1;
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+.countdown-subtext {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* شريط الموقع */
+.location-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.location-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.86rem;
+  color: var(--text-main);
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.loc-pin {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.btn-gps {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  color: #ffffff;
+  border-radius: var(--radius-full);
+  padding: 7px 14px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-gps:active {
+  transform: scale(0.95);
+}
+
+/* سلايد مواقيت الصلاة */
+.prayer-accordion-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.prayer-accordion-card.open {
+  border-color: var(--gold-primary);
+}
+
+.prayer-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 16px;
+  cursor: pointer;
+  background: var(--bg-secondary);
+  transition: background 0.2s ease;
+}
+
+.prayer-accordion-header:hover {
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.prayer-acc-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-gold);
+}
+
+.prayer-accordion-chevron {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+}
+
+.prayer-accordion-card.open .prayer-accordion-chevron {
+  transform: rotate(180deg);
+  color: var(--gold-primary);
+}
+
+.prayer-accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 12px;
+  transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.35s ease;
+  opacity: 0;
+}
+
+.prayer-accordion-card.open .prayer-accordion-body {
+  max-height: 600px;
+  opacity: 1;
+  padding: 12px;
+}
+
+/* section-card عام */
+.section-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-gold);
+  margin-bottom: 12px;
+}

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>GS إسلام - القرآن الكريم، الأذكار والمواقيت</title>
+
+  <!-- PWA & Mobile Web App Settings -->
+  <link rel="manifest" href="manifest.json?v=2.4.1">
+  <meta name="theme-color" content="#061915">
+  
+  <!-- Apple iOS Safari Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GS إسلام">
+  <link rel="apple-touch-icon" href="icons/icon-512.png">
+  <link rel="icon" type="image/png" href="icons/icon-512.png">
+
+  <!-- Application Stylesheets -->
+  <link rel="stylesheet" href="css/style.css?v=2.5.0">
+  <link rel="stylesheet" href="css/prayer.css?v=2.5.0">
+  <link rel="stylesheet" href="css/tasbeeh.css?v=2.5.0">
+  <link rel="stylesheet" href="css/quran.css?v=2.5.0">
+  <link rel="stylesheet" href="css/adhkar.css?v=2.5.0">
+</head>
+<body>
+
+  <!-- ==================== الترويسة العلوية الاحترافية ==================== -->
+  <header class="app-header">
+    <div class="header-top-row">
+      <div class="brand-section">
+        <img src="icons/icon-512.png" alt="GS Logo" class="brand-logo">
+        <h1 class="brand-title" data-i18n="appName">GS إسلام</h1>
+      </div>
+
+      <div class="header-controls">
+        <!-- مبدل اللغة السريع -->
+        <select class="header-lang-picker" id="header-lang-select" title="Change Language / تغيير اللغة">
+          <option value="ar">🇵🇸 العربية</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="tr">🇹🇷 Türkçe</option>
+          <option value="ur">🇵🇰 اردو</option>
+          <option value="id">🇮🇩 Bahasa</option>
+        </select>
+
+        <button class="icon-btn" id="theme-toggle-btn" title="تبديل المظهر">☀️</button>
+      </div>
+    </div>
+
+    <!-- شريط التاريخ الهجري والميلادي المنسق -->
+    <div class="header-date-strip">
+      <span class="header-hijri" id="header-hijri-date">🕌 التاريخ الهجري</span>
+      <span class="date-separator">•</span>
+      <span class="header-greg" id="header-greg-date">التاريخ الميلادي</span>
+    </div>
+  </header>
+
+  <!-- ==================== الحاوية الرئيسية للهاتف ==================== -->
+  <main class="main-content">
+
+    <!-- ==================== 1. تبويب مواقيت الصلاة والبوصلة ==================== -->
+    <section class="tab-pane active" id="tab-prayer">
+      
+      <!-- بطاقة الصلاة القادمة والعد التنازلي المباشر -->
+      <div class="hero-countdown-card">
+        <div class="next-prayer-tag">
+          <span>⏳</span> <span data-i18n="nextPrayer">الصلاة القادمة</span>: <strong id="next-prayer-name">الفجر</strong>
+        </div>
+        <div class="countdown-timer-display" id="next-prayer-countdown">00:00:00</div>
+        <div class="countdown-subtext" data-i18n="remainingTime">الوقت المتبقي لرفع الأذان المبارك</div>
+      </div>
+
+      <!-- شريط الموقع الحالي والـ GPS -->
+      <div class="location-bar">
+        <div class="location-info">
+          <span class="loc-pin">📍</span>
+          <span id="current-location-name">القدس الشريف (فلسطين)</span>
+        </div>
+        <button class="btn-gps" id="btn-detect-location" title="تحديد الموقع عبر GPS">
+          <span>🎯</span> <span class="gps-btn-text" data-i18n="detectLocation">تحديد موقعي</span>
+        </button>
+      </div>
+
+      <!-- سلايد مواقيت الصلاة اليومية (Accordion Slide) -->
+      <div class="prayer-accordion-card open" id="prayer-times-accordion">
+        <div class="prayer-accordion-header" id="prayer-accordion-header">
+          <div class="prayer-acc-title-wrap">
+            <span>🕌</span>
+            <span data-i18n="prayerTimesTitle">مواقيت الصلاة اليومية</span>
+          </div>
+          <span class="prayer-accordion-chevron">▼</span>
+        </div>
+        <div class="prayer-accordion-body">
+          <div class="prayer-grid" id="prayer-times-grid">
+            <!-- يتم توليد البطاقات برمجياً -->
+          </div>
+        </div>
+      </div>
+
+      <!-- بوصلة القبلة بطراز آيفون الاحترافية -->
+      <div class="section-card compass-card">
+        <div class="ios-compass-header-row">
+          <div>
+            <span>🧭</span> <span data-i18n="qiblaDirection">اتجاه القبلة المشرفة</span>
+          </div>
+          <button class="btn-gps" id="btn-toggle-compass-mode" style="padding: 3px 8px; font-size: 0.72rem;">
+            🔄 وضع الحساس
+          </button>
+        </div>
+
+        <!-- رقم الدرجة الكبير -->
+        <div class="compass-heading-large">
+          <span class="compass-deg-val" id="compass-deg-display">0</span>
+          <span class="compass-dir-label" id="compass-dir-display">°N</span>
+        </div>
+
+        <!-- قرص البوصلة الدائري -->
+        <div class="ios-compass-stage">
+          <!-- المؤشر الثابت في القمة -->
+          <div class="ios-compass-fixed-top-marker"></div>
+
+          <!-- قرص البوصلة الدوار -->
+          <div class="ios-compass-dial-disc" id="compass-dial-disc">
+            <!-- خطوط الدرجات SVG -->
+            <svg class="compass-ticks-svg" viewBox="0 0 250 250">
+              <!-- خطوط الدرجات الرئيسية -->
+              <g id="compass-major-ticks"></g>
+              <!-- خطوط الدرجات الثانوية -->
+              <g id="compass-minor-ticks"></g>
+              <!-- أرقام الدرجات -->
+              <g id="compass-degree-labels"></g>
+            </svg>
+            <!-- حروف الاتجاهات -->
+            <span class="compass-cardinal cardinal-n">N</span>
+            <span class="compass-cardinal cardinal-s">S</span>
+            <span class="compass-cardinal cardinal-e">E</span>
+            <span class="compass-cardinal cardinal-w">W</span>
+          </div>
+
+          <!-- طبقة سهم القبلة (لا تدور) -->
+          <div class="qibla-pointer-layer" id="qibla-pointer-layer">
+            <div class="qibla-needle-stem" id="qibla-needle-stem">
+              <!-- صورة مكة المكرمة / الكعبة -->
+              <div class="qibla-mecca-badge">
+                <span>🕋</span>
+              </div>
+              <!-- رأس سهم القبلة -->
+              <div class="qibla-arrow-head"></div>
+            </div>
+          </div>
+
+          <!-- نقطة المركز -->
+          <div class="ios-compass-center">
+            <div class="ios-compass-cross-h"></div>
+            <div class="ios-compass-cross-v"></div>
+          </div>
+        </div>
+
+        <div class="qibla-info-footer">
+          <div class="qibla-degree-badge" id="qibla-degree-text">جاري حساب الزاوية...</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== 2. تبويب القرآن الكريم ==================== -->
+    <section class="tab-pane" id="tab-quran">
+      
+      <!-- بطاقة استئناف آخر قراءة (Last Read Resume Banner) -->
+      <div class="last-read-card" id="quran-last-read-card" style="display: none;">
+        <div class="last-read-left">
+          <div class="last-read-icon">📖</div>
+          <div>
+            <div class="last-read-tag" data-i18n="lastRead">🔖 آخر ما قرأت:</div>
+            <div class="last-read-surah" id="last-read-surah-title">سورة الفاتحة • الآية 1</div>
+          </div>
+        </div>
+        <button class="last-read-btn" data-i18n="resumeReading">استئناف ↗</button>
+      </div>
+
+      <!-- شريط البحث السريع في السور -->
+      <div class="quran-search-bar">
+        <div class="search-input-wrapper">
+          <span class="search-icon-inside">🔍</span>
+          <input type="text" id="quran-search-input" data-i18n-placeholder="searchSurah" placeholder="ابحث عن اسم السورة أو رقمها...">
+        </div>
+      </div>
+
+      <!-- قائمة سور القرآن الـ 114 -->
+      <div class="surahs-grid" id="quran-surahs-list">
+        <!-- يتم ملؤها برمجياً -->
+      </div>
+
+    </section>
+
+    <!-- ==================== 3. تبويب المسبحة الإلكترونية مع الدائرة المزدوجة ==================== -->
+    <section class="tab-pane" id="tab-tasbeeh">
+      
+      <div class="tasbeeh-container">
+        
+        <!-- بطاقة الذكر النشط واختياره -->
+        <div class="active-dhikr-card">
+          <div class="active-dhikr-title" id="tasbeeh-active-dhikr">سُبْحَانَ اللَّهِ</div>
+          <div class="dhikr-select-row">
+            <select class="custom-select" id="tasbeeh-dhikr-select">
+              <!-- أذكار المسبحة -->
+            </select>
+          </div>
+        </div>
+
+        <!-- شريط الإحصائيات والأهداف -->
+        <div class="tasbeeh-stats-bar">
+          <div class="stat-pill" id="tasbeeh-round-display">الدورات: 0</div>
+          <div class="stat-pill" id="tasbeeh-target-display">الهدف: 33</div>
+        </div>
+
+        <!-- عداد المسبحة المزدوج (دائرة كبيرة للعد + دائرة صغيرة لعدد الدورات) -->
+        <div class="tasbeeh-dual-wheels-wrapper">
+          
+          <!-- الدائرة الكبيرة للعد النشط -->
+          <div class="tasbeeh-main-wheel">
+            <svg class="tasbeeh-svg-ring" viewBox="0 0 240 240">
+              <defs>
+                <linearGradient id="goldGradientStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffe28a"/>
+                  <stop offset="50%" stop-color="#d4af37"/>
+                  <stop offset="100%" stop-color="#9e7a08"/>
+                </linearGradient>
+              </defs>
+              <circle class="progress-track" cx="120" cy="120" r="110"></circle>
+              <circle class="progress-fill" id="tasbeeh-progress-bar" cx="120" cy="120" r="110"></circle>
+            </svg>
+
+            <button class="tasbeeh-tap-btn" id="tasbeeh-tap-btn">
+              <span class="tap-count-number" id="tasbeeh-count-display">0</span>
+              <span class="tap-label" data-i18n="tapToCount">انقر للتسبيح</span>
+            </button>
+          </div>
+
+          <!-- الدائرة الصغيرة بجانب الدائرة الكبيرة لعدد الدورات المكتملة -->
+          <div class="tasbeeh-rounds-mini-circle" id="tasbeeh-mini-circle" title="عدد الدورات المكتملة">
+            <div class="mini-circle-inner">
+              <span class="mini-rounds-num" id="tasbeeh-mini-rounds-count">0</span>
+              <span class="mini-rounds-label" data-i18n="roundsSingle">دورة</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- أزرار التحكم في المسبحة -->
+        <div class="tasbeeh-controls-row">
+          <button class="tasbeeh-control-btn" id="tasbeeh-sound-btn" title="صوت النقر">🔊</button>
+          <button class="tasbeeh-control-btn" id="tasbeeh-vibrate-btn" title="الاهتزاز اللمسي">📳</button>
+          
+          <select class="custom-select" id="tasbeeh-target-select" style="width: auto; padding: 8px 12px;">
+            <option value="33">33</option>
+            <option value="99">99</option>
+            <option value="100">100</option>
+            <option value="1000">1000</option>
+            <option value="0">∞</option>
+          </select>
+
+          <button class="tasbeeh-control-btn" id="tasbeeh-reset-btn" title="تصفير">🔄</button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== 4. تبويب أذكار المسلم (سلايدات مغلقة) ==================== -->
+    <section class="tab-pane" id="tab-adhkar">
+      
+      <!-- قائمة سلايدات أقسام الأذكار المغلقة -->
+      <div class="adhkar-accordion-list" id="adhkar-accordion-container">
+        <!-- يتم ملء سلايدات الأذكار برمجياً -->
+      </div>
+
+    </section>
+
+    <!-- ==================== 5. تبويب الإعدادات (سلايدات مغلقة) ==================== -->
+    <section class="tab-pane" id="tab-settings">
+      
+      <div class="settings-accordion-list">
+
+        <!-- 1. سلايد اللغة -->
+        <div class="settings-accordion" id="accordion-lang">
+          <div class="accordion-header">
+            <div class="accordion-title-wrap">
+              <span class="accordion-icon">🌐</span>
+              <span class="accordion-title" data-i18n="language">اللغة (Language)</span>
+            </div>
+            <span class="accordion-chevron">▼</span>
+          </div>
+          <div class="accordion-body">
+            <div class="form-group">
+              <label class="form-label" data-i18n="selectLanguage">اختر لغة التطبيق:</label>
+              <select class="custom-select" id="settings-lang-select">
+                <option value="ar">🇵🇸 العربية (فلسطين والعالم العربي)</option>
+                <option value="en">🇬🇧 English (الإنجليزية)</option>
+                <option value="fr">🇫🇷 Français (الفرنسية)</option>
+                <option value="tr">🇹🇷 Türkçe (التركية)</option>
+                <option value="ur">🇵🇰 اردو (الأردية)</option>
+                <option value="id">🇮🇩 Bahasa Indonesia (الإندونيسية)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. سلايد مواقيت الصلاة -->
+        <div class="settings-accordion" id="accordion-prayer">
+          <div class="accordion-header">
+            <div class="accordion-title-wrap">
+              <span class="accordion-icon">🕌</span>
+              <span class="accordion-title" data-i18n="settingsPrayer">إعدادات مواقيت الصلاة</span>
+            </div>
+            <span class="accordion-chevron">▼</span>
+          </div>
+          <div class="accordion-body">
+            <div class="form-group">
+              <label class="form-label" data-i18n="defaultCity">المدينة الافتراضية:</label>
+              <select class="custom-select" id="city-select-input">
+                <!-- قائمة المدن -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="calcMethod">طريقة حساب المواقيت الفلكية:</label>
+              <select class="custom-select" id="calc-method-select">
+                <!-- طرق الحساب -->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. سلايد التنبيهات والإشعارات -->
+        <div class="settings-accordion" id="accordion-notifications">
+          <div class="accordion-header">
+            <div class="accordion-title-wrap">
+              <span class="accordion-icon">🔔</span>
+              <span class="accordion-title" data-i18n="notificationsTitle">التنبيهات والإشعارات</span>
+            </div>
+            <span class="accordion-chevron">▼</span>
+          </div>
+          <div class="accordion-body">
+            <div class="toggle-switch">
+              <span data-i18n="enableNotifications">تفعيل إشعارات الأذان والأذكار</span>
+              <input type="checkbox" class="switch-input" id="notifications-toggle">
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. سلايد معلومات الاتصال والمجتمع -->
+        <div class="settings-accordion" id="accordion-contact">
+          <div class="accordion-header">
+            <div class="accordion-title-wrap">
+              <span class="accordion-icon">💬</span>
+              <span class="accordion-title" data-i18n="contactInfo">معلومات الاتصال والمجتمع</span>
+            </div>
+            <span class="accordion-chevron">▼</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;" data-i18n="contactDesc">
+              انضم إلى مجتمعنا وتابع جديد التطبيق والتواصل عبر المنصة التالية:
+            </p>
+            <div class="contact-channels-grid">
+              <!-- فيسبوك -->
+              <div class="social-card facebook-card">
+                <div class="social-card-header">
+                  <div class="social-icon-box fb-icon">
+                    <span>f</span>
+                  </div>
+                  <div class="social-card-info">
+                    <div class="social-card-title" data-i18n="facebookTitle">مجموعة الفيسبوك الرسمية</div>
+                    <div class="social-card-sub" data-i18n="facebookSub">goldensens</div>
+                  </div>
+                </div>
+                <a href="https://www.facebook.com/groups/goldensens" target="_blank" rel="noopener noreferrer" class="social-btn facebook-btn" data-i18n="joinFacebook">
+                  الانضمام للمجموعة ↗
+                </a>
+              </div>
+
+              <!-- يوتيوب -->
+              <div class="social-card youtube-card">
+                <div class="social-card-header">
+                  <div class="social-icon-box yt-icon">
+                    <span>▶</span>
+                  </div>
+                  <div class="social-card-info">
+                    <div class="social-card-title">قناتنا على يوتيوب</div>
+                    <div class="social-card-sub">@GoldenSensitivity</div>
+                  </div>
+                </div>
+                <a href="https://www.youtube.com/@GoldenSensitivity" target="_blank" rel="noopener noreferrer" class="social-btn youtube-btn">
+                  زيارة القناة ↗
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. سلايد حول التطبيق وحقوق الملكية والتراخيص لشركة Golden Sens -->
+        <div class="settings-accordion" id="accordion-about">
+          <div class="accordion-header">
+            <div class="accordion-title-wrap">
+              <span class="accordion-icon">📜</span>
+              <span class="accordion-title" data-i18n="aboutApp">حول تطبيق GS إسلام والتراخيص</span>
+            </div>
+            <span class="accordion-chevron">▼</span>
+          </div>
+          <div class="accordion-body">
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
+              <img src="icons/icon-512.png" alt="GS Logo" style="width: 58px; height: 58px; border-radius: 14px; border: 1.5px solid var(--gold-primary); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); object-fit: cover;">
+              <div>
+                <h3 style="color: var(--text-gold); font-size: 1.15rem; font-weight: 800;">GS إسلام (GS ISLAM)</h3>
+                <span style="font-size: 0.82rem; color: var(--emerald-primary); font-weight: 700;">شركة Golden Sens المحدودة 🏢</span>
+              </div>
+            </div>
+
+            <!-- بطاقة حقوق الملكية والترخيص لشركة Golden Sens -->
+            <div class="license-info-box" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--gold-primary); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px;">
+              <div style="font-size: 0.86rem; font-weight: 800; color: var(--text-gold); margin-bottom: 4px;">
+                © حقوق الملكية والتراخيص (Copyright & Licenses)
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-main); line-height: 1.6;" data-i18n="rightsReserved">
+                جميع حقوق الملكية الفكرية والتراخيص والتطوير تعود حصرياً لـ <strong>شركة Golden Sens</strong>.
+              </p>
+              <div style="margin-top: 6px; font-size: 0.75rem; color: var(--text-muted);" data-i18n="developedBy">
+                تطوير وإشراف: شركة Golden Sens
+              </div>
+            </div>
+
+            <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.7;" data-i18n="aboutText">
+              تطبيق <strong>GS إسلام</strong> هو تطبيق إسلامي شامل ومجاني تم تصميمه ليكون رفيقك اليومي في الذكر وتلاوة القرآن الكريم ومعرفة أوقات الصلاة. يدعم العمل دون اتصال بالإنترنت بالكامل ومتوافق مع أجهزة الآيفون والأندرويد.
+            </p>
+            <div style="margin-top: 10px; font-size: 0.78rem; color: var(--text-gold);">
+              الإصدار 2.4.1 • ملكية وتراخيص شركة Golden Sens
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==================== نافذة قراءة السورة الكريمة ==================== -->
+  <div class="quran-reader-modal" id="quran-reader-modal">
+    
+    <!-- الترويسة مع زر الرجوع السلس -->
+    <div class="reader-header-bar">
+      <button class="reader-back-btn" id="btn-reader-back" title="رجوع لقائمة السور">
+        <span>←</span> <span>رجوع</span>
+      </button>
+      <div class="reader-title-area" id="reader-surah-title">سورة الفاتحة</div>
+      <button class="close-modal-btn" id="close-quran-reader-btn" title="إغلاق">&times;</button>
+    </div>
+
+    <!-- شريط القارئ والصوتيات -->
+    <div class="reader-controls-bar">
+      <div style="flex: 1; max-width: 240px;">
+        <select class="custom-select" id="quran-reciter-select" style="padding: 5px 8px; font-size: 0.8rem;">
+          <!-- قائمة القراء -->
+        </select>
+      </div>
+
+      <button class="icon-btn" id="quran-play-btn" title="تشغيل التلاوة">
+        <span id="quran-play-icon">▶️</span>
+      </button>
+
+      <button class="btn-gps" id="quran-bookmark-btn" style="padding: 5px 10px; font-size: 0.76rem;">
+        📌 حفظ العلامة
+      </button>
+    </div>
+
+    <!-- شريط التكبير والتصغير السهل للآيات (Easy Zoom Toolbar) -->
+    <div class="font-zoom-bar">
+      <span class="font-zoom-label">🔍 حجم الخط:</span>
+
+      <div class="font-zoom-presets">
+        <button class="font-preset-btn" data-size="22">صغير</button>
+        <button class="font-preset-btn" data-size="28">متوسط</button>
+        <button class="font-preset-btn" data-size="34">كبير</button>
+        <button class="font-preset-btn" data-size="42">ضخم</button>
+      </div>
+
+      <div class="font-zoom-slider-wrapper">
+        <button class="icon-btn" id="quran-font-decrease" style="width: 26px; height: 26px; font-size: 0.75rem;" title="تصغير">أ-</button>
+        <input type="range" class="font-slider" id="quran-font-slider" min="18" max="46" step="2" value="28">
+        <button class="icon-btn" id="quran-font-increase" style="width: 26px; height: 26px; font-size: 0.75rem;" title="تكبير">أ+</button>
+      </div>
+
+      <span class="font-size-val" id="quran-font-size-display">28px</span>
+    </div>
+
+    <!-- المحتوى القرآني للآيات -->
+    <div class="reader-scroll-content" id="quran-surah-content">
+      <!-- نص السورة الكريمة -->
+    </div>
+  </div>
+
+  <!-- ==================== تبويب من أعمالنا ==================== -->
+  <section class="tab-pane" id="tab-ourworks">
+    <div class="ourworks-header">
+      <div class="ourworks-title">🌟 من أعمالنا</div>
+      <div class="ourworks-subtitle">تطبيقات شركة Golden Sens للتقنية</div>
+    </div>
+
+    <div class="ourworks-grid">
+      <!-- GS MAGNOLITE - مجاني -->
+      <div class="app-work-card free-card">
+        <div class="app-work-icon-wrap">
+          <div class="app-work-badge free-badge">مجاني ✓</div>
+          <div class="app-work-icon-circle">
+            <span style="font-size:2rem;">🔦</span>
+          </div>
+        </div>
+        <div class="app-work-info">
+          <div class="app-work-name">GS MAGNOLITE</div>
+          <div class="app-work-desc">تطبيق الكشف المغناطيسي المجاني</div>
+          <div class="app-work-dev">Golden Sens • Android</div>
+        </div>
+        <a href="https://play.google.com/store/apps/details?id=com.gs.magnova.gs_magnova" target="_blank" rel="noopener noreferrer" class="app-store-btn free-btn" id="btn-magnolite">
+          <span>📥</span> تحميل مجاني
+        </a>
+      </div>
+
+      <!-- GS MAGNOL - مدفوع -->
+      <div class="app-work-card paid-card">
+        <div class="app-work-icon-wrap">
+          <div class="app-work-badge paid-badge">احترافي ⭐</div>
+          <div class="app-work-icon-circle" style="background: linear-gradient(135deg, #d4af37, #9e7a08);">
+            <span style="font-size:2rem;">🧲</span>
+          </div>
+        </div>
+        <div class="app-work-info">
+          <div class="app-work-name">GS MAGNOVA</div>
+          <div class="app-work-desc">تطبيق الكشف المغناطيسي الاحترافي</div>
+          <div class="app-work-dev">Golden Sens • Android</div>
+        </div>
+        <a href="https://play.google.com/store/apps/details?id=com.gs.magnova.gs_magnova" target="_blank" rel="noopener noreferrer" class="app-store-btn paid-btn" id="btn-magnol">
+          <span>⭐</span> الإصدار الاحترافي
+        </a>
+      </div>
+    </div>
+
+    <!-- قسم تطبيقات إضافية -->
+    <div class="ourworks-footer-note">
+      <span>🏢</span> جميع التطبيقات من تطوير شركة Golden Sens
+    </div>
+  </section>
+
+  <!-- ==================== شريط التنقل السفلي ==================== -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-btn-prayer" data-tab="prayer">
+      <span class="nav-icon">🕌</span>
+      <span class="nav-label" data-i18n="prayerTab">المواقيت</span>
+    </button>
+    
+    <button class="nav-item" id="nav-btn-quran" data-tab="quran">
+      <span class="nav-icon">📖</span>
+      <span class="nav-label" data-i18n="quranTab">القرآن</span>
+    </button>
+
+    <button class="nav-item" id="nav-btn-tasbeeh" data-tab="tasbeeh">
+      <span class="nav-icon">📿</span>
+      <span class="nav-label" data-i18n="tasbeehTab">المسبحة</span>
+    </button>
+
+    <button class="nav-item" id="nav-btn-adhkar" data-tab="adhkar">
+      <span class="nav-icon">🤲</span>
+      <span class="nav-label" data-i18n="adhkarTab">الأذكار</span>
+    </button>
+
+    <button class="nav-item" id="nav-btn-ourworks" data-tab="ourworks">
+      <span class="nav-icon">🌟</span>
+      <span class="nav-label">أعمالنا</span>
+    </button>
+
+    <button class="nav-item" id="nav-btn-settings" data-tab="settings">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label" data-i18n="settingsTab">الإعدادات</span>
+    </button>
+  </nav>
+
+  <!-- ==================== البرمجيات والسكربتات ==================== -->
+  <script src="js/i18n.js?v=2.5.0"></script>
+  <script src="js/adhkar-data.js?v=2.5.0"></script>
+  <script src="js/surah-data.js?v=2.5.0"></script>
+  <script src="js/prayer-calc.js?v=2.5.0"></script>
+  <script src="js/tasbeeh.js?v=2.5.0"></script>
+  <script src="js/quran.js?v=2.5.0"></script>
+  <script src="js/adhkar.js?v=2.5.0"></script>
+  <script src="js/app.js?v=2.5.0"></script>
+
+  <!-- تسجيل الـ Service Worker لتمكين الأوفلاين -->
+  <script>
+    // مسح الكاش القديم فوراً عند تغيير الإصدار
+    const APP_CACHE_VER = '2.5.0';
+    if (localStorage.getItem('gs_cache_ver') !== APP_CACHE_VER) {
+      localStorage.setItem('gs_cache_ver', APP_CACHE_VER);
+      if ('caches' in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js?v=2.5.0')
+          .then(reg => {
+            reg.update();
+            console.log('Service Worker v2.5.0 Registered & Updated!');
+          })
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>

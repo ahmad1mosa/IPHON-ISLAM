@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.GSIslam" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor">#061915</item>
+        <item name="android:navigationBarColor">#061915</item>
+        <item name="android:windowBackground">#061915</item>
+    </style>
+</resources>
