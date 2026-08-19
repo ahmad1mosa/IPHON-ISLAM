@@ -784,10 +784,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
-        if (confirm(i18n.t("confirmReset"))) {
-          tasbeeh.reset(true);
-          prevRounds = 0;
-          updateUI();
+        tasbeeh.reset(true);
+        prevRounds = 0;
+        updateUI();
+        if (resetBtn) {
+          const origText = resetBtn.textContent;
+          resetBtn.textContent = "✓ تم التصفير";
+          setTimeout(() => { resetBtn.textContent = origText; }, 1200);
         }
       });
     }
@@ -1072,7 +1075,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const surahMeta = SURAH_LIST.find(s => s.number === quran.currentSurah);
         const name = surahMeta ? surahMeta.name : `سورة ${quran.currentSurah}`;
         quran.toggleBookmark(quran.currentSurah, name, quran.currentAyah);
-        alert(`تم حفظ العلامة المرجعية: ${name} - الآية ${quran.currentAyah} 📌`);
+        const origText = bookmarkBtn.innerHTML;
+        bookmarkBtn.innerHTML = `✓ تم الحفظ`;
+        setTimeout(() => { bookmarkBtn.innerHTML = origText; }, 1500);
       });
     }
 
@@ -1172,11 +1177,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (resetBtn) {
           resetBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            if (confirm(i18n.t("confirmResetCategory"))) {
-              adhkar.resetCategory(cat.id);
-              updateCategoryProgressUI(cat.id);
-              renderCategoryCards(cat.id);
-            }
+            adhkar.resetCategory(cat.id);
+            updateCategoryProgressUI(cat.id);
+            renderCategoryCards(cat.id);
           });
         }
 
