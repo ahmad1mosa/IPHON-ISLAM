@@ -1,7 +1,9 @@
-// محرك تصفح وقراءة وسماع القرآن الكريم - تطبيق GS إسلام
+// محرك تصفح وقراءة وسماع القرآن الكريم المتزامن مع الآيات - تطبيق GS إسلام
 class QuranManager {
   constructor() {
     this.currentSurah = 1;
+    this.currentAyah = 1;
+    this.totalAyahsInSurah = 7;
     this.currentReciter = "ar.alafasy";
     this.fontSize = 28; // px
     this.audioPlayer = new Audio();
@@ -69,6 +71,7 @@ class QuranManager {
     this.audioPlayer.addEventListener("play", () => {
       this.isPlaying = true;
       this.updateAudioUI();
+      this.highlightActiveAyah(this.currentAyah);
     });
 
     this.audioPlayer.addEventListener("pause", () => {
@@ -77,8 +80,14 @@ class QuranManager {
     });
 
     this.audioPlayer.addEventListener("ended", () => {
-      this.isPlaying = false;
-      this.updateAudioUI();
+      // الانتقال التلقائي للآية التالية بسلاسة وتظليلها
+      if (this.currentAyah < this.totalAyahsInSurah) {
+        this.playAyah(this.currentSurah, this.currentAyah + 1);
+      } else {
+        this.isPlaying = false;
+        this.updateAudioUI();
+        this.removeAyahHighlight();
+      }
     });
 
     this.audioPlayer.addEventListener("error", (e) => {
@@ -94,47 +103,48 @@ class QuranManager {
     this.currentSurah = surahNumber;
     this.saveSettings();
 
+    const surahMeta = SURAH_LIST.find(s => s.number === surahNumber);
+    if (surahMeta) {
+      this.totalAyahsInSurah = surahMeta.numberOfAyahs;
+    }
+
     // 1. فحص الكاش الداخلي
     if (this.cachedSurahs[surahNumber]) {
       return this.cachedSurahs[surahNumber];
     }
 
-    // 2. فحص LocalStorage
+    // 2. فحص التخزين المحلي
     try {
-      const localStored = localStorage.getItem(`gs_surah_${surahNumber}`);
-      if (localStored) {
-        const parsed = JSON.parse(localStored);
+      const localData = localStorage.getItem(`gs_surah_${surahNumber}`);
+      if (localData) {
+        const parsed = JSON.parse(localData);
         this.cachedSurahs[surahNumber] = parsed;
         return parsed;
       }
     } catch (e) {}
 
-    // 3. فحص السور المدمجة مسبقاً (Offline)
-    if (window.OFFLINE_SURAHS && window.OFFLINE_SURAHS[surahNumber]) {
-      return window.OFFLINE_SURAHS[surahNumber];
-    }
-
-    // 4. جلب عبر شبكة الإنترنت العالمية
+    // 3. جلب من خادم القرآن الكريم السحابي (Al-Quran Cloud API)
     try {
-      const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/quran-uthmani`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.code === 200 && data.data) {
-          const surahData = {
-            number: data.data.number,
-            name: data.data.name,
-            englishName: data.data.englishName,
-            ayahs: data.data.ayahs.map(a => ({
-              number: a.number,
+      const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}`);
+      if (response.ok) {
+        const json = await response.json();
+        if (json.data && json.data.ayahs) {
+          const surahObj = {
+            number: json.data.number,
+            name: json.data.name,
+            englishName: json.data.englishName,
+            ayahs: json.data.ayahs.map(a => ({
               numberInSurah: a.numberInSurah,
-              text: a.text
+              text: a.text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim() || a.text
             }))
           };
-          this.cachedSurahs[surahNumber] = surahData;
+
+          this.cachedSurahs[surahNumber] = surahObj;
           try {
-            localStorage.setItem(`gs_surah_${surahNumber}`, JSON.stringify(surahData));
-          } catch (err) {}
-          return surahData;
+            localStorage.setItem(`gs_surah_${surahNumber}`, JSON.stringify(surahObj));
+          } catch (e) {}
+
+          return surahObj;
         }
       }
     } catch (e) {
@@ -142,7 +152,6 @@ class QuranManager {
     }
 
     // Fallback في حال تعذر الاتصال
-    const surahMeta = SURAH_LIST.find(s => s.number === surahNumber);
     return {
       number: surahNumber,
       name: surahMeta ? surahMeta.name : `سورة ${surahNumber}`,
@@ -153,38 +162,93 @@ class QuranManager {
     };
   }
 
-  // تشغيل تلاوة السورة
-  playSurahAudio(surahNumber, reciterId = null) {
-    if (reciterId) this.currentReciter = reciterId;
-    const numPadded = String(surahNumber).padStart(3, "0");
+  getReciterSubfolder(reciterId) {
+    switch (reciterId) {
+      case "ar.alafasy":
+        return "Alafasy_128kbps";
+      case "ar.abdulbasitmurattal":
+        return "Abdul_Basit_Murattal_192kbps";
+      case "ar.husary":
+        return "Husary_128kbps";
+      case "ar.minshawi":
+        return "Minshawy_Murattal_128kbps";
+      case "ar.mahermuaiqly":
+        return "MaherAlMuaiqly128kbps";
+      case "ar.abdurrahmaansudais":
+        return "Abdurrahmaan_As-Sudais_192kbps";
+      default:
+        return "Alafasy_128kbps";
+    }
+  }
 
-    let audioUrl = "";
-    if (this.currentReciter === "ar.alafasy") {
-      audioUrl = `https://server8.mp3quran.net/afs/${numPadded}.mp3`;
-    } else if (this.currentReciter === "ar.abdulbasitmurattal") {
-      audioUrl = `https://server7.mp3quran.net/basit/${numPadded}.mp3`;
-    } else if (this.currentReciter === "ar.husary") {
-      audioUrl = `https://server13.mp3quran.net/husr/${numPadded}.mp3`;
-    } else if (this.currentReciter === "ar.minshawi") {
-      audioUrl = `https://server10.mp3quran.net/minsh/${numPadded}.mp3`;
-    } else if (this.currentReciter === "ar.mahermuaiqly") {
-      audioUrl = `https://server12.mp3quran.net/maher/${numPadded}.mp3`;
-    } else if (this.currentReciter === "ar.abdurrahmaansudais") {
-      audioUrl = `https://server11.mp3quran.net/sds/${numPadded}.mp3`;
-    } else {
-      audioUrl = `https://server8.mp3quran.net/afs/${numPadded}.mp3`;
+  getAyahAudioUrl(surahNumber, ayahNumber) {
+    const sPadded = String(surahNumber).padStart(3, "0");
+    const aPadded = String(ayahNumber).padStart(3, "0");
+    const folder = this.getReciterSubfolder(this.currentReciter);
+    return `https://everyayah.com/data/${folder}/${sPadded}${aPadded}.mp3`;
+  }
+
+  // تلاوة آية محددة مع التظليل والتمرير اللحظي
+  playAyah(surahNumber, ayahNumber) {
+    surahNumber = parseInt(surahNumber, 10);
+    ayahNumber = parseInt(ayahNumber, 10);
+    this.currentSurah = surahNumber;
+    this.currentAyah = ayahNumber;
+
+    const surahMeta = SURAH_LIST.find(s => s.number === surahNumber);
+    if (surahMeta) {
+      this.totalAyahsInSurah = surahMeta.numberOfAyahs;
     }
 
-    if (this.audioPlayer.src === audioUrl && !this.audioPlayer.paused) {
-      this.audioPlayer.pause();
+    const audioUrl = this.getAyahAudioUrl(surahNumber, ayahNumber);
+    this.audioPlayer.src = audioUrl;
+    this.audioPlayer.play().catch(e => console.warn("Audio play prevented:", e));
+    this.highlightActiveAyah(ayahNumber);
+    this.setLastRead(surahNumber, surahMeta ? surahMeta.name : `سورة ${surahNumber}`, ayahNumber);
+  }
+
+  // تبديل التشغيل والإيقاف المؤقت
+  togglePlayPause(surahNumber, startAyah = 1) {
+    if (this.isPlaying) {
+      this.pauseAudio();
     } else {
-      this.audioPlayer.src = audioUrl;
-      this.audioPlayer.play().catch(e => console.warn("Audio play prevented:", e));
+      if (this.currentSurah === surahNumber && this.currentAyah) {
+        this.playAyah(surahNumber, this.currentAyah);
+      } else {
+        this.playAyah(surahNumber, startAyah);
+      }
+    }
+  }
+
+  nextAyah() {
+    if (this.currentAyah < this.totalAyahsInSurah) {
+      this.playAyah(this.currentSurah, this.currentAyah + 1);
+    }
+  }
+
+  prevAyah() {
+    if (this.currentAyah > 1) {
+      this.playAyah(this.currentSurah, this.currentAyah - 1);
     }
   }
 
   pauseAudio() {
     this.audioPlayer.pause();
+    this.isPlaying = false;
+    this.updateAudioUI();
+  }
+
+  highlightActiveAyah(ayahNumber) {
+    document.querySelectorAll(".ayah-text").forEach(el => el.classList.remove("active-reciting-ayah"));
+    const activeEl = document.getElementById(`ayah-${ayahNumber}`);
+    if (activeEl) {
+      activeEl.classList.add("active-reciting-ayah");
+      activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  removeAyahHighlight() {
+    document.querySelectorAll(".ayah-text").forEach(el => el.classList.remove("active-reciting-ayah"));
   }
 
   setFontSize(size) {

@@ -1000,10 +1000,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         ayahSpan.appendChild(numSymbol);
 
+        // النقر على أي آية يبدأ تلاوتها فوراً ويظللها باللون الذهبي
         ayahSpan.addEventListener("click", () => {
-          document.querySelectorAll(".ayah-text").forEach(el => el.classList.remove("highlight-read"));
-          ayahSpan.classList.add("highlight-read");
-          quran.setLastRead(surahNumber, surahData.name, a.numberInSurah);
+          quran.playAyah(surahNumber, a.numberInSurah);
         });
 
         contentEl.appendChild(ayahSpan);
@@ -1015,7 +1014,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const targetEl = document.getElementById(`ayah-${targetAyah}`);
         if (targetEl) {
           targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
-          targetEl.classList.add("highlight-read");
         }
       }, 200);
 
@@ -1039,12 +1037,38 @@ document.addEventListener("DOMContentLoaded", () => {
         readerModal.classList.remove("active");
         document.body.style.overflow = "";
         quran.pauseAudio();
+        quran.removeAyahHighlight();
         quran.updateLastReadBanner();
       }
     };
 
     if (closeReaderBtn) closeReaderBtn.addEventListener("click", window.closeQuranReader);
     if (backReaderBtn) backReaderBtn.addEventListener("click", window.closeQuranReader);
+
+    const prevAyahBtn = document.getElementById("quran-prev-ayah-btn");
+    const nextAyahBtn = document.getElementById("quran-next-ayah-btn");
+    const bookmarkBtn = document.getElementById("quran-bookmark-btn");
+
+    if (prevAyahBtn) {
+      prevAyahBtn.addEventListener("click", () => {
+        quran.prevAyah();
+      });
+    }
+
+    if (nextAyahBtn) {
+      nextAyahBtn.addEventListener("click", () => {
+        quran.nextAyah();
+      });
+    }
+
+    if (bookmarkBtn) {
+      bookmarkBtn.addEventListener("click", () => {
+        const surahMeta = SURAH_LIST.find(s => s.number === quran.currentSurah);
+        const name = surahMeta ? surahMeta.name : `سورة ${quran.currentSurah}`;
+        quran.toggleBookmark(quran.currentSurah, name, quran.currentAyah);
+        alert(`تم حفظ العلامة المرجعية: ${name} - الآية ${quran.currentAyah} 📌`);
+      });
+    }
 
     if (reciterSelect) {
       reciterSelect.innerHTML = `
@@ -1059,13 +1083,15 @@ document.addEventListener("DOMContentLoaded", () => {
       reciterSelect.addEventListener("change", (e) => {
         quran.currentReciter = e.target.value;
         quran.saveSettings();
-        if (quran.isPlaying) quran.playSurahAudio(quran.currentSurah, quran.currentReciter);
+        if (quran.isPlaying) {
+          quran.playAyah(quran.currentSurah, quran.currentAyah);
+        }
       });
     }
 
     if (playAudioBtn) {
       playAudioBtn.addEventListener("click", () => {
-        quran.playSurahAudio(quran.currentSurah, quran.currentReciter);
+        quran.togglePlayPause(quran.currentSurah, 1);
       });
     }
   }

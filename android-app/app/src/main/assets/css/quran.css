@@ -377,17 +377,34 @@
 .ayah-text {
   display: inline;
   position: relative;
-  transition: background-color 0.3s ease;
-  border-radius: 4px;
+  transition: all 0.25s ease;
+  border-radius: 6px;
+  padding: 1px 3px;
+  cursor: pointer;
 }
 
 .ayah-text:hover {
-  background-color: rgba(212, 175, 55, 0.08);
+  background-color: rgba(212, 175, 55, 0.15);
+}
+
+/* التظليل الذهبي المتوهج أثناء التلاوة الصوتية المتزامنة للآية الحالية */
+.ayah-text.active-reciting-ayah {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.35) 0%, rgba(16, 185, 129, 0.3) 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.55), inset 0 0 8px rgba(212, 175, 55, 0.3) !important;
+  border-radius: 8px !important;
+  padding: 2px 5px !important;
+  animation: recitingAyahPulse 2s infinite alternate;
+}
+
+@keyframes recitingAyahPulse {
+  0% { box-shadow: 0 0 8px rgba(212, 175, 55, 0.4); }
+  100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.8), 0 0 8px rgba(16, 185, 129, 0.6); }
 }
 
 .ayah-text.highlight-read {
-  background-color: rgba(212, 175, 55, 0.25);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+  background-color: rgba(212, 175, 55, 0.22);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
 }
 
 .ayah-number-symbol {

@@ -439,20 +439,30 @@
       <button class="close-modal-btn" id="close-quran-reader-btn" title="إغلاق">&times;</button>
     </div>
 
-    <!-- شريط القارئ والصوتيات -->
+    <!-- شريط القارئ والصوتيات المتزامن مع الآيات -->
     <div class="reader-controls-bar">
-      <div style="flex: 1; max-width: 240px;">
-        <select class="custom-select" id="quran-reciter-select" style="padding: 5px 8px; font-size: 0.8rem;">
+      <div style="flex: 1; max-width: 170px;">
+        <select class="custom-select" id="quran-reciter-select" style="padding: 5px 6px; font-size: 0.78rem;">
           <!-- قائمة القراء -->
         </select>
       </div>
 
-      <button class="icon-btn" id="quran-play-btn" title="تشغيل التلاوة">
-        <span id="quran-play-icon">▶️</span>
-      </button>
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <button class="icon-btn" id="quran-prev-ayah-btn" style="width: 32px; height: 32px; font-size: 0.75rem;" title="الآية السابقة">
+          ⏮️
+        </button>
 
-      <button class="btn-gps" id="quran-bookmark-btn" style="padding: 5px 10px; font-size: 0.76rem;">
-        📌 حفظ العلامة
+        <button class="icon-btn" id="quran-play-btn" style="width: 36px; height: 36px; font-size: 0.95rem;" title="تشغيل التلاوة">
+          <span id="quran-play-icon">▶️</span>
+        </button>
+
+        <button class="icon-btn" id="quran-next-ayah-btn" style="width: 32px; height: 32px; font-size: 0.75rem;" title="الآية التالية">
+          ⏭️
+        </button>
+      </div>
+
+      <button class="btn-gps" id="quran-bookmark-btn" style="padding: 5px 8px; font-size: 0.75rem;">
+        📌 حفظ
       </button>
     </div>
 
