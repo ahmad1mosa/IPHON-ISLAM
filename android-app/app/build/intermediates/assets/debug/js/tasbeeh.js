@@ -180,6 +180,10 @@ class SmartTasbeeh {
     return this.vibrateEnabled;
   }
 
+  saveSettings() {
+    this.saveState();
+  }
+
   saveState() {
     const state = {
       currentCount: this.currentCount,

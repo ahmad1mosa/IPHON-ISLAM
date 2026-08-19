@@ -637,12 +637,26 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    let lastTapTime = 0;
+    function doTasbeehTap(e) {
+      const now = Date.now();
+      if (now - lastTapTime < 80) return;
+      lastTapTime = now;
+      if (e && e.cancelable) e.preventDefault();
+      tasbeeh.increment();
+      updateUI();
+      if (btnTap) {
+        btnTap.style.transform = "scale(0.93)";
+        setTimeout(() => { if (btnTap) btnTap.style.transform = ""; }, 120);
+      }
+    }
+
     if (btnTap) {
-      btnTap.addEventListener("click", () => {
-        tasbeeh.increment();
-        updateUI();
-        btnTap.style.transform = "scale(0.94)";
-        setTimeout(() => { btnTap.style.transform = ""; }, 100);
+      btnTap.addEventListener("click", doTasbeehTap);
+      btnTap.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "touch") {
+          doTasbeehTap(e);
+        }
       });
     }
 

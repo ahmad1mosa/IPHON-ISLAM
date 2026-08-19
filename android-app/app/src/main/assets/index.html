@@ -17,11 +17,11 @@
   <link rel="icon" type="image/png" href="icons/icon-512.png">
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.4.1">
-  <link rel="stylesheet" href="css/prayer.css?v=2.4.1">
-  <link rel="stylesheet" href="css/tasbeeh.css?v=2.4.1">
-  <link rel="stylesheet" href="css/quran.css?v=2.4.1">
-  <link rel="stylesheet" href="css/adhkar.css?v=2.4.1">
+  <link rel="stylesheet" href="css/style.css?v=2.5.0">
+  <link rel="stylesheet" href="css/prayer.css?v=2.5.0">
+  <link rel="stylesheet" href="css/tasbeeh.css?v=2.5.0">
+  <link rel="stylesheet" href="css/quran.css?v=2.5.0">
+  <link rel="stylesheet" href="css/adhkar.css?v=2.5.0">
 </head>
 <body>
 
@@ -98,32 +98,68 @@
         </div>
       </div>
 
-      <!-- بوصلة القبلة التفاعلية المصححة -->
+      <!-- بوصلة القبلة بطراز آيفون الاحترافية -->
       <div class="section-card compass-card">
-        <div class="section-title" style="justify-content: space-between;">
+        <div class="ios-compass-header-row">
           <div>
             <span>🧭</span> <span data-i18n="qiblaDirection">اتجاه القبلة المشرفة</span>
           </div>
           <button class="btn-gps" id="btn-toggle-compass-mode" style="padding: 3px 8px; font-size: 0.72rem;">
-            🔄 وضع البوصلة
+            🔄 وضع الحساس
           </button>
         </div>
-        <div class="compass-container">
-          <div class="compass-dial">
-            <span class="compass-mark-n">N</span>
-            <span class="compass-mark-s">S</span>
-            <span class="compass-mark-e">E</span>
-            <span class="compass-mark-w">W</span>
+
+        <!-- رقم الدرجة الكبير -->
+        <div class="compass-heading-large">
+          <span class="compass-deg-val" id="compass-deg-display">0</span>
+          <span class="compass-dir-label" id="compass-dir-display">°N</span>
+        </div>
+
+        <!-- قرص البوصلة الدائري -->
+        <div class="ios-compass-stage">
+          <!-- المؤشر الثابت في القمة -->
+          <div class="ios-compass-fixed-top-marker"></div>
+
+          <!-- قرص البوصلة الدوار -->
+          <div class="ios-compass-dial-disc" id="compass-dial-disc">
+            <!-- خطوط الدرجات SVG -->
+            <svg class="compass-ticks-svg" viewBox="0 0 250 250">
+              <!-- خطوط الدرجات الرئيسية -->
+              <g id="compass-major-ticks"></g>
+              <!-- خطوط الدرجات الثانوية -->
+              <g id="compass-minor-ticks"></g>
+              <!-- أرقام الدرجات -->
+              <g id="compass-degree-labels"></g>
+            </svg>
+            <!-- حروف الاتجاهات -->
+            <span class="compass-cardinal cardinal-n">N</span>
+            <span class="compass-cardinal cardinal-s">S</span>
+            <span class="compass-cardinal cardinal-e">E</span>
+            <span class="compass-cardinal cardinal-w">W</span>
           </div>
-          <div class="compass-needle-disc" id="compass-needle-disc">
-            <div class="qibla-pointer">
-              <span class="kaaba-icon">🕋</span>
-              <div class="qibla-arrow"></div>
+
+          <!-- طبقة سهم القبلة (لا تدور) -->
+          <div class="qibla-pointer-layer" id="qibla-pointer-layer">
+            <div class="qibla-needle-stem" id="qibla-needle-stem">
+              <!-- صورة مكة المكرمة / الكعبة -->
+              <div class="qibla-mecca-badge">
+                <span>🕋</span>
+              </div>
+              <!-- رأس سهم القبلة -->
+              <div class="qibla-arrow-head"></div>
             </div>
-            <div class="compass-center-point"></div>
+          </div>
+
+          <!-- نقطة المركز -->
+          <div class="ios-compass-center">
+            <div class="ios-compass-cross-h"></div>
+            <div class="ios-compass-cross-v"></div>
           </div>
         </div>
-        <div class="qibla-degree-badge" id="qibla-degree-text">جاري حساب الزاوية...</div>
+
+        <div class="qibla-info-footer">
+          <div class="qibla-degree-badge" id="qibla-degree-text">جاري حساب الزاوية...</div>
+        </div>
       </div>
 
     </section>
@@ -327,6 +363,7 @@
               انضم إلى مجتمعنا وتابع جديد التطبيق والتواصل عبر المنصة التالية:
             </p>
             <div class="contact-channels-grid">
+              <!-- فيسبوك -->
               <div class="social-card facebook-card">
                 <div class="social-card-header">
                   <div class="social-icon-box fb-icon">
@@ -339,6 +376,22 @@
                 </div>
                 <a href="https://www.facebook.com/groups/goldensens" target="_blank" rel="noopener noreferrer" class="social-btn facebook-btn" data-i18n="joinFacebook">
                   الانضمام للمجموعة ↗
+                </a>
+              </div>
+
+              <!-- يوتيوب -->
+              <div class="social-card youtube-card">
+                <div class="social-card-header">
+                  <div class="social-icon-box yt-icon">
+                    <span>▶</span>
+                  </div>
+                  <div class="social-card-info">
+                    <div class="social-card-title">قناتنا على يوتيوب</div>
+                    <div class="social-card-sub">@GoldenSensitivity</div>
+                  </div>
+                </div>
+                <a href="https://www.youtube.com/@GoldenSensitivity" target="_blank" rel="noopener noreferrer" class="social-btn youtube-btn">
+                  زيارة القناة ↗
                 </a>
               </div>
             </div>
@@ -446,6 +499,57 @@
     </div>
   </div>
 
+  <!-- ==================== تبويب من أعمالنا ==================== -->
+  <section class="tab-pane" id="tab-ourworks">
+    <div class="ourworks-header">
+      <div class="ourworks-title">🌟 من أعمالنا</div>
+      <div class="ourworks-subtitle">تطبيقات شركة Golden Sens للتقنية</div>
+    </div>
+
+    <div class="ourworks-grid">
+      <!-- GS MAGNOLITE - مجاني -->
+      <div class="app-work-card free-card">
+        <div class="app-work-icon-wrap">
+          <div class="app-work-badge free-badge">مجاني ✓</div>
+          <div class="app-work-icon-circle">
+            <span style="font-size:2rem;">🔦</span>
+          </div>
+        </div>
+        <div class="app-work-info">
+          <div class="app-work-name">GS MAGNOLITE</div>
+          <div class="app-work-desc">تطبيق الكشف المغناطيسي المجاني</div>
+          <div class="app-work-dev">Golden Sens • Android</div>
+        </div>
+        <a href="https://play.google.com/store/apps/details?id=com.gs.magnova.gs_magnova" target="_blank" rel="noopener noreferrer" class="app-store-btn free-btn" id="btn-magnolite">
+          <span>📥</span> تحميل مجاني
+        </a>
+      </div>
+
+      <!-- GS MAGNOL - مدفوع -->
+      <div class="app-work-card paid-card">
+        <div class="app-work-icon-wrap">
+          <div class="app-work-badge paid-badge">احترافي ⭐</div>
+          <div class="app-work-icon-circle" style="background: linear-gradient(135deg, #d4af37, #9e7a08);">
+            <span style="font-size:2rem;">🧲</span>
+          </div>
+        </div>
+        <div class="app-work-info">
+          <div class="app-work-name">GS MAGNOVA</div>
+          <div class="app-work-desc">تطبيق الكشف المغناطيسي الاحترافي</div>
+          <div class="app-work-dev">Golden Sens • Android</div>
+        </div>
+        <a href="https://play.google.com/store/apps/details?id=com.gs.magnova.gs_magnova" target="_blank" rel="noopener noreferrer" class="app-store-btn paid-btn" id="btn-magnol">
+          <span>⭐</span> الإصدار الاحترافي
+        </a>
+      </div>
+    </div>
+
+    <!-- قسم تطبيقات إضافية -->
+    <div class="ourworks-footer-note">
+      <span>🏢</span> جميع التطبيقات من تطوير شركة Golden Sens
+    </div>
+  </section>
+
   <!-- ==================== شريط التنقل السفلي ==================== -->
   <nav class="bottom-nav">
     <button class="nav-item active" id="nav-btn-prayer" data-tab="prayer">
@@ -468,6 +572,11 @@
       <span class="nav-label" data-i18n="adhkarTab">الأذكار</span>
     </button>
 
+    <button class="nav-item" id="nav-btn-ourworks" data-tab="ourworks">
+      <span class="nav-icon">🌟</span>
+      <span class="nav-label">أعمالنا</span>
+    </button>
+
     <button class="nav-item" id="nav-btn-settings" data-tab="settings">
       <span class="nav-icon">⚙️</span>
       <span class="nav-label" data-i18n="settingsTab">الإعدادات</span>
@@ -475,23 +584,32 @@
   </nav>
 
   <!-- ==================== البرمجيات والسكربتات ==================== -->
-  <script src="js/i18n.js?v=2.4.1"></script>
-  <script src="js/adhkar-data.js?v=2.4.1"></script>
-  <script src="js/surah-data.js?v=2.4.1"></script>
-  <script src="js/prayer-calc.js?v=2.4.1"></script>
-  <script src="js/tasbeeh.js?v=2.4.1"></script>
-  <script src="js/quran.js?v=2.4.1"></script>
-  <script src="js/adhkar.js?v=2.4.1"></script>
-  <script src="js/app.js?v=2.4.1"></script>
+  <script src="js/i18n.js?v=2.5.0"></script>
+  <script src="js/adhkar-data.js?v=2.5.0"></script>
+  <script src="js/surah-data.js?v=2.5.0"></script>
+  <script src="js/prayer-calc.js?v=2.5.0"></script>
+  <script src="js/tasbeeh.js?v=2.5.0"></script>
+  <script src="js/quran.js?v=2.5.0"></script>
+  <script src="js/adhkar.js?v=2.5.0"></script>
+  <script src="js/app.js?v=2.5.0"></script>
 
   <!-- تسجيل الـ Service Worker لتمكين الأوفلاين -->
   <script>
+    // مسح الكاش القديم فوراً عند تغيير الإصدار
+    const APP_CACHE_VER = '2.5.0';
+    if (localStorage.getItem('gs_cache_ver') !== APP_CACHE_VER) {
+      localStorage.setItem('gs_cache_ver', APP_CACHE_VER);
+      if ('caches' in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      }
+    }
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=2.4.1')
+        navigator.serviceWorker.register('sw.js?v=2.5.0')
           .then(reg => {
             reg.update();
-            console.log('Service Worker Registered & Updated successfully!');
+            console.log('Service Worker v2.5.0 Registered & Updated!');
           })
           .catch(err => console.log('Service Worker registration failed:', err));
       });

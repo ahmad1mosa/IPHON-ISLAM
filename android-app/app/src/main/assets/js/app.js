@@ -397,9 +397,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* -------------------------------------------------------------
-     بوصلة القبلة التفاعلية المصححة
+     بوصلة القبلة بطراز iOS المحدّثة مع الأرقام والدرجات
   ------------------------------------------------------------- */
   function initQiblaCompass() {
+    // رسم علامات الدرجات في SVG
+    buildCompassTicks();
+
     const toggleModeBtn = document.getElementById("btn-toggle-compass-mode");
     if (toggleModeBtn) {
       toggleModeBtn.addEventListener("click", () => {
@@ -412,33 +415,139 @@ document.addEventListener("DOMContentLoaded", () => {
     const handleOrientation = (event) => {
       if (state.compassMode !== "sensor") return;
 
-      let heading = 0;
-      if (event.webkitCompassHeading !== undefined) {
+      let heading = null;
+
+      if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
+        // iOS - قيمة مباشرة وصحيحة
         heading = event.webkitCompassHeading;
-      } else if (event.alpha !== null) {
-        heading = (360 - event.alpha) % 360;
+      } else if (event.alpha !== null && event.alpha !== undefined) {
+        if (event.absolute === true) {
+          // Android absolute - alpha يزيد عكس عقارب الساعة من الشمال
+          // التحويل: compass_heading = 360 - alpha
+          heading = (360 - event.alpha) % 360;
+        } else {
+          // قيمة نسبية - نستخدمها مباشرة كتقريب
+          heading = event.alpha % 360;
+        }
       }
 
-      state.compassHeading = heading;
+      if (heading === null) return;
+      state.compassHeading = Math.round(heading);
       updateCompassNeedle();
     };
 
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener("deviceorientationabsolute", handleOrientation, true);
-      window.addEventListener("deviceorientation", handleOrientation, true);
+    // الاستماع للحدثين - مطلق أولاً ثم نسبي كبديل
+    if (typeof DeviceOrientationEvent !== "undefined") {
+      if (typeof DeviceOrientationEvent.requestPermission === "function") {
+        // iOS 13+ يحتاج إذناً
+        document.getElementById("btn-toggle-compass-mode").addEventListener("click", () => {
+          DeviceOrientationEvent.requestPermission().then(response => {
+            if (response === "granted") {
+              window.addEventListener("deviceorientation", handleOrientation, true);
+            }
+          }).catch(console.error);
+        }, { once: true });
+      } else {
+        window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+        window.addEventListener("deviceorientation", handleOrientation, true);
+      }
     }
   }
 
-  function updateCompassNeedle() {
-    const compassDisc = document.getElementById("compass-needle-disc");
-    if (compassDisc) {
-      if (state.compassMode === "static") {
-        compassDisc.style.transform = `rotate(${state.qiblaBearing}deg)`;
+  function buildCompassTicks() {
+    const majorGroup = document.getElementById("compass-major-ticks");
+    const minorGroup = document.getElementById("compass-minor-ticks");
+    const labelGroup = document.getElementById("compass-degree-labels");
+    if (!majorGroup || !minorGroup || !labelGroup) return;
+
+    const cx = 125, cy = 125, r = 120;
+    const majorR = 12, minorR = 6;
+
+    for (let deg = 0; deg < 360; deg += 10) {
+      const rad = (deg - 90) * (Math.PI / 180);
+      const isMajor = deg % 30 === 0;
+      const tickLen = isMajor ? majorR : minorR;
+
+      const x1 = cx + r * Math.cos(rad);
+      const y1 = cy + r * Math.sin(rad);
+      const x2 = cx + (r - tickLen) * Math.cos(rad);
+      const y2 = cy + (r - tickLen) * Math.sin(rad);
+
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", x1.toFixed(2));
+      line.setAttribute("y1", y1.toFixed(2));
+      line.setAttribute("x2", x2.toFixed(2));
+      line.setAttribute("y2", y2.toFixed(2));
+      line.setAttribute("stroke", isMajor ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.3)");
+      line.setAttribute("stroke-width", isMajor ? "2" : "1");
+
+      if (isMajor) {
+        majorGroup.appendChild(line);
       } else {
-        const rotation = (state.qiblaBearing - state.compassHeading + 360) % 360;
-        compassDisc.style.transform = `rotate(${rotation}deg)`;
+        minorGroup.appendChild(line);
+      }
+
+      // أرقام كل 30 درجة
+      if (isMajor && deg % 90 !== 0) {
+        const labelR = r - majorR - 10;
+        const lx = cx + labelR * Math.cos(rad);
+        const ly = cy + labelR * Math.sin(rad);
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", lx.toFixed(2));
+        text.setAttribute("y", (ly + 4).toFixed(2));
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("font-size", "9");
+        text.setAttribute("font-weight", "700");
+        text.setAttribute("fill", "rgba(255,255,255,0.6)");
+        text.setAttribute("font-family", "Outfit, sans-serif");
+        text.textContent = deg;
+        labelGroup.appendChild(text);
       }
     }
+  }
+
+  function getDirectionLabel(deg) {
+    if (deg < 22.5 || deg >= 337.5) return "N";
+    if (deg < 67.5) return "NE";
+    if (deg < 112.5) return "E";
+    if (deg < 157.5) return "SE";
+    if (deg < 202.5) return "S";
+    if (deg < 247.5) return "SW";
+    if (deg < 292.5) return "W";
+    return "NW";
+  }
+
+  function updateCompassNeedle() {
+    const compassDisc = document.getElementById("compass-dial-disc");
+    const qiblaLayer = document.getElementById("qibla-needle-stem");
+    const degDisplay = document.getElementById("compass-deg-display");
+    const dirDisplay = document.getElementById("compass-dir-display");
+
+    let dialRotation = 0;
+    let qiblaRotation = 0;
+
+    if (state.compassMode === "static") {
+      // وضع ثابت: القرص لا يدور، سهم القبلة يشير للاتجاه
+      dialRotation = 0;
+      qiblaRotation = state.qiblaBearing;
+    } else {
+      // وضع الحساس: القرص يدور عكس اتجاه الهاتف
+      dialRotation = -state.compassHeading;
+      qiblaRotation = (state.qiblaBearing - state.compassHeading + 360) % 360;
+    }
+
+    if (compassDisc) {
+      compassDisc.style.transform = `rotate(${dialRotation}deg)`;
+    }
+
+    if (qiblaLayer) {
+      qiblaLayer.style.transform = `rotate(${qiblaRotation}deg)`;
+    }
+
+    // تحديث رقم الدرجة الكبير
+    const currentDeg = Math.round((state.compassHeading + 360) % 360);
+    if (degDisplay) degDisplay.textContent = currentDeg;
+    if (dirDisplay) dirDisplay.textContent = `° ${getDirectionLabel(currentDeg)}`;
   }
 
   /* -------------------------------------------------------------
@@ -528,12 +637,26 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    let lastTapTime = 0;
+    function doTasbeehTap(e) {
+      const now = Date.now();
+      if (now - lastTapTime < 80) return;
+      lastTapTime = now;
+      if (e && e.cancelable) e.preventDefault();
+      tasbeeh.increment();
+      updateUI();
+      if (btnTap) {
+        btnTap.style.transform = "scale(0.93)";
+        setTimeout(() => { if (btnTap) btnTap.style.transform = ""; }, 120);
+      }
+    }
+
     if (btnTap) {
-      btnTap.addEventListener("click", () => {
-        tasbeeh.increment();
-        updateUI();
-        btnTap.style.transform = "scale(0.94)";
-        setTimeout(() => { btnTap.style.transform = ""; }, 100);
+      btnTap.addEventListener("click", doTasbeehTap);
+      btnTap.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "touch") {
+          doTasbeehTap(e);
+        }
       });
     }
 
