@@ -753,34 +753,55 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    let lastTapTime = 0;
-    function doTasbeehTap(e) {
-      const now = Date.now();
-      // منع تكرار النقر المزدوج (Pointerdown + Click) الناتج عن اللمس
-      if (now - lastTapTime < 220) {
-        if (e && e.cancelable) e.preventDefault();
-        return;
-      }
-      lastTapTime = now;
+    let isTouchPressed = false;
+    let lastTapTimestamp = 0;
+
+    function handleTapDown(e) {
       if (e && e.cancelable) e.preventDefault();
 
+      // إذا كان الإصبع لا يزال ملامساً للشاشة (ضغط مطول)، لا تعد إطلاقاً
+      if (isTouchPressed) return;
+
+      const now = Date.now();
+      // حماية سريعة ضد ارتداد الإشارات الكهربائية (60ms) مع دعم التسبيح السريع
+      if (now - lastTapTimestamp < 60) return;
+
+      isTouchPressed = true;
+      lastTapTimestamp = now;
+
+      // زيادة العداد بمقدار 1 فقط لا غير
       tasbeeh.increment();
       updateUI();
 
       if (btnTap) {
         btnTap.style.transform = "scale(0.93)";
-        setTimeout(() => { if (btnTap) btnTap.style.transform = ""; }, 120);
+      }
+    }
+
+    function handleTapUp(e) {
+      if (e && e.cancelable) e.preventDefault();
+      // فك القفل عند رفع الإصبع عن الشاشة للاستعداد للنقرة القادمة
+      isTouchPressed = false;
+      if (btnTap) {
+        btnTap.style.transform = "";
       }
     }
 
     if (btnTap) {
-      btnTap.addEventListener("pointerdown", (e) => {
-        doTasbeehTap(e);
-      });
+      // الاستجابة الفورية عند أول لمس
+      btnTap.addEventListener("pointerdown", handleTapDown, { passive: false });
+      btnTap.addEventListener("pointerup", handleTapUp, { passive: false });
+      btnTap.addEventListener("pointercancel", handleTapUp, { passive: false });
+      btnTap.addEventListener("pointerleave", handleTapUp, { passive: false });
+
+      // منع أي تكرار اصطناعي من حدث click
       btnTap.addEventListener("click", (e) => {
-        doTasbeehTap(e);
+        if (e && e.cancelable) e.preventDefault();
       });
     }
+
+    // إتاحة الدالة عالمياً
+    window.handleTasbeehClick = handleTapDown;
 
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
