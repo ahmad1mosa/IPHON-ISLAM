@@ -15,12 +15,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-public class MainActivity extends AppCompatActivity {
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private WebView webView;
     private static final int LOCATION_PERMISSION_REQUEST = 1001;
     private GeolocationPermissions.Callback locationCallback;
     private String locationOrigin;
+
+    // حساسات البوصلة الهاردوير
+    private SensorManager sensorManager;
+    private Sensor rotationVectorSensor;
+    private Sensor accelerometer;
+    private Sensor magnetometer;
+    private float[] gravity;
+    private float[] geomagnetic;
+    private float lastHeading = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +50,94 @@ public class MainActivity extends AppCompatActivity {
 
         setupWebView();
         checkPermissions();
+        initCompassSensors();
 
         // مسح الكاش لضمان تحميل أحدث ملفات الواجهة والبرمجيات دائماً
         webView.clearCache(true);
 
         // تحميل ملفات التطبيق من مجلد assets الداخلي ليعمل 100% بدون إنترنت
         webView.loadUrl("file:///android_asset/index.html");
+    }
+
+    private void initCompassSensors() {
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        if (sensorManager != null) {
+            rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            if (rotationVectorSensor == null) {
+                accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (sensorManager != null) {
+            if (rotationVectorSensor != null) {
+                sensorManager.registerListener(this, rotationVectorSensor, SensorManager.SENSOR_DELAY_UI);
+            } else {
+                if (accelerometer != null) sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+                if (magnetometer != null) sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        float heading = -1;
+
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            float[] rotationMatrix = new float[9];
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+            float[] orientation = new float[3];
+            SensorManager.getOrientation(rotationMatrix, orientation);
+            // تحويل الزاوية إلى درجات (0 - 360)
+            heading = (float) Math.toDegrees(orientation[0]);
+            if (heading < 0) heading += 360;
+        } else {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                gravity = event.values.clone();
+            }
+            if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                geomagnetic = event.values.clone();
+            }
+            if (gravity != null && geomagnetic != null) {
+                float[] R = new float[9];
+                float[] I = new float[9];
+                if (SensorManager.getRotationMatrix(R, I, gravity, geomagnetic)) {
+                    float[] orientation = new float[3];
+                    SensorManager.getOrientation(R, orientation);
+                    heading = (float) Math.toDegrees(orientation[0]);
+                    if (heading < 0) heading += 360;
+                }
+            }
+        }
+
+        if (heading >= 0 && (lastHeading < 0 || Math.abs(heading - lastHeading) >= 0.8f)) {
+            lastHeading = heading;
+            final int roundedHeading = Math.round(heading);
+            if (webView != null) {
+                webView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        webView.evaluateJavascript("if(window.onAndroidHeadingUpdate){window.onAndroidHeadingUpdate(" + roundedHeading + ");}", null);
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
     private void setupWebView() {

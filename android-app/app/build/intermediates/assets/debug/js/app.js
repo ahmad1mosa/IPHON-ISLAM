@@ -436,7 +436,14 @@ document.addEventListener("DOMContentLoaded", () => {
       updateCompassNeedle();
     };
 
-    // الاستماع للحدثين - مطلق أولاً ثم نسبي كبديل
+    // استقبال درجات البوصلة مباشرة من هاردوير الأندرويد الأصلي (Android SensorManager)
+    window.onAndroidHeadingUpdate = (heading) => {
+      if (state.compassMode !== "sensor") return;
+      state.compassHeading = Math.round(heading);
+      updateCompassNeedle();
+    };
+
+    // الاستماع للحدثين في المتصفحات والآيفون - مطلق أولاً ثم نسبي كبديل
     if (typeof DeviceOrientationEvent !== "undefined") {
       if (typeof DeviceOrientationEvent.requestPermission === "function") {
         // iOS 13+ يحتاج إذناً
