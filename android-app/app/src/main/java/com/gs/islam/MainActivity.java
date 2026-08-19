@@ -37,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
         setupWebView();
         checkPermissions();
 
+        // مسح الكاش لضمان تحميل أحدث ملفات الواجهة والبرمجيات دائماً
+        webView.clearCache(true);
+
         // تحميل ملفات التطبيق من مجلد assets الداخلي ليعمل 100% بدون إنترنت
         webView.loadUrl("file:///android_asset/index.html");
     }
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setAllowUniversalAccessFromFileURLs(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setGeolocationEnabled(true);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
         webView.setWebViewClient(new WebViewClient());
 

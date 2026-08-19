@@ -686,6 +686,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    // إتاحة الدالة عالمياً للاستدعاء الفوري المباشر
+    window.handleTasbeehClick = doTasbeehTap;
+    window.updateTasbeehUI = updateUI;
+
     updateUI();
   }
 

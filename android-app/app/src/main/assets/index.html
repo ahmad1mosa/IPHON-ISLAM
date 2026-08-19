@@ -82,8 +82,8 @@
         </button>
       </div>
 
-      <!-- سلايد مواقيت الصلاة اليومية (Accordion Slide) -->
-      <div class="prayer-accordion-card open" id="prayer-times-accordion">
+      <!-- سلايد مواقيت الصلاة اليومية (Accordion Slide) - مغلق افتراضياً -->
+      <div class="prayer-accordion-card" id="prayer-times-accordion">
         <div class="prayer-accordion-header" id="prayer-accordion-header">
           <div class="prayer-acc-title-wrap">
             <span>🕌</span>
@@ -232,7 +232,7 @@
               <circle class="progress-fill" id="tasbeeh-progress-bar" cx="120" cy="120" r="110"></circle>
             </svg>
 
-            <button class="tasbeeh-tap-btn" id="tasbeeh-tap-btn">
+            <button class="tasbeeh-tap-btn" id="tasbeeh-tap-btn" onclick="window.handleTasbeehClick(event)">
               <span class="tap-count-number" id="tasbeeh-count-display">0</span>
               <span class="tap-label" data-i18n="tapToCount">انقر للتسبيح</span>
             </button>
@@ -574,7 +574,7 @@
 
     <button class="nav-item" id="nav-btn-ourworks" data-tab="ourworks">
       <span class="nav-icon">🌟</span>
-      <span class="nav-label">أعمالنا</span>
+      <span class="nav-label" data-i18n="ourworksTab">أعمالنا</span>
     </button>
 
     <button class="nav-item" id="nav-btn-settings" data-tab="settings">
