@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:2:1-32:12
-INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:2:1-32:12
-INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:2:1-32:12
-INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:2:1-32:12
+ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:2:1-33:12
+INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:2:1-33:12
+INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:2:1-33:12
+INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:2:1-33:12
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\greve\.gradle\caches\transforms-3\2b09c2cd4192fe4b7b686a651ae8eff3\transformed\material-1.11.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\greve\.gradle\caches\transforms-3\dcc78b2f4a3d879e4e36052f1930563b\transformed\jetified-appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\greve\.gradle\caches\transforms-3\241e9d5c276921da3f296e4baa64f37e\transformed\constraintlayout-2.0.1\AndroidManifest.xml:2:1-11:12
@@ -75,8 +75,8 @@ ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نو�
 	android:name
 		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:8:22-74
 application
-ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:10:5-30:19
-INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:10:5-30:19
+ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:10:5-31:19
+INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:10:5-31:19
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\greve\.gradle\caches\transforms-3\2b09c2cd4192fe4b7b686a651ae8eff3\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\greve\.gradle\caches\transforms-3\2b09c2cd4192fe4b7b686a651ae8eff3\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\greve\.gradle\caches\transforms-3\241e9d5c276921da3f296e4baa64f37e\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
@@ -100,7 +100,7 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\greve\.gradle\cach
 	android:supportsRtl
 		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:15:9-35
 	android:label
-		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:13:9-32
+		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:13:9-33
 	android:roundIcon
 		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:14:9-54
 	android:icon
@@ -112,27 +112,29 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\greve\.gradle\cach
 	android:usesCleartextTraffic
 		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:17:9-44
 activity#com.gs.islam.MainActivity
-ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:19:9-29:20
+ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:19:9-30:20
 	android:screenOrientation
-		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:23:13-49
-	android:exported
-		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:21:13-36
-	android:configChanges
-		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:22:13-74
-	android:theme
 		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:24:13-49
+	android:label
+		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:21:13-37
+	android:exported
+		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:22:13-36
+	android:configChanges
+		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:23:13-74
+	android:theme
+		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:25:13-49
 	android:name
 		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:20:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:25:13-28:29
+ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:26:13-29:29
 action#android.intent.action.MAIN
-ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:26:17-69
+ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:27:17-69
 	android:name
-		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:26:25-66
+		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:27:25-66
 category#android.intent.category.LAUNCHER
-ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:27:17-77
+ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:28:17-77
 	android:name
-		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:27:27-74
+		ADDED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml:28:27-74
 uses-sdk
 INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from E:\جهاز نبضي\اجهزه\دائرة المغنطيسية\نوح\okmok\مسبحه\android-app\app\src\main\AndroidManifest.xml

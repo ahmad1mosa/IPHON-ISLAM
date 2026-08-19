@@ -26,7 +26,7 @@
         android:debuggable="true"
         android:extractNativeLibs="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="GS اسلم"
+        android:label="GS ISLAM"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GSIslam"
@@ -35,6 +35,7 @@
             android:name="com.gs.islam.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true"
+            android:label="GS ISLAM"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.GSIslam" >
             <intent-filter>
