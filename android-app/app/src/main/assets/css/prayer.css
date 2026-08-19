@@ -27,46 +27,49 @@
   align-items: baseline;
   justify-content: center;
   gap: 6px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .compass-deg-val {
-  font-size: 2.5rem;
+  font-size: 2.7rem;
   font-weight: 900;
   color: #ffffff;
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.5px;
 }
 
 .compass-dir-label {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 800;
   color: var(--text-gold);
+  font-family: 'Outfit', sans-serif;
 }
 
 /* قرص بوصلة الآيفون الدائري 3D */
 .ios-compass-stage {
   position: relative;
-  width: 250px;
-  height: 250px;
+  width: 270px;
+  height: 270px;
   margin: 12px auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  direction: ltr; /* منع RTL من عكس محاور التحويل */
+  direction: ltr !important;
 }
 
-/* مؤشر قمة البوصلة الثابت (الهاتف) */
+/* مؤشر قمة البوصلة الثابت (خط أبيض عمودي ناصع عند الساعة 12) */
 .ios-compass-fixed-top-marker {
   position: absolute;
-  top: -4px;
-  left: calc(50% - 2px);
-  width: 4px;
-  height: 14px;
-  background: #ef4444;
+  top: -5px;
+  left: calc(50% - 1.5px);
+  width: 3px;
+  height: 16px;
+  background: #ffffff;
   border-radius: 2px;
-  z-index: 20;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+  z-index: 30;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
 /* قرص البوصلة الدوار */
@@ -75,13 +78,12 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, #0a2520 0%, #051510 70%, #000000 100%);
-  border: 3px solid rgba(212, 175, 55, 0.5);
+  background: #000000;
+  border: 2px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 0 25px rgba(0, 0, 0, 0.8),
-    inset 0 0 30px rgba(0, 0, 0, 0.9),
-    inset 0 0 8px rgba(16, 185, 129, 0.05);
-  transition: transform 0.12s ease-out;
+    0 0 25px rgba(0, 0, 0, 0.85),
+    inset 0 0 25px rgba(0, 0, 0, 0.95);
+  transition: transform 0.08s ease-out;
   overflow: hidden;
 }
 
@@ -92,6 +94,8 @@
   left: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
+  user-select: none;
 }
 
 /* علامات الاتجاهات N, E, S, W */
@@ -212,11 +216,9 @@
 }
 
 .qibla-info-footer {
-  margin-top: 10px;
+  margin-top: 12px;
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 8px;
 }
 
 .qibla-degree-badge {

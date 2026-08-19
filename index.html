@@ -115,45 +115,28 @@
           <span class="compass-dir-label" id="compass-dir-display">°N</span>
         </div>
 
-        <!-- قرص البوصلة الدائري -->
+        <!-- قرص البوصلة الدائري المطابق لبوصلة iPhone -->
         <div class="ios-compass-stage">
-          <!-- المؤشر الثابت في القمة -->
+          <!-- المؤشر الثابت في القمة (خط أبيض ناصع عند الساعة 12) -->
           <div class="ios-compass-fixed-top-marker"></div>
 
-          <!-- قرص البوصلة الدوار -->
+          <!-- قرص البوصلة الدوار مع كافة العلامات والقبلة بدقة SVG -->
           <div class="ios-compass-dial-disc" id="compass-dial-disc">
-            <!-- خطوط الدرجات SVG -->
-            <svg class="compass-ticks-svg" viewBox="0 0 250 250">
-              <!-- خطوط الدرجات الرئيسية -->
-              <g id="compass-major-ticks"></g>
-              <!-- خطوط الدرجات الثانوية -->
-              <g id="compass-minor-ticks"></g>
-              <!-- أرقام الدرجات -->
-              <g id="compass-degree-labels"></g>
+            <svg class="compass-ticks-svg" id="compass-svg-element" viewBox="0 0 280 280">
+              <!-- خطوط تقاطع المركز ودوائر التوجيه -->
+              <line x1="30" y1="140" x2="250" y2="140" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+              <line x1="140" y1="30" x2="140" y2="250" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+              <circle cx="140" cy="140" r="28" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+              <line x1="132" y1="140" x2="148" y2="140" stroke="#ffffff" stroke-width="1.5"/>
+              <line x1="140" y1="132" x2="140" y2="148" stroke="#ffffff" stroke-width="1.5"/>
+
+              <!-- خطوط الدرجات وعلامات البوصلة -->
+              <g id="compass-ticks-group"></g>
+              <g id="compass-labels-group"></g>
+
+              <!-- مؤشر القبلة المشرفة المدمج على القرص -->
+              <g id="compass-qibla-marker-group"></g>
             </svg>
-            <!-- حروف الاتجاهات -->
-            <span class="compass-cardinal cardinal-n">N</span>
-            <span class="compass-cardinal cardinal-s">S</span>
-            <span class="compass-cardinal cardinal-e">E</span>
-            <span class="compass-cardinal cardinal-w">W</span>
-          </div>
-
-          <!-- طبقة سهم القبلة (لا تدور) -->
-          <div class="qibla-pointer-layer" id="qibla-pointer-layer">
-            <div class="qibla-needle-stem" id="qibla-needle-stem">
-              <!-- صورة مكة المكرمة / الكعبة -->
-              <div class="qibla-mecca-badge">
-                <span>🕋</span>
-              </div>
-              <!-- رأس سهم القبلة -->
-              <div class="qibla-arrow-head"></div>
-            </div>
-          </div>
-
-          <!-- نقطة المركز -->
-          <div class="ios-compass-center">
-            <div class="ios-compass-cross-h"></div>
-            <div class="ios-compass-cross-v"></div>
           </div>
         </div>
 

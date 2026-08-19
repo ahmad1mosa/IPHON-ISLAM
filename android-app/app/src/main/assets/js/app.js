@@ -455,18 +455,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function buildCompassTicks() {
-    const majorGroup = document.getElementById("compass-major-ticks");
-    const minorGroup = document.getElementById("compass-minor-ticks");
-    const labelGroup = document.getElementById("compass-degree-labels");
-    if (!majorGroup || !minorGroup || !labelGroup) return;
+    const ticksGroup = document.getElementById("compass-ticks-group");
+    const labelsGroup = document.getElementById("compass-labels-group");
+    if (!ticksGroup || !labelsGroup) return;
 
-    const cx = 125, cy = 125, r = 120;
-    const majorR = 12, minorR = 6;
+    ticksGroup.innerHTML = "";
+    labelsGroup.innerHTML = "";
 
-    for (let deg = 0; deg < 360; deg += 10) {
+    const cx = 140, cy = 140, r = 132;
+
+    // رسم علامات الدرجات الدقيقة كل 2 درجة
+    for (let deg = 0; deg < 360; deg += 2) {
       const rad = (deg - 90) * (Math.PI / 180);
-      const isMajor = deg % 30 === 0;
-      const tickLen = isMajor ? majorR : minorR;
+      const isMajor30 = deg % 30 === 0;
+      const isMajor10 = deg % 10 === 0;
+      const tickLen = isMajor30 ? 15 : (isMajor10 ? 9 : 4.5);
 
       const x1 = cx + r * Math.cos(rad);
       const y1 = cy + r * Math.sin(rad);
@@ -474,36 +477,129 @@ document.addEventListener("DOMContentLoaded", () => {
       const y2 = cy + (r - tickLen) * Math.sin(rad);
 
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("x1", x1.toFixed(2));
-      line.setAttribute("y1", y1.toFixed(2));
-      line.setAttribute("x2", x2.toFixed(2));
-      line.setAttribute("y2", y2.toFixed(2));
-      line.setAttribute("stroke", isMajor ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.3)");
-      line.setAttribute("stroke-width", isMajor ? "2" : "1");
+      line.setAttribute("x1", x1.toFixed(1));
+      line.setAttribute("y1", y1.toFixed(1));
+      line.setAttribute("x2", x2.toFixed(1));
+      line.setAttribute("y2", y2.toFixed(1));
 
-      if (isMajor) {
-        majorGroup.appendChild(line);
+      if (isMajor30) {
+        line.setAttribute("stroke", "#ffffff");
+        line.setAttribute("stroke-width", "2");
+      } else if (isMajor10) {
+        line.setAttribute("stroke", "rgba(255, 255, 255, 0.75)");
+        line.setAttribute("stroke-width", "1.2");
       } else {
-        minorGroup.appendChild(line);
+        line.setAttribute("stroke", "rgba(255, 255, 255, 0.35)");
+        line.setAttribute("stroke-width", "0.8");
       }
+      ticksGroup.appendChild(line);
 
-      // أرقام كل 30 درجة
-      if (isMajor && deg % 90 !== 0) {
-        const labelR = r - majorR - 10;
-        const lx = cx + labelR * Math.cos(rad);
-        const ly = cy + labelR * Math.sin(rad);
+      // الأرقام كل 30 درجة (0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330)
+      if (isMajor30) {
+        const numR = r - 26;
+        const nx = cx + numR * Math.cos(rad);
+        const ny = cy + numR * Math.sin(rad);
+
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("x", lx.toFixed(2));
-        text.setAttribute("y", (ly + 4).toFixed(2));
+        text.setAttribute("x", nx.toFixed(1));
+        text.setAttribute("y", (ny + 4).toFixed(1));
         text.setAttribute("text-anchor", "middle");
-        text.setAttribute("font-size", "9");
-        text.setAttribute("font-weight", "700");
-        text.setAttribute("fill", "rgba(255,255,255,0.6)");
-        text.setAttribute("font-family", "Outfit, sans-serif");
-        text.textContent = deg;
-        labelGroup.appendChild(text);
+        text.setAttribute("font-size", "11");
+        text.setAttribute("font-weight", "600");
+        text.setAttribute("fill", "#ffffff");
+        text.setAttribute("font-family", "Outfit, -apple-system, sans-serif");
+        text.textContent = deg.toString();
+        labelsGroup.appendChild(text);
       }
     }
+
+    // الحروف الأساسية N, E, S, W والمثلث الأحمر
+    const cardinalDefs = [
+      { letter: "N", deg: 0, color: "#ef4444", size: 16, weight: 900 },
+      { letter: "E", deg: 90, color: "#ffffff", size: 15, weight: 800 },
+      { letter: "S", deg: 180, color: "#ffffff", size: 15, weight: 800 },
+      { letter: "W", deg: 270, color: "#ffffff", size: 15, weight: 800 }
+    ];
+
+    cardinalDefs.forEach(c => {
+      const rad = (c.deg - 90) * (Math.PI / 180);
+      const lx = cx + (r - 46) * Math.cos(rad);
+      const ly = cy + (r - 46) * Math.sin(rad);
+
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("x", lx.toFixed(1));
+      text.setAttribute("y", (ly + 5).toFixed(1));
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("font-size", c.size.toString());
+      text.setAttribute("font-weight", c.weight.toString());
+      text.setAttribute("fill", c.color);
+      text.setAttribute("font-family", "Outfit, -apple-system, sans-serif");
+      text.textContent = c.letter;
+      labelsGroup.appendChild(text);
+
+      // مثلث أحمر عند 0° للشمال مثل الآيفون بالضبط (صورة 2)
+      if (c.deg === 0) {
+        const tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        const p1 = `${cx},${(cy - r + 4).toFixed(1)}`;
+        const p2 = `${(cx - 5).toFixed(1)},${(cy - r - 3).toFixed(1)}`;
+        const p3 = `${(cx + 5).toFixed(1)},${(cy - r - 3).toFixed(1)}`;
+        tri.setAttribute("points", `${p1} ${p2} ${p3}`);
+        tri.setAttribute("fill", "#ef4444");
+        labelsGroup.appendChild(tri);
+      }
+    });
+
+    renderQiblaOnDisc();
+  }
+
+  function renderQiblaOnDisc() {
+    const qiblaGroup = document.getElementById("compass-qibla-marker-group");
+    if (!qiblaGroup) return;
+    qiblaGroup.innerHTML = "";
+
+    const cx = 140, cy = 140, r = 132;
+    const bearing = state.qiblaBearing || 157;
+    const rad = (bearing - 90) * (Math.PI / 180);
+
+    // سهم القبلة الذهبي والأخضر يشير لمكة المكرمة
+    const arrowTipR = r - 8;
+    const arrowBaseR = arrowTipR - 32;
+
+    const tipX = cx + arrowTipR * Math.cos(rad);
+    const tipY = cy + arrowTipR * Math.sin(rad);
+
+    const normalRad = rad + Math.PI / 2;
+    const halfWidth = 7;
+
+    const baseX = cx + arrowBaseR * Math.cos(rad);
+    const baseY = cy + arrowBaseR * Math.sin(rad);
+
+    const pLeftX = baseX + halfWidth * Math.cos(normalRad);
+    const pLeftY = baseY + halfWidth * Math.sin(normalRad);
+
+    const pRightX = baseX - halfWidth * Math.cos(normalRad);
+    const pRightY = baseY - halfWidth * Math.sin(normalRad);
+
+    const arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    arrow.setAttribute("points", `${tipX.toFixed(1)},${tipY.toFixed(1)} ${pLeftX.toFixed(1)},${pLeftY.toFixed(1)} ${pRightX.toFixed(1)},${pRightY.toFixed(1)}`);
+    arrow.setAttribute("fill", "#10b981");
+    arrow.setAttribute("stroke", "#d4af37");
+    arrow.setAttribute("stroke-width", "1.5");
+    arrow.setAttribute("filter", "drop-shadow(0 0 8px rgba(16, 185, 129, 0.95))");
+    qiblaGroup.appendChild(arrow);
+
+    // أيقونة الكعبة المشرفة 🕋
+    const kaabaR = arrowBaseR - 18;
+    const kx = cx + kaabaR * Math.cos(rad);
+    const ky = cy + kaabaR * Math.sin(rad);
+
+    const kaabaText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    kaabaText.setAttribute("x", kx.toFixed(1));
+    kaabaText.setAttribute("y", (ky + 6).toFixed(1));
+    kaabaText.setAttribute("text-anchor", "middle");
+    kaabaText.setAttribute("font-size", "17");
+    kaabaText.textContent = "🕋";
+    qiblaGroup.appendChild(kaabaText);
   }
 
   function getDirectionLabel(deg) {
@@ -519,35 +615,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateCompassNeedle() {
     const compassDisc = document.getElementById("compass-dial-disc");
-    const qiblaLayer = document.getElementById("qibla-needle-stem");
     const degDisplay = document.getElementById("compass-deg-display");
     const dirDisplay = document.getElementById("compass-dir-display");
+    const qiblaBadge = document.getElementById("qibla-degree-text");
 
     let dialRotation = 0;
-    let qiblaRotation = 0;
 
     if (state.compassMode === "static") {
-      // وضع ثابت: القرص لا يدور، سهم القبلة يشير للاتجاه
+      // وضع ثابت: القرص لا يدور
       dialRotation = 0;
-      qiblaRotation = state.qiblaBearing;
     } else {
-      // وضع الحساس: القرص يدور عكس اتجاه الهاتف
+      // وضع الحساس: القرص يدور عكس اتجاه الهاتف لتتوافق قمة البوصلة مع الاتجاه
       dialRotation = -state.compassHeading;
-      qiblaRotation = (state.qiblaBearing - state.compassHeading + 360) % 360;
     }
 
     if (compassDisc) {
       compassDisc.style.transform = `rotate(${dialRotation}deg)`;
     }
 
-    if (qiblaLayer) {
-      qiblaLayer.style.transform = `rotate(${qiblaRotation}deg)`;
-    }
-
     // تحديث رقم الدرجة الكبير
     const currentDeg = Math.round((state.compassHeading + 360) % 360);
     if (degDisplay) degDisplay.textContent = currentDeg;
     if (dirDisplay) dirDisplay.textContent = `° ${getDirectionLabel(currentDeg)}`;
+
+    // فحص المحاذاة مع القبلة المشرفة
+    if (qiblaBadge) {
+      const qiblaDiff = Math.abs(((currentDeg - state.qiblaBearing + 540) % 360) - 180);
+      if (qiblaDiff <= 4) {
+        qiblaBadge.classList.add("aligned");
+        qiblaBadge.innerHTML = `🕋 نحو الكعبة المشرفة (${state.qiblaBearing}°) ✓`;
+      } else {
+        qiblaBadge.classList.remove("aligned");
+        qiblaBadge.innerHTML = `🧭 اتجاه القبلة: ${state.qiblaBearing}° (${state.selectedCity.name})`;
+      }
+    }
   }
 
   /* -------------------------------------------------------------
