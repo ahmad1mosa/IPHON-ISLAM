@@ -756,11 +756,17 @@ document.addEventListener("DOMContentLoaded", () => {
     let lastTapTime = 0;
     function doTasbeehTap(e) {
       const now = Date.now();
-      if (now - lastTapTime < 80) return;
+      // منع تكرار النقر المزدوج (Pointerdown + Click) الناتج عن اللمس
+      if (now - lastTapTime < 220) {
+        if (e && e.cancelable) e.preventDefault();
+        return;
+      }
       lastTapTime = now;
       if (e && e.cancelable) e.preventDefault();
+
       tasbeeh.increment();
       updateUI();
+
       if (btnTap) {
         btnTap.style.transform = "scale(0.93)";
         setTimeout(() => { if (btnTap) btnTap.style.transform = ""; }, 120);
@@ -768,11 +774,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (btnTap) {
-      btnTap.addEventListener("click", doTasbeehTap);
       btnTap.addEventListener("pointerdown", (e) => {
-        if (e.pointerType === "touch") {
-          doTasbeehTap(e);
-        }
+        doTasbeehTap(e);
+      });
+      btnTap.addEventListener("click", (e) => {
+        doTasbeehTap(e);
       });
     }
 

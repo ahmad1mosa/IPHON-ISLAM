@@ -1,4 +1,4 @@
-#Wed Aug 19 22:24:12 EET 2026
+#Wed Aug 19 22:25:23 EET 2026
 base.0=E\:\\جهاز نبضي\\اجهزه\\دائرة المغنطيسية\\نوح\\okmok\\مسبحه\\android-app\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=E\:\\جهاز نبضي\\اجهزه\\دائرة المغنطيسية\\نوح\\okmok\\مسبحه\\android-app\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
 base.2=E\:\\جهاز نبضي\\اجهزه\\دائرة المغنطيسية\\نوح\\okmok\\مسبحه\\android-app\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\12\\classes.dex
