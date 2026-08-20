@@ -121,21 +121,35 @@ class QuranManager {
     return String(num).replace(/[0-9]/g, d => arabicDigits[parseInt(d, 10)]);
   }
 
-  // دالة إزالة البسملة المكررة من الآية الأولى لكافة السور عدا الفاتحة
-  cleanAyahBasmalah(text, surahNumber, ayahNumber) {
+  // دالة تنظيف النص وإزالة البسملة المكررة والفواصل الداخلية بين الحروف
+  cleanAyahText(text, surahNumber, ayahNumber) {
     if (!text) return "";
+    let cleaned = String(text)
+      .replace(/[\r\n\t]+/g, "")
+      .replace(/[\u200A\u200B\u200C\u200E\u200F\u2060\uFEFF]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
     surahNumber = parseInt(surahNumber, 10);
     ayahNumber = parseInt(ayahNumber, 10);
+
     // في سورة الفاتحة فقط (السورة 1)، البسملة هي الآية رقم 1
     if (surahNumber === 1 && ayahNumber === 1) {
-      return text.trim();
+      return cleaned;
     }
+
     // في كافة السور الأخرى (مثل البقرة، آل عمران، الملك، يس...) نزيل البسملة المكررة من بداية الآية 1
     if (ayahNumber === 1) {
-      const basmalahRegex = /^[\s\uFEFF\xA0]*ب[\u064B-\u065F]*س[\u064B-\u065F]*م[\u064B-\u065F]*\s+[\u0600-\u06FF\s]*?ر[\u064B-\u065F]*ح[\u064B-\u065F]*ي[\u064B-\u065F]*م[\u064B-\u065F]*\s*/iu;
-      return text.replace(basmalahRegex, "").trim();
+      const basmalahRegex = /^[\s]*ب[\u0600-\u06FF\s]*?(?:ر[\u064B-\u065F]*ح[\u064B-\u065F]*[ممن][\u0600-\u06FF\s]*?)ر[\u064B-\u065F]*ح[\u064B-\u065F]*[يیى][\u064B-\u065F]*م[\u064B-\u065F]*\s*/iu;
+      cleaned = cleaned.replace(basmalahRegex, "").trim();
     }
-    return text.trim();
+
+    return cleaned;
+  }
+
+  // توافق رجعي لدالة cleanAyahBasmalah
+  cleanAyahBasmalah(text, surahNumber, ayahNumber) {
+    return this.cleanAyahText(text, surahNumber, ayahNumber);
   }
 
   // تنسيق وتلوين نصوص الآيات بخط المصحف الشريف المتصل بدون تقطيع الحروف
@@ -170,7 +184,7 @@ class QuranManager {
       const cached = this.cachedSurahs[surahNumber];
       cached.ayahs = cached.ayahs.map(a => ({
         ...a,
-        text: this.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah)
+        text: this.cleanAyahText(a.text, surahNumber, a.numberInSurah)
       }));
       return cached;
     }
@@ -182,7 +196,7 @@ class QuranManager {
         ...offlineData,
         ayahs: offlineData.ayahs.map(a => ({
           ...a,
-          text: this.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah)
+          text: this.cleanAyahText(a.text, surahNumber, a.numberInSurah)
         }))
       };
       this.cachedSurahs[surahNumber] = cleaned;
@@ -196,7 +210,7 @@ class QuranManager {
         const parsed = JSON.parse(localData);
         parsed.ayahs = parsed.ayahs.map(a => ({
           ...a,
-          text: this.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah)
+          text: this.cleanAyahText(a.text, surahNumber, a.numberInSurah)
         }));
         this.cachedSurahs[surahNumber] = parsed;
         return parsed;
@@ -215,7 +229,7 @@ class QuranManager {
             englishName: json.data.englishName,
             ayahs: json.data.ayahs.map(a => ({
               numberInSurah: a.numberInSurah,
-              text: this.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah)
+              text: this.cleanAyahText(a.text, surahNumber, a.numberInSurah)
             }))
           };
 
@@ -243,7 +257,7 @@ class QuranManager {
             englishName: surahMeta ? surahMeta.englishName : `Surah ${surahNumber}`,
             ayahs: json2.chapter.map(a => ({
               numberInSurah: a.verse,
-              text: this.cleanAyahBasmalah(a.text, surahNumber, a.verse)
+              text: this.cleanAyahText(a.text, surahNumber, a.verse)
             }))
           };
 
@@ -257,18 +271,6 @@ class QuranManager {
       }
     } catch (e2) {
       console.warn("Secondary API fetch failed:", e2);
-    }
-
-          this.cachedSurahs[surahNumber] = surahObj;
-          try {
-            localStorage.setItem(`gs_surah_${surahNumber}`, JSON.stringify(surahObj));
-          } catch (e) {}
-
-          return surahObj;
-        }
-      }
-    } catch (e2) {
-      console.warn("Fallback fetch also failed:", e2);
     }
 
     // Fallback في حال تعذر الاتصال
