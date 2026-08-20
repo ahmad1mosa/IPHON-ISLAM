@@ -139,6 +139,7 @@ class QuranManager {
     }
 
     // في كافة السور الأخرى (مثل البقرة، آل عمران، الملك، يس...) نزيل البسملة المكررة من بداية الآية 1
+    if (ayahNumber === 1) {
       const basmalahRegex = /^[\s]*\u0628[\u0600-\u06FF\s]*?(?:\u0631[\u064B-\u065F]*\u062D[\u064B-\u065F]*[\u0645\u0646][\u0600-\u06FF\s]*?)\u0631[\u064B-\u065F]*\u062D[\u064B-\u065F]*[\u0649\u064A\u06CC\u06D0-\u06D2][\u064B-\u065F]*\u0645[\u064B-\u065F]*\s*/iu;
       cleaned = cleaned.replace(basmalahRegex, "").trim();
     }
