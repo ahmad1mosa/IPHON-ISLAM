@@ -1382,7 +1382,8 @@ document.addEventListener("DOMContentLoaded", () => {
           ayahSpan.appendChild(badgeEl);
         }
 
-        const formattedText = quran.formatGoldenQuranText(a.text);
+        const rawAyahText = quran.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah);
+        const formattedText = quran.formatGoldenQuranText(rawAyahText);
         const textNode = document.createElement("span");
         textNode.innerHTML = ` ${formattedText} `;
         ayahSpan.appendChild(textNode);

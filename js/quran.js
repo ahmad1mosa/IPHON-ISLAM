@@ -121,49 +121,40 @@ class QuranManager {
     return String(num).replace(/[0-9]/g, d => arabicDigits[parseInt(d, 10)]);
   }
 
-  // تنسيق وتلوين نصوص الآيات بأحكام التجويد وخط المصحف الذهبي (Tajweed Rules & Golden Quran Colors)
+  // دالة إزالة البسملة المكررة من الآية الأولى لكافة السور عدا الفاتحة
+  cleanAyahBasmalah(text, surahNumber, ayahNumber) {
+    if (!text) return "";
+    surahNumber = parseInt(surahNumber, 10);
+    ayahNumber = parseInt(ayahNumber, 10);
+    // في سورة الفاتحة فقط (السورة 1)، البسملة هي الآية رقم 1
+    if (surahNumber === 1 && ayahNumber === 1) {
+      return text.trim();
+    }
+    // في كافة السور الأخرى (مثل البقرة، آل عمران، الملك، يس...) نزيل البسملة المكررة من بداية الآية 1
+    if (ayahNumber === 1) {
+      const basmalahRegex = /^[\s\uFEFF\xA0]*ب[\u064B-\u065F]*س[\u064B-\u065F]*م[\u064B-\u065F]*\s+[\u0600-\u06FF\s]*?ر[\u064B-\u065F]*ح[\u064B-\u065F]*ي[\u064B-\u065F]*م[\u064B-\u065F]*\s*/iu;
+      return text.replace(basmalahRegex, "").trim();
+    }
+    return text.trim();
+  }
+
+  // تنسيق وتلوين نصوص الآيات بخط المصحف الشريف المتصل بدون تقطيع الحروف
   formatGoldenQuranText(text) {
     if (!text) return "";
     let formatted = text;
 
-    // 1. تلوين علامات الوقف والوصل والرموز القرآنية (Waqf & Sakt Signs) باللون الذهبي البرونزي
+    // 1. تلوين علامات الوقف والوصل والرموز القرآنية (Waqf & Sakt Signs)
     const waqfRegex = /([\u06D6-\u06ED\u06E9\u06DB\u06DC\u06DF\u06E0\u06E2\u06E8\u08D4-\u08E1])/g;
     formatted = formatted.replace(waqfRegex, '<span class="quran-waqf-sign">$1</span>');
 
-    // 2. تلوين المدود وأحكام المد باللون الأحمر الياقوتي (Red Madd: المد المتصل والمنفصل واللازم والعارض)
-    // الحروف التي تعلوها علامة المد ٓ (U+0653) أو الألف الممدودة آ
-    const maddRegex = /([آ]|(?:[اويىـ]\u0653)|(?:[اويىـ][\u064B-\u0652\u0670]*\u0653)|(?:[\u0670]\u0653))/g;
-    formatted = formatted.replace(maddRegex, '<span class="tajweed-madd">$1</span>');
-
-    // 3. تلوين حروف القلقلة باللون الأزرق السماوي (Cyan Qalqalah: قطب جد الساكنة مثل "يُدْرِيكَ")
-    const qalqalahRegex = /([قطبجد]\u0652|[قطبجد](?=[\s\u06D6-\u06ED]|$))/g;
-    formatted = formatted.replace(qalqalahRegex, '<span class="tajweed-qalqalah">$1</span>');
-
-    // 4. تلوين الغنة والإخفاء والإدغام والإقلاب باللون الأخضر الزمردي (Emerald Green: مثل "فَتَنفَعَهُ")
-    // النون والميم المشددة (نّ، مّ)
-    const ghunnahShaddahRegex = /([نم]\u0651[\u064E\u064F\u0650\u064B\u064C\u064D]?)/g;
-    formatted = formatted.replace(ghunnahShaddahRegex, '<span class="tajweed-ghunnah">$1</span>');
-
-    // النون الساكنة أو التنوين قبل حروف الإخفاء (ت ث ج د ذ ز س ش ص ض ط ظ ف ق ك)
-    const ikhfaRegex = /([ن][\u0652]?|[ًٌٍ])(?=[\s]*[تثجدذزسشصضطظفقك])/g;
-    formatted = formatted.replace(ikhfaRegex, '<span class="tajweed-ikhfa">$1</span>');
-
-    // الإقلاب (علامة الميم الصغيرة فوق النون نۢ أو التنوين)
-    const iqlabRegex = /([ن][\u06E2\u08F0-\u08F2]|(?:[\u064B-\u064D][\u06E2]))/g;
-    formatted = formatted.replace(iqlabRegex, '<span class="tajweed-iqlab">$1</span>');
-
-    // 5. تلوين الحروف التي لا تلفظ باللون الرمادي الخافت (Silent Letters: همزة الوصل والألف والواو المزيدة)
-    const silentRegex = /([ٱ]|(?:[اوى]۟))/g;
-    formatted = formatted.replace(silentRegex, '<span class="tajweed-silent">$1</span>');
-
-    // 6. إبراز لفظ الجلالة والأسماء الإلهية المقدسة باللون الذهبي البراق كالمصحف الذهبي
+    // 2. إبراز لفظ الجلالة والأسماء الإلهية المقدسة باللون الذهبي البراق كالمصحف الذهبي (كلمات كاملة بدون قطع الاتصال)
     const divineRegex = /(\b(?:اللَّهِ|اللَّهُ|اللَّهَ|لِلَّهِ|بِاللَّهِ|فَلِلَّهِ|وَاللَّهُ|وَاللَّهِ|تَاللَّهِ|رَبِّ|رَبَّنَا|رَبَّكُمْ|رَبِّكَ|رَبِّكُمَا|ٱللَّهِ|ٱللَّهُ|ٱللَّهَ|ٱلرَّحْمَٰنِ|ٱلرَّحِيمِ|الرَّحْمَٰنِ|الرَّحِيمِ|الْغَفُورُ|الْعَزِيزُ|الْحَكِيمُ|الْعَلِيمُ|الْقَدِيرُ|الْخَبِيرُ|السَّمِيعُ|الْبَصِيرُ|الْمَلِكُ|الْقُدُّوسُ|السَّلَامُ|الْمُؤْمِنُ|الْمُهَيْمِنُ|الْجَبَّارُ|الْمُتَكَبِّرُ|الْخَالِقُ|الْبَارِئُ|الْمُصَوِّرُ|الْأَعْلَى|الْكَبِيرُ|الْمُتَعَالِ)\b)/g;
     formatted = formatted.replace(divineRegex, '<span class="quran-word-divine">$1</span>');
 
     return formatted;
   }
 
-  // جلب نص السورة (مع دعم الكاش والعمل بدون إنترنت)
+  // جلب نص السورة (مع دعم الكاش والعمل بدون إنترنت وإزالة البسملة المكررة)
   async fetchSurah(surahNumber) {
     surahNumber = parseInt(surahNumber, 10);
     this.currentSurah = surahNumber;
@@ -176,13 +167,26 @@ class QuranManager {
 
     // 1. فحص الكاش الداخلي
     if (this.cachedSurahs[surahNumber]) {
-      return this.cachedSurahs[surahNumber];
+      const cached = this.cachedSurahs[surahNumber];
+      cached.ayahs = cached.ayahs.map(a => ({
+        ...a,
+        text: this.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah)
+      }));
+      return cached;
     }
 
     // 2. فحص السور المحفوظة في قاعدة البيانات المدمجة المباشرة (OFFLINE_SURAHS)
     if (typeof OFFLINE_SURAHS !== "undefined" && OFFLINE_SURAHS[surahNumber]) {
-      this.cachedSurahs[surahNumber] = OFFLINE_SURAHS[surahNumber];
-      return OFFLINE_SURAHS[surahNumber];
+      const offlineData = OFFLINE_SURAHS[surahNumber];
+      const cleaned = {
+        ...offlineData,
+        ayahs: offlineData.ayahs.map(a => ({
+          ...a,
+          text: this.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah)
+        }))
+      };
+      this.cachedSurahs[surahNumber] = cleaned;
+      return cleaned;
     }
 
     // 3. فحص التخزين المحلي
@@ -190,6 +194,10 @@ class QuranManager {
       const localData = localStorage.getItem(`gs_surah_${surahNumber}`);
       if (localData) {
         const parsed = JSON.parse(localData);
+        parsed.ayahs = parsed.ayahs.map(a => ({
+          ...a,
+          text: this.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah)
+        }));
         this.cachedSurahs[surahNumber] = parsed;
         return parsed;
       }
@@ -207,7 +215,7 @@ class QuranManager {
             englishName: json.data.englishName,
             ayahs: json.data.ayahs.map(a => ({
               numberInSurah: a.numberInSurah,
-              text: a.text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim() || a.text
+              text: this.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah)
             }))
           };
 
@@ -235,9 +243,21 @@ class QuranManager {
             englishName: surahMeta ? surahMeta.englishName : `Surah ${surahNumber}`,
             ayahs: json2.chapter.map(a => ({
               numberInSurah: a.verse,
-              text: a.text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim() || a.text
+              text: this.cleanAyahBasmalah(a.text, surahNumber, a.verse)
             }))
           };
+
+          this.cachedSurahs[surahNumber] = surahObj;
+          try {
+            localStorage.setItem(`gs_surah_${surahNumber}`, JSON.stringify(surahObj));
+          } catch (e) {}
+
+          return surahObj;
+        }
+      }
+    } catch (e2) {
+      console.warn("Secondary API fetch failed:", e2);
+    }
 
           this.cachedSurahs[surahNumber] = surahObj;
           try {

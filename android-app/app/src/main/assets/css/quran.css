@@ -364,6 +364,10 @@
   color: var(--text-main);
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
+  direction: rtl;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  text-rendering: optimizeLegibility;
 }
 
 /* ترويسة السورة الذهبية الفاخرة (Golden Quran Surah Banner) */
@@ -426,9 +430,10 @@
   position: relative;
   transition: all 0.25s ease;
   border-radius: 6px;
-  padding: 2px 4px;
+  padding: 2px 2px;
   cursor: pointer;
-  word-spacing: 2px;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
 }
 
 .ayah-text:hover {
@@ -441,7 +446,7 @@
   font-weight: 700;
   text-shadow: 0 0 10px rgba(194, 65, 12, 0.4), 0 0 2px rgba(212, 175, 55, 0.6);
   display: inline;
-  letter-spacing: 0.5px;
+  letter-spacing: normal !important;
 }
 
 /* 1. تلوين أحكام المد باللون الأحمر الياقوتي (Madd Rules - Red) */
