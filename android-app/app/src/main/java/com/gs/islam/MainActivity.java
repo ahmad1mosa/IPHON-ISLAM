@@ -183,7 +183,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         settings.setGeolocationEnabled(true);
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url != null && (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("market://"))) {
+                    try {
+                        android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url));
+                        startActivity(intent);
+                        return true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) {
+                if (request != null && request.getUrl() != null) {
+                    String url = request.getUrl().toString();
+                    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("market://")) {
+                        try {
+                            android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, request.getUrl());
+                            startActivity(intent);
+                            return true;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                return false;
+            }
+        });
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -203,11 +234,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST);
+        java.util.List<String> neededPermissions = new java.util.ArrayList<>();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            neededPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            neededPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        }
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            if (ContextCompat.checkSelfPermission(this, "android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                neededPermissions.add("android.permission.POST_NOTIFICATIONS");
+            }
+        }
+        if (!neededPermissions.isEmpty()) {
+            ActivityCompat.requestPermissions(this, neededPermissions.toArray(new String[0]), LOCATION_PERMISSION_REQUEST);
         }
     }
 

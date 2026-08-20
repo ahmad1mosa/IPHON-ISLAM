@@ -19,12 +19,18 @@
   <link rel="apple-touch-icon" href="icons/icon-512.png">
   <link rel="icon" type="image/png" href="icons/icon-512.png">
 
+  <!-- Google Fonts: Amiri Quran, Scheherazade New & Tajawal -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.5.0">
-  <link rel="stylesheet" href="css/prayer.css?v=2.5.0">
-  <link rel="stylesheet" href="css/tasbeeh.css?v=2.5.0">
-  <link rel="stylesheet" href="css/quran.css?v=2.5.0">
-  <link rel="stylesheet" href="css/adhkar.css?v=2.5.0">
+  <link rel="stylesheet" href="css/style.css?v=3.1.1">
+  <link rel="stylesheet" href="css/prayer.css?v=3.1.1">
+  <link rel="stylesheet" href="css/tasbeeh.css?v=3.1.1">
+  <link rel="stylesheet" href="css/quran.css?v=3.1.1">
+  <link rel="stylesheet" href="css/adhkar.css?v=3.1.1">
+  <link rel="stylesheet" href="css/hifz.css?v=3.1.1">
 </head>
 
 <body>
@@ -153,33 +159,240 @@
 
     </section>
 
-    <!-- ==================== 2. تبويب القرآن الكريم ==================== -->
+    <!-- ==================== 2. تبويب القرآن الكريم والحفظ والمكتبة ==================== -->
     <section class="tab-pane" id="tab-quran">
 
-      <!-- بطاقة استئناف آخر قراءة (Last Read Resume Banner) -->
-      <div class="last-read-card" id="quran-last-read-card" style="display: none;">
-        <div class="last-read-left">
-          <div class="last-read-icon">📖</div>
-          <div>
-            <div class="last-read-tag" data-i18n="lastRead">🔖 آخر ما قرأت:</div>
-            <div class="last-read-surah" id="last-read-surah-title">سورة الفاتحة • الآية 1</div>
+      <!-- شريط التبويبات الفرعية المتطور لقسم القرآن -->
+      <div class="quran-subtabs-nav">
+        <button class="quran-subtab-btn active" id="btn-subtab-reading" data-subtab="reading">
+          <span>📖</span> <span>المصحف</span>
+        </button>
+        <button class="quran-subtab-btn" id="btn-subtab-hifz" data-subtab="hifz">
+          <span>🎯</span> <span>خطط الحفظ</span>
+        </button>
+        <button class="quran-subtab-btn" id="btn-subtab-recite" data-subtab="recite">
+          <span>🎙️</span> <span>التسميع الذكي</span>
+        </button>
+        <button class="quran-subtab-btn" id="btn-subtab-quiz" data-subtab="quiz">
+          <span>🏆</span> <span>اختبار المحفوظ</span>
+        </button>
+        <button class="quran-subtab-btn" id="btn-subtab-library" data-subtab="library">
+          <span>📚</span> <span>دليل الميزات والتفسير</span>
+        </button>
+      </div>
+
+      <!-- 1. قسم قراءة المصحف الشريف -->
+      <div class="quran-subpane" id="quran-pane-reading">
+        <!-- بطاقة استئناف آخر قراءة (Last Read Resume Banner) -->
+        <div class="last-read-card" id="quran-last-read-card" style="display: none;">
+          <div class="last-read-left">
+            <div class="last-read-icon">📖</div>
+            <div>
+              <div class="last-read-tag" data-i18n="lastRead">🔖 آخر ما قرأت:</div>
+              <div class="last-read-surah" id="last-read-surah-title">سورة الفاتحة • الآية 1</div>
+            </div>
+          </div>
+          <button class="last-read-btn" data-i18n="resumeReading">استئناف ↗</button>
+        </div>
+
+        <!-- شريط البحث السريع في السور مع زر مسح النص الفوري -->
+        <div class="quran-search-bar">
+          <div class="search-input-wrapper" style="position: relative;">
+            <span class="search-icon-inside">🔍</span>
+            <input type="text" id="quran-search-input" data-i18n-placeholder="searchSurah"
+              placeholder="ابحث عن اسم السورة أو رقمها..." style="padding-left: 36px;">
+            <button class="search-clear-btn" id="btn-clear-quran-search" style="display: none;" title="مسح البحث">❌</button>
           </div>
         </div>
-        <button class="last-read-btn" data-i18n="resumeReading">استئناف ↗</button>
-      </div>
 
-      <!-- شريط البحث السريع في السور -->
-      <div class="quran-search-bar">
-        <div class="search-input-wrapper">
-          <span class="search-icon-inside">🔍</span>
-          <input type="text" id="quran-search-input" data-i18n-placeholder="searchSurah"
-            placeholder="ابحث عن اسم السورة أو رقمها...">
+        <!-- قائمة سور القرآن الـ 114 -->
+        <div class="surahs-grid" id="quran-surahs-list">
+          <!-- يتم ملؤها برمجياً -->
         </div>
       </div>
 
-      <!-- قائمة سور القرآن الـ 114 -->
-      <div class="surahs-grid" id="quran-surahs-list">
-        <!-- يتم ملؤها برمجياً -->
+      <!-- 2. قسم خطط الحفظ والمراجعة ولوحة شارات الحفّاظ -->
+      <div class="quran-subpane" id="quran-pane-hifz" style="display: none;">
+        <!-- بطاقة التقدم ونسبة الإنجاز الحالية -->
+        <div class="hifz-progress-card">
+          <div class="hifz-progress-header">
+            <div class="hifz-plan-title" id="hifz-active-plan-name">🌟 خطة حفظ جزء عمّ (30)</div>
+            <div class="hifz-streak-badge" id="hifz-streak-display">🔥 الالتزام: 1 يوم</div>
+          </div>
+          <div class="hifz-bar-outer">
+            <div class="hifz-bar-fill" id="hifz-progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div class="hifz-stats-row">
+            <span id="hifz-stats-ayahs">تم حفظ: 0 من 564 آية</span>
+            <span id="hifz-stats-percent" style="color: var(--gold-light); font-weight: 800;">نسبة الإنجاز: 0%</span>
+          </div>
+        </div>
+
+        <!-- اختيار خطة الحفظ -->
+        <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-gold); margin-bottom: 8px;">
+          🎯 اختر خطة الحفظ أو المراجعة:
+        </div>
+        <div class="hifz-plans-grid" id="hifz-plans-container">
+          <!-- يتم ملؤها برمجياً -->
+        </div>
+
+        <!-- لوحة مراجعة مواضع التردد والخطأ للحفاظ (Hafiz Badges Review Panel) -->
+        <div style="margin-top: 18px; padding: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 0.92rem; font-weight: 800; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+              <span>⚠️</span> <span>لوحة تنبيهات الحفاظ (مواضع التردد والخطأ)</span>
+            </div>
+            <span class="badge" id="hafiz-badges-total-count" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">0 مواضع</span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px;">
+            تظهر هنا جميع الآيات والكلمات التي وضعت عليها علامة تنبيه (تردد 🟡 / خطأ متكرر 🟠 / نسيان 🔴) لمراجعتها وتثبيتها.
+          </p>
+          <div id="hafiz-badges-list-container" style="display: flex; flex-direction: column; gap: 6px;">
+            <!-- يتم ملؤها برمجياً -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. قسم التسميع الذكي وتصحيح الأخطاء اللحظي -->
+      <div class="quran-subpane" id="quran-pane-recite" style="display: none;">
+        <!-- اختيار مستوى دقة التحقق مع الشرح -->
+        <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-gold); margin-bottom: 6px;">
+          ⚙️ اختر مستوى دقة التحقق والتسميع:
+        </div>
+        <div class="strictness-cards-grid">
+          <div class="strictness-card" data-strictness="easy">
+            <div class="strictness-card-title" style="color: #10b981;">🟢 سهل</div>
+            <div class="strictness-card-desc">يتساهل في التشكيل والهمزات والتاء المربوطة والألف اللينة.</div>
+          </div>
+          <div class="strictness-card active" data-strictness="medium">
+            <div class="strictness-card-title" style="color: #3b82f6;">🔵 متوسط (موصى به)</div>
+            <div class="strictness-card-desc">يطابق الكلمات والهمزات بدقة مع مرونة في علامات الوقف.</div>
+          </div>
+          <div class="strictness-card" data-strictness="strict">
+            <div class="strictness-card-title" style="color: #ef4444;">🔴 متقن وصعب</div>
+            <div class="strictness-card-desc">تدقيق حرفي كامل بالحركات والتشكيل ورسم المصحف.</div>
+          </div>
+        </div>
+
+        <!-- اختيار السورة للتسميع مع زر المسح -->
+        <div style="display: flex; gap: 8px; margin: 12px 0 8px;">
+          <div style="flex: 1; position: relative;">
+            <input type="text" id="recite-surah-search" class="custom-select" placeholder="🔍 اختر السورة للتسميع (مثال: الفاتحة)..." style="width: 100%; padding-left: 32px;">
+            <button class="search-clear-btn" id="btn-clear-recite-search" style="display: none;">❌</button>
+          </div>
+          <select class="custom-select" id="recite-surah-select" style="max-width: 140px;">
+            <!-- قائمة السور -->
+          </select>
+        </div>
+
+        <!-- مساحة التسميع التفاعلية -->
+        <div class="recitation-stage" id="recitation-words-stage">
+          <!-- الكلمات وحالتها (أحمر للخطأ، أخضر للتصحيح) -->
+          <div style="text-align: center; color: var(--text-muted); font-size: 1.1rem; padding: 20px;">
+            اضغط على زر الميكروفون أدناه وابدأ بتلاوة الآيات الكريمة بصوتك، وسيتم كشف الأخطاء وتصحيحها لحظياً!
+          </div>
+        </div>
+
+        <!-- زر الميكروفون والتسجيل الصوتي -->
+        <div style="text-align: center;">
+          <button class="recitation-mic-btn" id="btn-toggle-recitation-mic" title="بدء التسميع الصوتي">
+            <span>🎙️</span>
+          </button>
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);" id="recitation-status-label">
+            اضغط لبدء التسميع
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. قسم اختبار المحفوظ وتقييم الدرجات -->
+      <div class="quran-subpane" id="quran-pane-quiz" style="display: none;">
+        <div id="quiz-setup-section">
+          <div class="hero-countdown-card" style="margin-bottom: 12px; text-align: center;">
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--gold-light); margin-bottom: 4px;">
+              🏆 ساحة اختبار المحفوظ القرآني
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">
+              اختبر قوة حفظك عبر أسئلة تفاعلية (إكمال الآيات، معرفة السور، والمتشابهات) مع تقييم دقيق وتقرير بالأخطاء.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">اختر السور للاختبار:</label>
+            <select class="custom-select" id="quiz-surah-scope">
+              <option value="juz30">جزء عمّ كاملاً (السور 78 إلى 114)</option>
+              <option value="fatihah_short">سورة الفاتحة وقصار السور</option>
+              <option value="juz29">جزء تبارك (السور 67 إلى 77)</option>
+              <option value="baqarah">سورة البقرة</option>
+              <option value="all">كامل القرآن الكريم</option>
+            </select>
+          </div>
+
+          <button class="btn-gps" id="btn-start-quiz" style="width: 100%; padding: 12px; font-size: 0.95rem; justify-content: center; background: var(--gold-gradient); color: #061915; font-weight: 800;">
+            <span>🚀</span> <span>بدء الاختبار الآن</span>
+          </button>
+        </div>
+
+        <!-- مساحة عرض أسئلة الاختبار التفاعلية -->
+        <div id="quiz-active-arena" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span id="quiz-question-counter" style="font-size: 0.84rem; font-weight: 800; color: var(--gold-light);">السؤال 1 من 5</span>
+            <span id="quiz-current-score" style="font-size: 0.84rem; font-weight: 800; color: #10b981;">النقاط: 0</span>
+          </div>
+
+          <div class="quiz-question-box">
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;" id="quiz-question-prompt">
+              أكمل الآية الكريمة التالية:
+            </div>
+            <div class="quiz-verse-display" id="quiz-verse-text">
+              ﴿ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴾
+            </div>
+          </div>
+
+          <div class="quiz-options-list" id="quiz-options-container">
+            <!-- أزرار الخيارات الأربعة -->
+          </div>
+        </div>
+
+        <!-- تقرير النتيجة والتقييم النهائي -->
+        <div id="quiz-result-section" style="display: none;">
+          <div class="quiz-score-card">
+            <div style="font-size: 1rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">
+              نتيجة تقييم الاختبار
+            </div>
+            <div class="quiz-score-percentage" id="quiz-final-percentage">100%</div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: #10b981; margin: 6px 0;" id="quiz-final-grade">
+              ممتاز ⭐⭐⭐
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);" id="quiz-final-summary">
+              أجبت بشكل صحيح على 5 من 5 أسئلة.
+            </div>
+          </div>
+
+          <div id="quiz-mistakes-container" style="margin-bottom: 14px;">
+            <!-- قائمة الأخطاء للمراجعة -->
+          </div>
+
+          <button class="btn-gps" id="btn-restart-quiz" style="width: 100%; padding: 12px; font-size: 0.95rem; justify-content: center;">
+            <span>🔄</span> <span>إعادة الاختبار</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 5. قسم دليل الميزات والمكتبة والتفاسير -->
+      <div class="quran-subpane" id="quran-pane-library" style="display: none;">
+        <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-gold); margin-bottom: 10px;">
+          📖 دليل استخدام التطبيق والمكتبة الإسلامية:
+        </div>
+        <div class="guide-cards-grid" id="guide-cards-container">
+          <!-- بطاقات الميزات -->
+        </div>
+
+        <div style="margin-top: 18px; font-size: 0.88rem; font-weight: 800; color: var(--text-gold); margin-bottom: 10px;">
+          📜 كتب الحديث الشريف (الأربعون النووية):
+        </div>
+        <div id="hadith-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- أحاديث الأربعين النووية -->
+        </div>
       </div>
 
     </section>
@@ -339,31 +552,107 @@
             <span class="accordion-chevron">▼</span>
           </div>
           <div class="accordion-body">
-            <div class="form-group">
-              <label class="form-label">وضع تنبيه الأذان (صوت / رجاج / ساكت):</label>
-              <select class="custom-select" id="adhan-mode-select">
-                <option value="sound">🔊 صوت الأذان كامل (صوت + إشعار + اهتزاز)</option>
-                <option value="vibrate">📳 رجاج فقط (اهتزاز + إشعار بدون صوت)</option>
-                <option value="silent">🔕 ساكت / صامت (إشعار مرئي فقط بدون صوت أو اهتزاز)</option>
-              </select>
-            </div>
-
-            <div class="form-group" id="adhan-volume-group">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <label class="form-label" style="margin-bottom: 0;">مستوى صوت الأذان:</label>
-                <span class="volume-val-badge" id="adhan-volume-val" style="font-size: 0.82rem; font-weight: 800; color: var(--text-gold);">100%</span>
+            <!-- المفتاح المنزلق الرئيسي لتشغيل/إطفاء الأذان والتنبيهات (أزرق عند التشغيل / سكني عند الإطفاء) -->
+            <div class="toggle-switch-wrapper master-toggle-box">
+              <div class="toggle-switch-info">
+                <div class="toggle-switch-title">🔔 تنبيهات وأذان الصلوات</div>
+                <div class="toggle-switch-subtitle" id="adhan-status-subtitle">الأذان مفعل بالكامل مع دخول كل صلاة</div>
               </div>
-              <input type="range" class="font-slider" id="adhan-volume-slider" min="0" max="100" step="5" value="100" style="width: 100%;">
+              <label class="switch-slider-label">
+                <input type="checkbox" id="adhan-master-toggle" checked>
+                <span class="slider-knob"></span>
+              </label>
             </div>
 
-            <div class="form-group" id="adhan-voice-group">
-              <label class="form-label">صوت الأذان المفضل:</label>
-              <select class="custom-select" id="adhan-voice-select">
-                <!-- أصوات الأذان الحقيقية -->
-              </select>
+            <!-- خيارات إضافية للمفاتيح المنزلقة الذكية -->
+            <div id="adhan-controls-container">
+              <!-- مفتاح منزلق للاهتزاز -->
+              <div class="toggle-switch-wrapper">
+                <div class="toggle-switch-info">
+                  <div class="toggle-switch-title">📳 الاهتزاز مع الأذان</div>
+                  <div class="toggle-switch-subtitle">إصدار اهتزاز للجهاز عند دخول الوقت</div>
+                </div>
+                <label class="switch-slider-label">
+                  <input type="checkbox" id="adhan-vibrate-toggle" checked>
+                  <span class="slider-knob"></span>
+                </label>
+              </div>
+
+              <!-- مفتاح منزلق لإشعارات النظام المنبثقة -->
+              <div class="toggle-switch-wrapper">
+                <div class="toggle-switch-info">
+                  <div class="toggle-switch-title">📱 إشعارات النظام والشاشة</div>
+                  <div class="toggle-switch-subtitle">إظهار إشعار منبثق على شاشة الهاتف</div>
+                </div>
+                <label class="switch-slider-label">
+                  <input type="checkbox" id="adhan-notify-toggle" checked>
+                  <span class="slider-knob"></span>
+                </label>
+              </div>
+
+              <!-- شريط مستوى صوت الأذان -->
+              <div class="form-group" id="adhan-volume-group" style="margin-top: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" style="margin-bottom: 0;">مستوى صوت الأذان:</label>
+                  <span class="volume-val-badge" id="adhan-volume-val" style="font-size: 0.82rem; font-weight: 800; color: var(--text-gold);">100%</span>
+                </div>
+                <input type="range" class="font-slider" id="adhan-volume-slider" min="0" max="100" step="5" value="100" style="width: 100%;">
+              </div>
+
+              <!-- صوت المؤذن المفضل -->
+              <div class="form-group" id="adhan-voice-group">
+                <label class="form-label">صوت الأذان المفضل:</label>
+                <select class="custom-select" id="adhan-voice-select">
+                  <!-- أصوات الأذان الحقيقية -->
+                </select>
+              </div>
+
+              <!-- مفاتيح منزلقة مخصصة لكل صلاة -->
+              <div class="prayer-toggles-section" style="margin-top: 14px;">
+                <div style="font-size: 0.82rem; font-weight: 800; color: var(--text-gold); margin-bottom: 8px;">
+                  🕌 تفعيل التنبيه لصلوات محددة:
+                </div>
+                <div class="prayer-toggles-grid">
+                  <div class="prayer-mini-toggle">
+                    <span>🌌 الفجر</span>
+                    <label class="switch-slider-label mini-slider">
+                      <input type="checkbox" id="toggle-prayer-fajr" checked data-prayer="fajr">
+                      <span class="slider-knob"></span>
+                    </label>
+                  </div>
+                  <div class="prayer-mini-toggle">
+                    <span>☀️ الظهر</span>
+                    <label class="switch-slider-label mini-slider">
+                      <input type="checkbox" id="toggle-prayer-dhuhr" checked data-prayer="dhuhr">
+                      <span class="slider-knob"></span>
+                    </label>
+                  </div>
+                  <div class="prayer-mini-toggle">
+                    <span>⛅ العصر</span>
+                    <label class="switch-slider-label mini-slider">
+                      <input type="checkbox" id="toggle-prayer-asr" checked data-prayer="asr">
+                      <span class="slider-knob"></span>
+                    </label>
+                  </div>
+                  <div class="prayer-mini-toggle">
+                    <span>🌇 المغرب</span>
+                    <label class="switch-slider-label mini-slider">
+                      <input type="checkbox" id="toggle-prayer-maghrib" checked data-prayer="maghrib">
+                      <span class="slider-knob"></span>
+                    </label>
+                  </div>
+                  <div class="prayer-mini-toggle">
+                    <span>🌃 العشاء</span>
+                    <label class="switch-slider-label mini-slider">
+                      <input type="checkbox" id="toggle-prayer-isha" checked data-prayer="isha">
+                      <span class="slider-knob"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div style="margin-top: 12px; display: flex; gap: 8px;">
+            <div style="margin-top: 14px; display: flex; gap: 8px;">
               <button class="btn-gps" id="btn-test-adhan"
                 style="flex: 1; padding: 10px 14px; font-size: 0.88rem; justify-content: center;">
                 <span>🔊</span> <span id="test-adhan-label">تجربة صوت الأذان</span>
@@ -482,13 +771,18 @@
   <!-- ==================== نافذة قراءة السورة الكريمة ==================== -->
   <div class="quran-reader-modal" id="quran-reader-modal">
 
-    <!-- الترويسة مع زر الرجوع السلس -->
+    <!-- الترويسة مع زر الرجوع السلس ومبدل مظهر المصحف -->
     <div class="reader-header-bar">
       <button class="reader-back-btn" id="btn-reader-back" title="رجوع لقائمة السور">
         <span>←</span> <span>رجوع</span>
       </button>
       <div class="reader-title-area" id="reader-surah-title">سورة الفاتحة</div>
-      <button class="close-modal-btn" id="close-quran-reader-btn" title="إغلاق">&times;</button>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button class="icon-btn" id="btn-toggle-mushaf-theme" style="width: 34px; height: 34px; font-size: 0.95rem; background: var(--bg-card); border: 1px solid var(--gold-primary);" title="تبديل مظهر المصحف (ورقي عاجي / ليلي)">
+          📜
+        </button>
+        <button class="close-modal-btn" id="close-quran-reader-btn" title="إغلاق">&times;</button>
+      </div>
     </div>
 
     <!-- شريط القارئ والصوتيات المتزامن مع الآيات -->
@@ -516,31 +810,39 @@
         </button>
       </div>
 
-      <button class="btn-gps" id="quran-bookmark-btn" style="padding: 5px 8px; font-size: 0.75rem;">
-        📌 حفظ
-      </button>
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <button class="btn-gps" id="quran-tafsir-btn" style="padding: 5px 8px; font-size: 0.75rem;" title="تفسير الآيات">
+          📚 التفسير
+        </button>
+        <button class="btn-gps" id="quran-bookmark-btn" style="padding: 5px 8px; font-size: 0.75rem;" title="حفظ العلامة">
+          📌 حفظ
+        </button>
+      </div>
     </div>
 
-    <!-- شريط التكبير والتصغير السهل للآيات (Easy Zoom Toolbar) -->
+    <!-- شريط التكبير والتصغير السهل للآيات ودليل ألوان التجويد -->
     <div class="font-zoom-bar">
-      <span class="font-zoom-label">🔍 حجم الخط:</span>
-
       <div class="font-zoom-presets">
-        <button class="font-preset-btn" data-size="22">صغير</button>
-        <button class="font-preset-btn" data-size="28">متوسط</button>
-        <button class="font-preset-btn" data-size="34">كبير</button>
-        <button class="font-preset-btn" data-size="42">ضخم</button>
+        <button class="font-preset-btn" data-size="24">صغير</button>
+        <button class="font-preset-btn" data-size="30">متوسط</button>
+        <button class="font-preset-btn active" data-size="36">كبير</button>
+        <button class="font-preset-btn" data-size="44">ضخم</button>
       </div>
 
       <div class="font-zoom-slider-wrapper">
         <button class="icon-btn" id="quran-font-decrease" style="width: 26px; height: 26px; font-size: 0.75rem;"
           title="تصغير">أ-</button>
-        <input type="range" class="font-slider" id="quran-font-slider" min="18" max="46" step="2" value="28">
+        <input type="range" class="font-slider" id="quran-font-slider" min="20" max="48" step="2" value="36">
         <button class="icon-btn" id="quran-font-increase" style="width: 26px; height: 26px; font-size: 0.75rem;"
           title="تكبير">أ+</button>
       </div>
 
-      <span class="font-size-val" id="quran-font-size-display">28px</span>
+      <!-- دليل ألوان أحكام التجويد بطراز المصحف الذهبي -->
+      <div class="tajweed-legend-bar" style="display: flex; align-items: center; gap: 6px; font-size: 0.7rem; font-weight: 700; white-space: nowrap;">
+        <span style="color: #dc2626;">● مد</span>
+        <span style="color: #0284c7;">● قلقلة</span>
+        <span style="color: #16a34a;">● غنة/إخفاء</span>
+      </div>
     </div>
 
     <!-- المحتوى القرآني للآيات -->
@@ -565,7 +867,10 @@
   <!-- ==================== تبويب من أعمالنا ==================== -->
   <section class="tab-pane" id="tab-ourworks">
     <div class="ourworks-header">
-      <div class="ourworks-title">🌟 من أعمالنا</div>
+      <div class="ourworks-title">
+        <img src="icons/gs-nav-icon.png" alt="GS" class="ourworks-title-icon">
+        <span>من أعمالنا</span>
+      </div>
       <div class="ourworks-subtitle">تطبيقات شركة Golden Sens للتقنية</div>
     </div>
 
@@ -583,7 +888,7 @@
           <div class="app-work-desc">تطبيق الكشف المغناطيسي المجاني</div>
           <div class="app-work-dev">Golden Sens • Android</div>
         </div>
-        <a href="https://play.google.com/store/apps/details?id=com.gs.magnova.gs_magnova" target="_blank"
+        <a href="https://play.google.com/store/apps/details?id=com.goldensensitivity.gs_magnolite&pcampaignid=web_share" target="_blank"
           rel="noopener noreferrer" class="app-store-btn free-btn" id="btn-magnolite">
           <span>📥</span> تحميل مجاني
         </a>
@@ -640,7 +945,7 @@
     </button>
 
     <button class="nav-item" id="nav-btn-ourworks" data-tab="ourworks">
-      <span class="nav-icon">🌟</span>
+      <span class="nav-icon"><img src="icons/gs-nav-icon.png" alt="GS" class="nav-icon-img"></span>
       <span class="nav-label" data-i18n="ourworksTab">أعمالنا</span>
     </button>
 
@@ -650,20 +955,95 @@
     </button>
   </nav>
 
+  <!-- ==================== نافذة وضع علامة تنبيه الحافظ (Hafiz Warning Badge Modal) ==================== -->
+  <div class="hafiz-badge-modal-overlay" id="hafiz-badge-modal">
+    <div class="hafiz-badge-modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="font-size: 1rem; font-weight: 800; color: var(--gold-light);">
+          ⚠️ علامة تنبيه الحافظ (مواضع التردد والخطأ)
+        </div>
+        <button class="close-modal-btn" id="btn-close-hafiz-badge-modal" style="font-size: 1.4rem;">&times;</button>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
+        اختر مستوى التنبيه المناسب لهذه الكلمة/الآية لمساعدتك في تثبيتها وتنبيهك عند المراجعة:
+      </p>
+
+      <div class="level-selector-grid">
+        <button class="level-select-btn selected" data-level="1" id="badge-level-btn-1">
+          <span style="font-size: 1.2rem;">🟡</span>
+          <span>مستوى 1</span>
+          <span style="font-size: 0.68rem; color: #fbbf24;">تردد / شك</span>
+        </button>
+        <button class="level-select-btn" data-level="2" id="badge-level-btn-2">
+          <span style="font-size: 1.2rem;">🟠</span>
+          <span>مستوى 2</span>
+          <span style="font-size: 0.68rem; color: #f97316;">خطأ متكرر</span>
+        </button>
+        <button class="level-select-btn" data-level="3" id="badge-level-btn-3">
+          <span style="font-size: 1.2rem;">🔴</span>
+          <span>مستوى 3</span>
+          <span style="font-size: 0.68rem; color: #ef4444;">نسيان تام</span>
+        </button>
+      </div>
+
+      <div class="form-group" style="margin-top: 8px;">
+        <label class="form-label" style="font-size: 0.78rem;">ملاحظة خاصة للحافظ (اختياري):</label>
+        <input type="text" id="hafiz-badge-note-input" class="custom-select" placeholder="مثال: متشابه مع سورة آل عمران آية 133..." style="font-size: 0.82rem;">
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 14px;">
+        <button class="btn-gps" id="btn-save-hafiz-badge" style="flex: 2; padding: 10px; font-size: 0.88rem; justify-content: center; background: var(--gold-gradient); color: #061915; font-weight: 800;">
+          💾 حفظ العلامة
+        </button>
+        <button class="btn-gps" id="btn-delete-hafiz-badge" style="flex: 1; padding: 10px; font-size: 0.88rem; justify-content: center; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444;">
+          🗑️ إزالة
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة التفسير السريع لآيات القرآن الكريم ==================== -->
+  <div class="hafiz-badge-modal-overlay" id="tafsir-modal">
+    <div class="tafsir-modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div style="font-size: 1.05rem; font-weight: 800; color: var(--gold-light);" id="tafsir-modal-title">
+          📚 تفسير الآية الكريمة
+        </div>
+        <button class="close-modal-btn" id="btn-close-tafsir-modal" style="font-size: 1.4rem;">&times;</button>
+      </div>
+
+      <div class="tafsir-tabs-strip" id="tafsir-book-tabs">
+        <button class="tafsir-tab-btn active" data-book="muyassar">التفسير الميسر</button>
+        <button class="tafsir-tab-btn" data-book="saadi">تفسير السعدي</button>
+        <button class="tafsir-tab-btn" data-book="ibnkathir">ابن كثير</button>
+      </div>
+
+      <div id="tafsir-verse-context" style="font-family: 'Amiri Quran', serif; font-size: 1.25rem; color: var(--gold-light); margin-bottom: 10px; padding: 8px 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); line-height: 1.8;">
+        <!-- نص الآية المفسرة -->
+      </div>
+
+      <div id="tafsir-text-content" style="font-size: 0.92rem; line-height: 1.8; color: var(--text-main); max-height: 260px; overflow-y: auto;">
+        <!-- نص التفسير -->
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== البرمجيات والسكربتات ==================== -->
-  <script src="js/i18n.js?v=2.6.0"></script>
-  <script src="js/adhkar-data.js?v=2.6.0"></script>
-  <script src="js/surah-data.js?v=2.6.0"></script>
-  <script src="js/prayer-calc.js?v=2.6.0"></script>
-  <script src="js/tasbeeh.js?v=2.6.0"></script>
-  <script src="js/quran.js?v=2.6.0"></script>
-  <script src="js/adhkar.js?v=2.6.0"></script>
-  <script src="js/app.js?v=2.6.0"></script>
+  <script src="js/i18n.js?v=3.1.1"></script>
+  <script src="js/adhkar-data.js?v=3.1.1"></script>
+  <script src="js/surah-data.js?v=3.1.1"></script>
+  <script src="js/islamic-library-data.js?v=3.1.1"></script>
+  <script src="js/prayer-calc.js?v=3.1.1"></script>
+  <script src="js/tasbeeh.js?v=3.1.1"></script>
+  <script src="js/hifz-engine.js?v=3.1.1"></script>
+  <script src="js/quran.js?v=3.1.1"></script>
+  <script src="js/adhkar.js?v=3.1.1"></script>
+  <script src="js/app.js?v=3.1.1"></script>
 
   <!-- تسجيل الـ Service Worker لتمكين الأوفلاين -->
   <script>
     // مسح الكاش القديم فوراً عند تغيير الإصدار
-    const APP_CACHE_VER = '2.6.0';
+    const APP_CACHE_VER = '3.1.1';
     if (localStorage.getItem('gs_cache_ver') !== APP_CACHE_VER) {
       localStorage.setItem('gs_cache_ver', APP_CACHE_VER);
       if ('caches' in window) {
@@ -673,10 +1053,10 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=2.6.0')
+        navigator.serviceWorker.register('sw.js?v=3.1.1')
           .then(reg => {
             reg.update();
-            console.log('Service Worker v2.6.0 Registered & Updated!');
+            console.log('Service Worker v3.1.1 Registered & Updated!');
           })
           .catch(err => console.log('Service Worker registration failed:', err));
       });

@@ -5,7 +5,7 @@ class QuranManager {
     this.currentAyah = 1;
     this.totalAyahsInSurah = 7;
     this.currentReciter = "ar.alafasy";
-    this.fontSize = 28; // px
+    this.fontSize = 36; // px - الحجم الافتراضي الواضح لمصحف التجويد الذهبي
     this.audioPlayer = new Audio();
     this.isPlaying = false;
     this.cachedSurahs = {};
@@ -80,21 +80,87 @@ class QuranManager {
     });
 
     this.audioPlayer.addEventListener("ended", () => {
-      // الانتقال التلقائي للآية التالية بسلاسة وتظليلها
+      // 1. الانتقال التلقائي المستمر للآية التالية بسلاسة تامة وتظليلها
       if (this.currentAyah < this.totalAyahsInSurah) {
         this.playAyah(this.currentSurah, this.currentAyah + 1);
       } else {
-        this.isPlaying = false;
-        this.updateAudioUI();
-        this.removeAyahHighlight();
+        // 2. إذا انتهت السورة بالكامل، الانتقال التلقائي للسورة التالية
+        if (this.currentSurah < 114) {
+          const nextSurahNum = this.currentSurah + 1;
+          if (typeof window.openSurahReader === "function") {
+            window.openSurahReader(nextSurahNum, 1).then(() => {
+              this.playAyah(nextSurahNum, 1);
+            });
+          } else {
+            this.playAyah(nextSurahNum, 1);
+          }
+        } else {
+          this.isPlaying = false;
+          this.updateAudioUI();
+          this.removeAyahHighlight();
+        }
       }
     });
 
     this.audioPlayer.addEventListener("error", (e) => {
-      console.warn("Audio playback error:", e);
-      this.isPlaying = false;
-      this.updateAudioUI();
+      console.warn("Audio playback error, attempting next or retry:", e);
+      if (this.isPlaying && this.currentAyah < this.totalAyahsInSurah) {
+        setTimeout(() => {
+          this.playAyah(this.currentSurah, this.currentAyah + 1);
+        }, 800);
+      } else {
+        this.isPlaying = false;
+        this.updateAudioUI();
+      }
     });
+  }
+
+  // تحويل الأرقام إلى الأرقام المشرقية العربية المستخدمة في مصحف المدينة والمصحف الذهبي
+  toArabicDigits(num) {
+    const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    return String(num).replace(/[0-9]/g, d => arabicDigits[parseInt(d, 10)]);
+  }
+
+  // تنسيق وتلوين نصوص الآيات بأحكام التجويد وخط المصحف الذهبي (Tajweed Rules & Golden Quran Colors)
+  formatGoldenQuranText(text) {
+    if (!text) return "";
+    let formatted = text;
+
+    // 1. تلوين علامات الوقف والوصل والرموز القرآنية (Waqf & Sakt Signs) باللون الذهبي البرونزي
+    const waqfRegex = /([\u06D6-\u06ED\u06E9\u06DB\u06DC\u06DF\u06E0\u06E2\u06E8\u08D4-\u08E1])/g;
+    formatted = formatted.replace(waqfRegex, '<span class="quran-waqf-sign">$1</span>');
+
+    // 2. تلوين المدود وأحكام المد باللون الأحمر الياقوتي (Red Madd: المد المتصل والمنفصل واللازم والعارض)
+    // الحروف التي تعلوها علامة المد ٓ (U+0653) أو الألف الممدودة آ
+    const maddRegex = /([آ]|(?:[اويىـ]\u0653)|(?:[اويىـ][\u064B-\u0652\u0670]*\u0653)|(?:[\u0670]\u0653))/g;
+    formatted = formatted.replace(maddRegex, '<span class="tajweed-madd">$1</span>');
+
+    // 3. تلوين حروف القلقلة باللون الأزرق السماوي (Cyan Qalqalah: قطب جد الساكنة مثل "يُدْرِيكَ")
+    const qalqalahRegex = /([قطبجد]\u0652|[قطبجد](?=[\s\u06D6-\u06ED]|$))/g;
+    formatted = formatted.replace(qalqalahRegex, '<span class="tajweed-qalqalah">$1</span>');
+
+    // 4. تلوين الغنة والإخفاء والإدغام والإقلاب باللون الأخضر الزمردي (Emerald Green: مثل "فَتَنفَعَهُ")
+    // النون والميم المشددة (نّ، مّ)
+    const ghunnahShaddahRegex = /([نم]\u0651[\u064E\u064F\u0650\u064B\u064C\u064D]?)/g;
+    formatted = formatted.replace(ghunnahShaddahRegex, '<span class="tajweed-ghunnah">$1</span>');
+
+    // النون الساكنة أو التنوين قبل حروف الإخفاء (ت ث ج د ذ ز س ش ص ض ط ظ ف ق ك)
+    const ikhfaRegex = /([ن][\u0652]?|[ًٌٍ])(?=[\s]*[تثجدذزسشصضطظفقك])/g;
+    formatted = formatted.replace(ikhfaRegex, '<span class="tajweed-ikhfa">$1</span>');
+
+    // الإقلاب (علامة الميم الصغيرة فوق النون نۢ أو التنوين)
+    const iqlabRegex = /([ن][\u06E2\u08F0-\u08F2]|(?:[\u064B-\u064D][\u06E2]))/g;
+    formatted = formatted.replace(iqlabRegex, '<span class="tajweed-iqlab">$1</span>');
+
+    // 5. تلوين الحروف التي لا تلفظ باللون الرمادي الخافت (Silent Letters: همزة الوصل والألف والواو المزيدة)
+    const silentRegex = /([ٱ]|(?:[اوى]۟))/g;
+    formatted = formatted.replace(silentRegex, '<span class="tajweed-silent">$1</span>');
+
+    // 6. إبراز لفظ الجلالة والأسماء الإلهية المقدسة باللون الذهبي البراق كالمصحف الذهبي
+    const divineRegex = /(\b(?:اللَّهِ|اللَّهُ|اللَّهَ|لِلَّهِ|بِاللَّهِ|فَلِلَّهِ|وَاللَّهُ|وَاللَّهِ|تَاللَّهِ|رَبِّ|رَبَّنَا|رَبَّكُمْ|رَبِّكَ|رَبِّكُمَا|ٱللَّهِ|ٱللَّهُ|ٱللَّهَ|ٱلرَّحْمَٰنِ|ٱلرَّحِيمِ|الرَّحْمَٰنِ|الرَّحِيمِ|الْغَفُورُ|الْعَزِيزُ|الْحَكِيمُ|الْعَلِيمُ|الْقَدِيرُ|الْخَبِيرُ|السَّمِيعُ|الْبَصِيرُ|الْمَلِكُ|الْقُدُّوسُ|السَّلَامُ|الْمُؤْمِنُ|الْمُهَيْمِنُ|الْجَبَّارُ|الْمُتَكَبِّرُ|الْخَالِقُ|الْبَارِئُ|الْمُصَوِّرُ|الْأَعْلَى|الْكَبِيرُ|الْمُتَعَالِ)\b)/g;
+    formatted = formatted.replace(divineRegex, '<span class="quran-word-divine">$1</span>');
+
+    return formatted;
   }
 
   // جلب نص السورة (مع دعم الكاش والعمل بدون إنترنت)
@@ -141,7 +207,7 @@ class QuranManager {
             englishName: json.data.englishName,
             ayahs: json.data.ayahs.map(a => ({
               numberInSurah: a.numberInSurah,
-              text: a.text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim() || a.text
+              text: a.text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim() || a.text
             }))
           };
 
@@ -169,7 +235,7 @@ class QuranManager {
             englishName: surahMeta ? surahMeta.englishName : `Surah ${surahNumber}`,
             ayahs: json2.chapter.map(a => ({
               numberInSurah: a.verse,
-              text: a.text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim() || a.text
+              text: a.text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim() || a.text
             }))
           };
 
@@ -197,22 +263,11 @@ class QuranManager {
   }
 
   getReciterSubfolder(reciterId) {
-    switch (reciterId) {
-      case "ar.alafasy":
-        return "Alafasy_128kbps";
-      case "ar.abdulbasitmurattal":
-        return "Abdul_Basit_Murattal_192kbps";
-      case "ar.husary":
-        return "Husary_128kbps";
-      case "ar.minshawi":
-        return "Minshawy_Murattal_128kbps";
-      case "ar.mahermuaiqly":
-        return "MaherAlMuaiqly128kbps";
-      case "ar.abdurrahmaansudais":
-        return "Abdurrahmaan_As-Sudais_192kbps";
-      default:
-        return "Alafasy_128kbps";
+    if (typeof RECITERS_LIST !== "undefined") {
+      const r = RECITERS_LIST.find(rec => rec.id === reciterId);
+      if (r && r.folder) return r.folder;
     }
+    return "Alafasy_128kbps";
   }
 
   getAyahAudioUrl(surahNumber, ayahNumber) {
@@ -222,7 +277,7 @@ class QuranManager {
     return `https://everyayah.com/data/${folder}/${sPadded}${aPadded}.mp3`;
   }
 
-  // تلاوة آية محددة مع التظليل والتمرير اللحظي
+  // تلاوة آية محددة مع التظليل والتمرير اللحظي التلقائي
   playAyah(surahNumber, ayahNumber) {
     surahNumber = parseInt(surahNumber, 10);
     ayahNumber = parseInt(ayahNumber, 10);
@@ -236,7 +291,15 @@ class QuranManager {
 
     const audioUrl = this.getAyahAudioUrl(surahNumber, ayahNumber);
     this.audioPlayer.src = audioUrl;
-    this.audioPlayer.play().catch(e => console.warn("Audio play prevented:", e));
+    this.audioPlayer.load();
+
+    const p = this.audioPlayer.play();
+    if (p !== undefined) {
+      p.catch(e => console.warn("Audio play prevented:", e));
+    }
+
+    this.isPlaying = true;
+    this.updateAudioUI();
     this.highlightActiveAyah(ayahNumber);
     this.setLastRead(surahNumber, surahMeta ? surahMeta.name : `سورة ${surahNumber}`, ayahNumber);
   }
@@ -257,12 +320,32 @@ class QuranManager {
   nextAyah() {
     if (this.currentAyah < this.totalAyahsInSurah) {
       this.playAyah(this.currentSurah, this.currentAyah + 1);
+    } else if (this.currentSurah < 114) {
+      const nextSurahNum = this.currentSurah + 1;
+      if (typeof window.openSurahReader === "function") {
+        window.openSurahReader(nextSurahNum, 1).then(() => {
+          this.playAyah(nextSurahNum, 1);
+        });
+      } else {
+        this.playAyah(nextSurahNum, 1);
+      }
     }
   }
 
   prevAyah() {
     if (this.currentAyah > 1) {
       this.playAyah(this.currentSurah, this.currentAyah - 1);
+    } else if (this.currentSurah > 1) {
+      const prevSurahNum = this.currentSurah - 1;
+      const prevMeta = SURAH_LIST.find(s => s.number === prevSurahNum);
+      const lastAyah = prevMeta ? prevMeta.numberOfAyahs : 1;
+      if (typeof window.openSurahReader === "function") {
+        window.openSurahReader(prevSurahNum, lastAyah).then(() => {
+          this.playAyah(prevSurahNum, lastAyah);
+        });
+      } else {
+        this.playAyah(prevSurahNum, lastAyah);
+      }
     }
   }
 

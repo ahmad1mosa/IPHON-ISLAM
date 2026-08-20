@@ -1,5 +1,5 @@
 // Service Worker لتطبيق GS إسلام للعمل في وضع عدم الاتصال (Offline-First)
-const CACHE_NAME = 'gs-islam-v2.6.0';
+const CACHE_NAME = 'gs-islam-v3.1.1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -9,11 +9,14 @@ const ASSETS_TO_CACHE = [
   './css/tasbeeh.css',
   './css/quran.css',
   './css/adhkar.css',
+  './css/hifz.css',
   './js/i18n.js',
   './js/adhkar-data.js',
   './js/surah-data.js',
+  './js/islamic-library-data.js',
   './js/prayer-calc.js',
   './js/tasbeeh.js',
+  './js/hifz-engine.js',
   './js/quran.js',
   './js/adhkar.js',
   './js/app.js',
@@ -23,7 +26,9 @@ const ASSETS_TO_CACHE = [
   './audio/egypt.mp3',
   './audio/alafasy.mp3',
   './icons/icon-512.png',
-  './icons/gs-logo.jpg'
+  './icons/gs-nav-icon.png',
+  './icons/gs-works-logo.png',
+  './icons/gs-logo-square.png'
 ];
 
 self.addEventListener('install', (event) => {

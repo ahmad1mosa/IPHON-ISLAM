@@ -116,15 +116,36 @@ const SURAH_LIST = [
   { number: 114, name: "الناس", englishName: "An-Nas", revelationType: "Meccan", numberOfAyahs: 6 }
 ];
 
-// قائمة مشاهير القراء
+// قائمة مشاهير القراء والشيوخ المعتمدين (28 قارئاً)
 const RECITERS_LIST = [
-  { id: "ar.alafasy", name: "مشاري بن راشد العفاسي", sub: "رواية حفص عن عاصم" },
-  { id: "ar.abdulbasitmurattal", name: "عبد الباسط عبد الصمد (مرتل)", sub: "رواية حفص عن عاصم" },
-  { id: "ar.abdurrahmaansudais", name: "عبد الرحمن السديس", sub: "إمام الحرم المكي" },
-  { id: "ar.mahermuaiqly", name: "ماهر المعيقلي", sub: "إمام الحرم المكي" },
-  { id: "ar.husary", name: "محمود خليل الحصري", sub: "المصحف المعلم والمجود" },
-  { id: "ar.minshawi", name: "محمد صديق المنشاوي (مرتل)", sub: "رواية حفص عن عاصم" },
-  { id: "ar.saudalshuraim", name: "سعود الشريم", sub: "الحرم المكي الشريف" }
+  { id: "ar.alafasy", name: "مشاري بن راشد العفاسي", sub: "رواية حفص عن عاصم", folder: "Alafasy_128kbps" },
+  { id: "ar.abdulbasitmurattal", name: "عبد الباسط عبد الصمد (مرتل)", sub: "مرتل رواية حفص", folder: "Abdul_Basit_Murattal_192kbps" },
+  { id: "ar.abdulbasitmujawwad", name: "عبد الباسط عبد الصمد (مجود)", sub: "المصحف المجود", folder: "Abdul_Basit_Mujawwad_128kbps" },
+  { id: "ar.mahermuaiqly", name: "ماهر المعيقلي", sub: "إمام الحرم المكي", folder: "MaherAlMuaiqly128kbps" },
+  { id: "ar.abdurrahmaansudais", name: "عبد الرحمن السديس", sub: "إمام الحرم المكي", folder: "Abdurrahmaan_As-Sudais_192kbps" },
+  { id: "ar.saudalshuraim", name: "سعود الشريم", sub: "الحرم المكي الشريف", folder: "Saood_ash-Shuraym_128kbps" },
+  { id: "ar.yasseraldossari", name: "ياسر الدوسري", sub: "إمام الحرم المكي", folder: "Yasser_Ad-Dussary_128kbps" },
+  { id: "ar.nasseralqatami", name: "ناصر القطامي", sub: "رواية حفص عن عاصم", folder: "Nasser_Alqatami_128kbps" },
+  { id: "ar.ahmedalajmy", name: "أحمد بن علي العجمي", sub: "رواية حفص عن عاصم", folder: "Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net" },
+  { id: "ar.saadalghamdi", name: "سعد الغامدي", sub: "رواية حفص عن عاصم", folder: "Ghamadi_40kbps" },
+  { id: "ar.husary", name: "محمود خليل الحصري (مرتل)", sub: "المصحف المرتل", folder: "Husary_128kbps" },
+  { id: "ar.husarymujawwad", name: "محمود خليل الحصري (مجود)", sub: "المصحف المجود", folder: "Husary_128kbps_Mujawwad" },
+  { id: "ar.minshawi", name: "محمد صديق المنشاوي (مرتل)", sub: "المصحف المرتل", folder: "Minshawy_Murattal_128kbps" },
+  { id: "ar.minshawimujawwad", name: "محمد صديق المنشاوي (مجود)", sub: "المصحف المجود", folder: "Minshawy_Mujawwad_192kbps" },
+  { id: "ar.abubakrashatri", name: "أبو بكر الشاطري", sub: "رواية حفص عن عاصم", folder: "Abu_Bakr_Ash-Shaatree_128kbps" },
+  { id: "ar.alijaber", name: "علي عبد الله جابر", sub: "إمام الحرم المكي (رحمه الله)", folder: "Ali_Jaber_64kbps" },
+  { id: "ar.faresabbad", name: "فارس عباد", sub: "رواية حفص عن عاصم", folder: "Fares_Abbad_64kbps" },
+  { id: "ar.hanirifai", name: "هاني الرفاعي", sub: "رواية حفص عن عاصم", folder: "Hani_Rifai_192kbps" },
+  { id: "ar.muhammadayyoub", name: "محمد أيوب", sub: "إمام المسجد النبوي", folder: "Muhammad_Ayyoub_128kbps" },
+  { id: "ar.khalefatunaiji", name: "خليفة الطنيجي", sub: "رواية حفص عن عاصم", folder: "khalefa_al_tunaiji_64kbps" },
+  { id: "ar.mahmoudalbanna", name: "محمود علي البنا", sub: "رواية حفص عن عاصم", folder: "Mahmoud_Ali_Al_Banna_32kbps" },
+  { id: "ar.mustafaismail", name: "مصطفى إسماعيل", sub: "المصحف المجود", folder: "Mustafa_Ismail_48kbps" },
+  { id: "ar.hudhaify", name: "علي بن عبد الرحمن الحذيفي", sub: "إمام المسجد النبوي", folder: "Hudhaify_128kbps" },
+  { id: "ar.tablaway", name: "محمد محمود الطبلاوي", sub: "رواية حفص عن عاصم", folder: "Mohammad_al_Tablaway_128kbps" },
+  { id: "ar.muhammadjibreel", name: "محمد جبريل", sub: "رواية حفص عن عاصم", folder: "Muhammad_Jibreel_128kbps" },
+  { id: "ar.abdullahbasfar", name: "عبد الله بصفر", sub: "رواية حفص عن عاصم", folder: "Abdullah_Basfar_192kbps" },
+  { id: "ar.salahbudair", name: "صلاح البدير", sub: "إمام المسجد النبوي", folder: "Salah_Al_Budair_128kbps" },
+  { id: "ar.aymansowaid", name: "أيمن رشدي سويد", sub: "رواية حفص مع أحكام التجويد", folder: "Ayman_Sowaid_64kbps" }
 ];
 
 // نصوص سور مدمجة للعمل بدون إنترنت فورياً
