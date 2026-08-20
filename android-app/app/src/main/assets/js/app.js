@@ -1,5 +1,5 @@
 // التطبيق الرئيسي الشامل - GS إسلام (GS ISLAM)
-const APP_VERSION = "3.1.5";
+const APP_VERSION = "3.1.6";
 
 document.addEventListener("DOMContentLoaded", () => {
   checkVersionUpdate();

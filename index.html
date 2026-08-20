@@ -25,12 +25,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=3.1.5">
-  <link rel="stylesheet" href="css/prayer.css?v=3.1.5">
-  <link rel="stylesheet" href="css/tasbeeh.css?v=3.1.5">
-  <link rel="stylesheet" href="css/quran.css?v=3.1.5">
-  <link rel="stylesheet" href="css/adhkar.css?v=3.1.5">
-  <link rel="stylesheet" href="css/hifz.css?v=3.1.5">
+  <link rel="stylesheet" href="css/style.css?v=3.1.6">
+  <link rel="stylesheet" href="css/prayer.css?v=3.1.6">
+  <link rel="stylesheet" href="css/tasbeeh.css?v=3.1.6">
+  <link rel="stylesheet" href="css/quran.css?v=3.1.6">
+  <link rel="stylesheet" href="css/adhkar.css?v=3.1.6">
+  <link rel="stylesheet" href="css/hifz.css?v=3.1.6">
 </head>
 
 <body>
@@ -1029,34 +1029,39 @@
   </div>
 
   <!-- ==================== البرمجيات والسكربتات ==================== -->
-  <script src="js/i18n.js?v=3.1.5"></script>
-  <script src="js/adhkar-data.js?v=3.1.5"></script>
-  <script src="js/surah-data.js?v=3.1.5"></script>
-  <script src="js/islamic-library-data.js?v=3.1.5"></script>
-  <script src="js/prayer-calc.js?v=3.1.5"></script>
-  <script src="js/tasbeeh.js?v=3.1.5"></script>
-  <script src="js/hifz-engine.js?v=3.1.5"></script>
-  <script src="js/quran.js?v=3.1.5"></script>
-  <script src="js/adhkar.js?v=3.1.5"></script>
-  <script src="js/app.js?v=3.1.5"></script>
+  <script src="js/i18n.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/adhkar-data.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/surah-data.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/islamic-library-data.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/prayer-calc.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/tasbeeh.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/hifz-engine.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/quran.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/adhkar.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/app.js?v=3.1.6" charset="UTF-8"></script>
 
   <!-- تسجيل الـ Service Worker لتمكين الأوفلاين -->
   <script>
-    // مسح الكاش القديم فوراً عند تغيير الإصدار
-    const APP_CACHE_VER = '3.1.5';
+    // مسح الكاش القديم فوراً عند تغيير الإصدار وتحديث نصوص السور
+    const APP_CACHE_VER = '3.1.6';
     if (localStorage.getItem('gs_cache_ver') !== APP_CACHE_VER) {
       localStorage.setItem('gs_cache_ver', APP_CACHE_VER);
       if ('caches' in window) {
         caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
       }
+      try {
+        Object.keys(localStorage).forEach(k => {
+          if (k.startsWith('gs_surah_')) localStorage.removeItem(k);
+        });
+      } catch (e) {}
     }
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=3.1.5')
+        navigator.serviceWorker.register('sw.js?v=3.1.6')
           .then(reg => {
             reg.update();
-            console.log('Service Worker v3.1.5 Registered & Updated!');
+            console.log('Service Worker v3.1.6 Registered & Updated!');
           })
           .catch(err => console.log('Service Worker registration failed:', err));
       });
