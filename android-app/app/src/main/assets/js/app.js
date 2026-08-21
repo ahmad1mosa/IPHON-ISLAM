@@ -59,13 +59,18 @@ document.addEventListener("DOMContentLoaded", () => {
     updateClockAndCountdown();
   }, 1000);
 
-  // الاستماع لتغيير اللغة
+  // الاستماع لتغيير اللغة وإعادة ترجمة وتحديث كافة القوائم والتطبيقات ديناميكياً
   window.addEventListener("languageChanged", () => {
     updateDateDisplay();
     calculateAndRenderPrayers();
     renderCitySelect();
+    if (window.renderSurahList) window.renderSurahList();
     if (window.QuranManager) window.QuranManager.updateLastReadBanner();
     if (window.renderAdhkarAccordions) window.renderAdhkarAccordions();
+    if (window.renderKhatmahUI) window.renderKhatmahUI();
+    if (window.renderHifzUI) window.renderHifzUI();
+    if (window.renderLibraryUI) window.renderLibraryUI();
+    if (window.updateTasbeehUI) window.updateTasbeehUI();
   });
 
   /* -------------------------------------------------------------
@@ -2439,6 +2444,12 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleThemeBtn.title = isPaper ? "التبديل إلى الوضع الليلي الداكن" : "التبديل إلى مظهر المصحف الورقي العاجي الدافئ";
       });
     }
+
+    // إتاحة دوال إعادة الرسم عالمياً لتحديث الواجهات واللغات فوراً
+    window.renderSurahList = renderSurahList;
+    window.renderKhatmahUI = renderKhatmahUI;
+    window.renderHifzUI = renderHifzUI;
+    window.renderLibraryUI = renderLibraryUI;
   }
 
   /* -------------------------------------------------------------
@@ -2456,6 +2467,8 @@ document.addEventListener("DOMContentLoaded", () => {
       window.ADHKAR_DATA.categories.forEach(cat => {
         const items = window.ADHKAR_DATA.items[cat.id] || [];
         const progress = adhkar.getCategoryProgress(cat.id);
+        const catTitle = i18n.t("cat_" + cat.id + "_title") || cat.title;
+        const catDesc = i18n.t("cat_" + cat.id + "_desc") || cat.desc;
 
         const accordion = document.createElement("div");
         accordion.className = "adhkar-category-accordion";
@@ -2466,8 +2479,8 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="adhkar-accordion-left">
               <div class="adhkar-cat-icon-box">${cat.icon}</div>
               <div class="adhkar-cat-text">
-                <span class="adhkar-cat-title">${cat.title}</span>
-                <span class="adhkar-cat-desc">${cat.desc}</span>
+                <span class="adhkar-cat-title">${catTitle}</span>
+                <span class="adhkar-cat-desc">${catDesc}</span>
               </div>
             </div>
             <div class="adhkar-accordion-right">
