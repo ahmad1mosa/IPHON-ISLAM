@@ -124,43 +124,38 @@ class QuranManager {
   // توليد رمز نهاية الآية المزخرف المطابق للمصحف العثماني الشريف (SVG Medallion)
   getAyahMedallionSvg(ayahNumber) {
     const arabicNum = this.toArabicDigits(ayahNumber);
-    const gid = `goldGrad_${ayahNumber}`;
-    const sid = `strokeGrad_${ayahNumber}`;
+    const gid = `goldDisc_${ayahNumber}`;
     return `
-      <svg class="ayah-medallion-svg" viewBox="0 0 40 40" width="1.22em" height="1.22em" style="vertical-align: -0.18em; display: inline-block; margin: 0 4px;" xmlns="http://www.w3.org/2000/svg">
+      <svg class="ayah-medallion-svg" viewBox="0 0 40 40" width="1.28em" height="1.28em" style="vertical-align: -0.22em; display: inline-block; margin: 0 5px;" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="${gid}" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#fffef7"/>
-            <stop offset="70%" stop-color="#fdf6e7"/>
-            <stop offset="100%" stop-color="#ebd7aa"/>
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="75%" stop-color="#fcf6e8"/>
+            <stop offset="100%" stop-color="#edd9ad"/>
           </radialGradient>
-          <linearGradient id="${sid}" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#c5a059"/>
-            <stop offset="50%" stop-color="#8c6218"/>
-            <stop offset="100%" stop-color="#d4af37"/>
-          </linearGradient>
         </defs>
-        <!-- الزخرفة النباتية العلوية والسفلية والجانبية -->
-        <path d="M 20 2 C 16 6 14 9 20 12 C 26 9 24 6 20 2 Z" fill="#c5a059" stroke="#8c6218" stroke-width="0.5"/>
-        <circle cx="20" cy="3" r="1.2" fill="#8c6218"/>
-        <path d="M 20 38 C 16 34 14 31 20 28 C 26 31 24 34 20 38 Z" fill="#c5a059" stroke="#8c6218" stroke-width="0.5"/>
-        <circle cx="20" cy="37" r="1.2" fill="#8c6218"/>
-        <path d="M 2 20 C 6 16 9 14 12 20 C 9 26 6 24 2 20 Z" fill="#c5a059" stroke="#8c6218" stroke-width="0.5"/>
-        <circle cx="3" cy="20" r="1.2" fill="#8c6218"/>
-        <path d="M 38 20 C 34 16 31 14 28 20 C 31 26 34 24 38 20 Z" fill="#c5a059" stroke="#8c6218" stroke-width="0.5"/>
-        <circle cx="37" cy="20" r="1.2" fill="#8c6218"/>
-        <!-- وريقات الزوايا -->
-        <circle cx="8" cy="8" r="1.6" fill="#c5a059"/>
-        <circle cx="32" cy="8" r="1.6" fill="#c5a059"/>
-        <circle cx="8" cy="32" r="1.6" fill="#c5a059"/>
-        <circle cx="32" cy="32" r="1.6" fill="#c5a059"/>
-        <!-- الإطار الدائري الخارجي -->
-        <circle cx="20" cy="20" r="15" fill="none" stroke="url(#${sid})" stroke-width="1.2" stroke-dasharray="2.5, 1"/>
-        <circle cx="20" cy="20" r="13.5" fill="none" stroke="url(#${sid})" stroke-width="0.7"/>
-        <!-- القرص الدائري المذهب الداخلي -->
-        <circle cx="20" cy="20" r="12" fill="url(#${gid})" stroke="url(#${sid})" stroke-width="1.2"/>
+
+        <!-- تاج القمة العلوي المزخرف -->
+        <path d="M 12 12 C 14 3 26 3 28 12 C 25 7 15 7 12 12 Z" fill="#c5a059" stroke="#7a5214" stroke-width="0.8"/>
+        <path d="M 16 8 C 18 4 22 4 24 8 C 22 6 18 6 16 8 Z" fill="#7a5214"/>
+        <circle cx="20" cy="3" r="1.3" fill="#7a5214"/>
+
+        <!-- تاج القاع السفلي المزخرف -->
+        <path d="M 12 28 C 14 37 26 37 28 28 C 25 33 15 33 12 28 Z" fill="#c5a059" stroke="#7a5214" stroke-width="0.8"/>
+        <path d="M 16 32 C 18 36 22 36 24 32 C 22 34 18 34 16 32 Z" fill="#7a5214"/>
+        <circle cx="20" cy="37" r="1.3" fill="#7a5214"/>
+
+        <!-- الأقواس الجانبية -->
+        <path d="M 8 15 C 4 18 4 22 8 25 C 6 22 6 18 8 15 Z" fill="#c5a059" stroke="#7a5214" stroke-width="0.6"/>
+        <path d="M 32 15 C 36 18 36 22 32 25 C 34 22 34 18 32 15 Z" fill="#c5a059" stroke="#7a5214" stroke-width="0.6"/>
+
+        <!-- الإطار الدائري الخارجي والداخلي -->
+        <circle cx="20" cy="20" r="14.5" fill="none" stroke="#b8860b" stroke-width="1" stroke-dasharray="2.5, 1"/>
+        <circle cx="20" cy="20" r="13" fill="url(#${gid})" stroke="#7a5214" stroke-width="1.4"/>
+        <circle cx="20" cy="20" r="11.5" fill="none" stroke="#c5a059" stroke-width="0.6"/>
+
         <!-- رقم الآية المشرقي -->
-        <text x="20" y="24.5" font-family="'Amiri Quran', 'Scheherazade New', 'Amiri', serif" font-size="12" font-weight="900" fill="#6b4712" text-anchor="middle">${arabicNum}</text>
+        <text x="20" y="24.8" font-family="'Amiri Quran', 'Scheherazade New', 'Amiri', serif" font-size="13.5" font-weight="900" fill="#4a2e04" text-anchor="middle">${arabicNum}</text>
       </svg>
     `;
   }
