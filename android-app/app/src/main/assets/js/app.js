@@ -1258,17 +1258,117 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    // ==================== نمط البحث (السور أو بحث شامل في آيات القرآن) ====================
+    let currentSearchMode = "surahs"; // "surahs" | "global"
+    const searchModeSurahsBtn = document.getElementById("btn-search-mode-surahs");
+    const searchModeGlobalBtn = document.getElementById("btn-search-mode-global");
+    const globalSearchResultsBox = document.getElementById("global-quran-search-results");
+    let globalSearchDebounceTimer = null;
+
+    if (searchModeSurahsBtn && searchModeGlobalBtn) {
+      searchModeSurahsBtn.addEventListener("click", () => {
+        currentSearchMode = "surahs";
+        searchModeSurahsBtn.classList.add("active");
+        searchModeGlobalBtn.classList.remove("active");
+        if (searchInput) searchInput.placeholder = "ابحث عن اسم السورة أو رقمها...";
+        if (globalSearchResultsBox) globalSearchResultsBox.style.display = "none";
+        if (surahListContainer) surahListContainer.style.display = "grid";
+        renderSurahList(searchInput ? searchInput.value : "");
+      });
+
+      searchModeGlobalBtn.addEventListener("click", () => {
+        currentSearchMode = "global";
+        searchModeGlobalBtn.classList.add("active");
+        searchModeSurahsBtn.classList.remove("active");
+        if (searchInput) searchInput.placeholder = "ابحث عن أي كلمة أو آية في كامل القرآن الكريم...";
+        if (surahListContainer) surahListContainer.style.display = "none";
+        if (globalSearchResultsBox) globalSearchResultsBox.style.display = "flex";
+        performGlobalSearch(searchInput ? searchInput.value : "");
+      });
+    }
+
     // زر مسح نص البحث السريع
     const clearSearchBtn = document.getElementById("btn-clear-quran-search");
     if (searchInput && clearSearchBtn) {
       searchInput.addEventListener("input", (e) => {
-        renderSurahList(e.target.value);
-        clearSearchBtn.style.display = e.target.value.trim().length > 0 ? "block" : "none";
+        const val = e.target.value;
+        clearSearchBtn.style.display = val.trim().length > 0 ? "block" : "none";
+        if (currentSearchMode === "surahs") {
+          renderSurahList(val);
+        } else {
+          clearTimeout(globalSearchDebounceTimer);
+          globalSearchDebounceTimer = setTimeout(() => {
+            performGlobalSearch(val);
+          }, 250);
+        }
       });
+
       clearSearchBtn.addEventListener("click", () => {
         searchInput.value = "";
         clearSearchBtn.style.display = "none";
-        renderSurahList("");
+        if (currentSearchMode === "surahs") {
+          renderSurahList("");
+        } else {
+          performGlobalSearch("");
+        }
+      });
+    }
+
+    async function performGlobalSearch(query) {
+      if (!globalSearchResultsBox) return;
+      query = (query || "").trim();
+
+      if (query.length < 2) {
+        globalSearchResultsBox.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 24px 12px; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <span style="font-size: 1.8rem; display: block; margin-bottom: 6px;">🔍</span>
+            اكتب أي كلمة أو عبارة قرآنية (مثل: <strong>الصابرين</strong>، <strong>ألا بذكر الله</strong>، <strong>الجنة</strong>) للبحث الفوري في كامل آيات القرآن الـ 6236!
+          </div>
+        `;
+        return;
+      }
+
+      globalSearchResultsBox.innerHTML = `
+        <div style="text-align: center; color: var(--gold-light); font-size: 0.9rem; padding: 20px;">
+          ⏳ جاري البحث في كامل آيات وسور القرآن الكريم...
+        </div>
+      `;
+
+      const results = await window.QuranSearchEngine.searchGlobal(query);
+      if (!results || results.matches.length === 0) {
+        globalSearchResultsBox.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 24px 12px; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <span style="font-size: 1.8rem; display: block; margin-bottom: 6px;">⚠️</span>
+            لم يتم العثور على أي نتائج لكلمة "<strong>${query}</strong>". يرجى التحقق من كتابة الكلمة.
+          </div>
+        `;
+        return;
+      }
+
+      globalSearchResultsBox.innerHTML = `
+        <div style="font-size: 0.85rem; font-weight: 800; color: var(--gold-light); margin-bottom: 4px;">
+          ✨ تم العثور على <strong>${results.count}</strong> موضعاً في القرآن الكريم:
+        </div>
+      `;
+
+      results.matches.slice(0, 50).forEach(m => {
+        const card = document.createElement("div");
+        card.className = "search-result-card";
+        card.innerHTML = `
+          <div class="search-result-header">
+            <span class="search-result-surah">سورة ${m.surahName} • الآية ${m.ayahNumber}</span>
+            <span class="badge" style="font-size: 0.72rem; padding: 2px 8px;">انقر للقراءة ↗</span>
+          </div>
+          <div class="search-result-text">
+            ${m.highlightedText}
+          </div>
+        `;
+
+        card.addEventListener("click", () => {
+          openSurahReader(m.surahNumber, m.ayahNumber);
+        });
+
+        globalSearchResultsBox.appendChild(card);
       });
     }
 
@@ -1497,67 +1597,163 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // ==================== 3. نافذة التفسير السريع لآيات القرآن ====================
+    // ==================== 3. نافذة التفسير الشامل والترجمات العالمية ====================
     const tafsirModal = document.getElementById("tafsir-modal");
     const closeTafsirModalBtn = document.getElementById("btn-close-tafsir-modal");
     const tafsirBtn = document.getElementById("quran-tafsir-btn");
-    let currentTafsirBook = "muyassar";
+    const tafsirEditionSelect = document.getElementById("tafsir-edition-select");
+    const copyTafsirBtn = document.getElementById("btn-copy-tafsir");
+    const prevTafsirAyahBtn = document.getElementById("btn-tafsir-prev-ayah");
+    const nextTafsirAyahBtn = document.getElementById("btn-tafsir-next-ayah");
 
-    function openTafsirModal(surahNumber, ayahNumber) {
+    let tafsirCurrentSurah = 1;
+    let tafsirCurrentAyah = 1;
+
+    function populateTafsirEditions() {
+      if (!tafsirEditionSelect || !window.QuranTafsirEngine) return;
+      tafsirEditionSelect.innerHTML = "";
+
+      const editions = window.QuranTafsirEngine.getEditionsList();
+      const groupTafasir = document.createElement("optgroup");
+      groupTafasir.label = "📚 كتب التفسير المعتمدة";
+
+      const groupTrans = document.createElement("optgroup");
+      groupTrans.label = "🌐 ترجمات معاني القرآن الكريم العالمية";
+
+      editions.forEach(ed => {
+        const opt = document.createElement("option");
+        opt.value = ed.id;
+        opt.textContent = `${ed.name} (${ed.author})`;
+        if (ed.id === window.QuranTafsirEngine.activeEditionId) opt.selected = true;
+
+        if (ed.type === "tafsir") {
+          groupTafasir.appendChild(opt);
+        } else {
+          groupTrans.appendChild(opt);
+        }
+      });
+
+      tafsirEditionSelect.appendChild(groupTafasir);
+      tafsirEditionSelect.appendChild(groupTrans);
+
+      tafsirEditionSelect.onchange = (e) => {
+        window.QuranTafsirEngine.activeEditionId = e.target.value;
+        loadTafsirContent(tafsirCurrentSurah, tafsirCurrentAyah);
+      };
+    }
+
+    async function openTafsirModal(surahNumber, ayahNumber) {
+      tafsirCurrentSurah = parseInt(surahNumber, 10) || 1;
+      tafsirCurrentAyah = parseInt(ayahNumber, 10) || 1;
+
+      populateTafsirEditions();
+      if (tafsirModal) tafsirModal.classList.add("active");
+      await loadTafsirContent(tafsirCurrentSurah, tafsirCurrentAyah);
+    }
+
+    async function loadTafsirContent(surahNumber, ayahNumber) {
       const titleEl = document.getElementById("tafsir-modal-title");
       const contextEl = document.getElementById("tafsir-verse-context");
       const contentEl = document.getElementById("tafsir-text-content");
 
       const surahMeta = SURAH_LIST.find(s => s.number === surahNumber);
-      if (titleEl) titleEl.textContent = `📚 تفسير سورة ${surahMeta ? surahMeta.name : surahNumber} • الآية ${ayahNumber}`;
+      const sName = surahMeta ? surahMeta.name : surahNumber;
+      const totalAyahs = surahMeta ? surahMeta.numberOfAyahs : 7;
+
+      if (titleEl) titleEl.textContent = `📚 سورة ${sName} • الآية ${ayahNumber} من ${totalAyahs}`;
 
       if (contextEl) {
-        contextEl.textContent = `﴿ الآية ${ayahNumber} ﴾`;
-      }
-
-      const sample = (typeof SAMPLE_TAFSIR_CACHE !== "undefined" && SAMPLE_TAFSIR_CACHE[surahNumber] && SAMPLE_TAFSIR_CACHE[surahNumber][ayahNumber]) || null;
-      if (sample && sample[currentTafsirBook]) {
-        if (contentEl) contentEl.textContent = sample[currentTafsirBook];
-      } else {
-        if (contentEl) {
-          contentEl.textContent = `تفسير الآية الكريمة: توضح معاني المفردات ودلالات الآية العظيمة وترشد العبد إلى الاستقامة والعمل بما يحبه الله ويرضاه.`;
+        contextEl.innerHTML = "⏳ جاري تحميل نص الآية...";
+        if (quran.cachedSurahs[surahNumber]) {
+          const aObj = quran.cachedSurahs[surahNumber].ayahs.find(a => a.numberInSurah === ayahNumber);
+          if (aObj) {
+            contextEl.innerHTML = `﴿ ${quran.formatGoldenQuranText(aObj.text)} ﴾`;
+          }
+        } else {
+          contextEl.innerHTML = `﴿ سورة ${sName} • الآية ${ayahNumber} ﴾`;
         }
       }
 
-      if (tafsirModal) tafsirModal.classList.add("active");
+      if (contentEl) {
+        contentEl.innerHTML = `
+          <div style="text-align: center; color: var(--gold-light); padding: 20px;">
+            ⏳ جاري تحميل التفسير / الترجمة...
+          </div>
+        `;
+      }
+
+      const activeEdition = window.QuranTafsirEngine.activeEditionId;
+      const tafsirText = await window.QuranTafsirEngine.fetchAyahText(surahNumber, ayahNumber, activeEdition);
+
+      if (contentEl) {
+        contentEl.innerHTML = tafsirText.replace(/\n/g, "<br>");
+      }
+    }
+
+    if (prevTafsirAyahBtn) {
+      prevTafsirAyahBtn.onclick = () => {
+        if (tafsirCurrentAyah > 1) {
+          tafsirCurrentAyah -= 1;
+          loadTafsirContent(tafsirCurrentSurah, tafsirCurrentAyah);
+        } else if (tafsirCurrentSurah > 1) {
+          tafsirCurrentSurah -= 1;
+          const prevMeta = SURAH_LIST.find(s => s.number === tafsirCurrentSurah);
+          tafsirCurrentAyah = prevMeta ? prevMeta.numberOfAyahs : 1;
+          loadTafsirContent(tafsirCurrentSurah, tafsirCurrentAyah);
+        }
+      };
+    }
+
+    if (nextTafsirAyahBtn) {
+      nextTafsirAyahBtn.onclick = () => {
+        const surahMeta = SURAH_LIST.find(s => s.number === tafsirCurrentSurah);
+        const totalAyahs = surahMeta ? surahMeta.numberOfAyahs : 7;
+        if (tafsirCurrentAyah < totalAyahs) {
+          tafsirCurrentAyah += 1;
+          loadTafsirContent(tafsirCurrentSurah, tafsirCurrentAyah);
+        } else if (tafsirCurrentSurah < 114) {
+          tafsirCurrentSurah += 1;
+          tafsirCurrentAyah = 1;
+          loadTafsirContent(tafsirCurrentSurah, tafsirCurrentAyah);
+        }
+      };
+    }
+
+    if (copyTafsirBtn) {
+      copyTafsirBtn.onclick = () => {
+        const contentEl = document.getElementById("tafsir-text-content");
+        if (contentEl && contentEl.textContent.trim()) {
+          navigator.clipboard.writeText(contentEl.textContent.trim());
+          copyTafsirBtn.textContent = "✅ تم النسخ!";
+          setTimeout(() => {
+            copyTafsirBtn.textContent = "📋 نسخ";
+          }, 2000);
+        }
+      };
     }
 
     if (tafsirBtn) {
-      tafsirBtn.addEventListener("click", () => {
+      tafsirBtn.onclick = () => {
         openTafsirModal(quran.currentSurah, quran.currentAyah);
-      });
+      };
     }
 
     const quranDuaaBtn = document.getElementById("quran-duaa-btn");
     if (quranDuaaBtn) {
-      quranDuaaBtn.addEventListener("click", () => {
+      quranDuaaBtn.onclick = () => {
         const readerModal = document.getElementById("mushaf-reader-modal");
         if (readerModal) readerModal.classList.remove("active");
         switchTab("quran");
         const khatmahTabBtn = document.getElementById("btn-subtab-khatmah");
         if (khatmahTabBtn) khatmahTabBtn.click();
-      });
+      };
     }
 
     if (closeTafsirModalBtn) {
-      closeTafsirModalBtn.addEventListener("click", () => {
+      closeTafsirModalBtn.onclick = () => {
         if (tafsirModal) tafsirModal.classList.remove("active");
-      });
+      };
     }
-
-    document.querySelectorAll(".tafsir-tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tafsir-tab-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentTafsirBook = btn.getAttribute("data-book");
-        openTafsirModal(quran.currentSurah, quran.currentAyah);
-      });
-    });
 
     // ==================== 4. لوحة خطط الحفظ ومراجعة شارات الحفّاظ ====================
     function renderHifzUI() {

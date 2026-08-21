@@ -198,6 +198,16 @@
           <button class="last-read-btn" data-i18n="resumeReading">استئناف ↗</button>
         </div>
 
+        <!-- أزرار اختيار نمط البحث: السور أو البحث الشامل في كامل آيات القرآن -->
+        <div class="quran-search-mode-tabs">
+          <button class="search-mode-btn active" id="btn-search-mode-surahs">
+            <span>📖</span> <span>بحث في أسماء السور</span>
+          </button>
+          <button class="search-mode-btn" id="btn-search-mode-global">
+            <span>✨</span> <span>بحث شامل في آيات وكلمات القرآن</span>
+          </button>
+        </div>
+
         <!-- شريط البحث السريع في السور مع زر مسح النص الفوري -->
         <div class="quran-search-bar">
           <div class="search-input-wrapper" style="position: relative;">
@@ -206,6 +216,11 @@
               placeholder="ابحث عن اسم السورة أو رقمها..." style="padding-left: 36px;">
             <button class="search-clear-btn" id="btn-clear-quran-search" style="display: none;" title="مسح البحث">❌</button>
           </div>
+        </div>
+
+        <!-- مساحة نتائج البحث القرآني الشامل الفوري -->
+        <div id="global-quran-search-results" class="global-search-results-box" style="display: none;">
+          <!-- يتم ملؤها برمجياً بنتائج البحث في الآيات -->
         </div>
 
         <!-- قائمة سور القرآن الـ 114 -->
@@ -1124,49 +1139,61 @@
     </div>
   </div>
 
-  <!-- ==================== نافذة التفسير السريع لآيات القرآن الكريم ==================== -->
-  <div class="hafiz-badge-modal-overlay" id="tafsir-modal">
-    <div class="tafsir-modal-box">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <div style="font-size: 1.05rem; font-weight: 800; color: var(--gold-light);" id="tafsir-modal-title">
-          📚 تفسير الآية الكريمة
+  <!-- ==================== نافذة التفسير الشامل وترجمات القرآن الكريم العالمية ==================== -->
+  <div class="tafsir-modal-overlay" id="tafsir-modal">
+    <div class="tafsir-modal-dialog">
+      <div class="tafsir-modal-head">
+        <div style="font-weight: 800; color: var(--text-gold); font-size: 1rem; display: flex; align-items: center; gap: 6px;">
+          <span>📚</span> <span id="tafsir-modal-title">تفسير وترجمة الآية الكريمة</span>
         </div>
-        <button class="close-modal-btn" id="btn-close-tafsir-modal" style="font-size: 1.4rem;">&times;</button>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button class="icon-btn" id="btn-tafsir-prev-ayah" style="width: 30px; height: 30px; font-size: 0.76rem;" title="الآية السابقة">⏮️</button>
+          <button class="icon-btn" id="btn-tafsir-next-ayah" style="width: 30px; height: 30px; font-size: 0.76rem;" title="الآية التالية">⏭️</button>
+          <button class="close-modal-btn" id="btn-close-tafsir-modal" style="font-size: 1.4rem;">&times;</button>
+        </div>
       </div>
+      <div class="tafsir-modal-body">
+        <!-- نص الآية الكريمة المفسرة -->
+        <div class="tafsir-verse-box" id="tafsir-verse-context">
+          <!-- نص الآية -->
+        </div>
 
-      <div class="tafsir-tabs-strip" id="tafsir-book-tabs">
-        <button class="tafsir-tab-btn active" data-book="muyassar">التفسير الميسر</button>
-        <button class="tafsir-tab-btn" data-book="saadi">تفسير السعدي</button>
-        <button class="tafsir-tab-btn" data-book="ibnkathir">ابن كثير</button>
-      </div>
+        <!-- اختيار كتاب التفسير أو لغة الترجمة -->
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <select class="custom-select" id="tafsir-edition-select" style="flex: 1; font-weight: 700; color: var(--gold-light);">
+            <!-- يتم ملؤها بقائمة التفاسير والترجمات -->
+          </select>
+          <button class="last-read-btn" id="btn-copy-tafsir" style="padding: 6px 12px; font-size: 0.76rem;">
+            📋 نسخ
+          </button>
+        </div>
 
-      <div id="tafsir-verse-context" style="font-family: 'Amiri Quran', serif; font-size: 1.25rem; color: var(--gold-light); margin-bottom: 10px; padding: 8px 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); line-height: 1.8;">
-        <!-- نص الآية المفسرة -->
-      </div>
-
-      <div id="tafsir-text-content" style="font-size: 0.92rem; line-height: 1.8; color: var(--text-main); max-height: 260px; overflow-y: auto;">
-        <!-- نص التفسير -->
+        <!-- محتوى التفسير أو الترجمة -->
+        <div class="tafsir-text-view" id="tafsir-text-content">
+          <!-- نص التفسير أو الترجمة -->
+        </div>
       </div>
     </div>
   </div>
 
   <!-- ==================== البرمجيات والسكربتات ==================== -->
-  <script src="js/i18n.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/adhkar-data.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/surah-data.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/islamic-library-data.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/prayer-calc.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/tasbeeh.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/hifz-engine.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/khatmah.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/quran.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/adhkar.js?v=3.2.2" charset="UTF-8"></script>
-  <script src="js/app.js?v=3.2.2" charset="UTF-8"></script>
+  <script src="js/i18n.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/adhkar-data.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/surah-data.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/islamic-library-data.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/prayer-calc.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/tasbeeh.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/hifz-engine.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/khatmah.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/quran-search-tafsir.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/quran.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/adhkar.js?v=3.3.0" charset="UTF-8"></script>
+  <script src="js/app.js?v=3.3.0" charset="UTF-8"></script>
 
   <!-- تسجيل الـ Service Worker لتمكين الأوفلاين -->
   <script>
     // مسح الكاش القديم فوراً عند تغيير الإصدار وتحديث نصوص السور
-    const APP_CACHE_VER = '3.2.2';
+    const APP_CACHE_VER = '3.3.0';
     if (localStorage.getItem('gs_cache_ver') !== APP_CACHE_VER) {
       localStorage.setItem('gs_cache_ver', APP_CACHE_VER);
       if ('caches' in window) {
@@ -1181,10 +1208,10 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=3.2.2')
+        navigator.serviceWorker.register('sw.js?v=3.3.0')
           .then(reg => {
             reg.update();
-            console.log('Service Worker v3.2.2 Registered & Updated!');
+            console.log('Service Worker v3.3.0 Registered & Updated!');
           })
           .catch(err => console.log('Service Worker registration failed:', err));
       });
