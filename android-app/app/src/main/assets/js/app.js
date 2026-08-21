@@ -1,5 +1,5 @@
 // التطبيق الرئيسي الشامل - GS إسلام (GS ISLAM)
-const APP_VERSION = "3.1.6";
+const APP_VERSION = "3.2.0";
 
 document.addEventListener("DOMContentLoaded", () => {
   checkVersionUpdate();
@@ -1587,6 +1587,66 @@ document.addEventListener("DOMContentLoaded", () => {
             renderHifzUI();
           });
           plansContainer.appendChild(card);
+        });
+      }
+
+      // عرض تفاصيل وسور الخطة النشطة
+      const planDetailTitle = document.getElementById("hifz-selected-plan-title");
+      const planSurahsList = document.getElementById("hifz-plan-surahs-list");
+      const openPlanReaderBtn = document.getElementById("btn-open-active-plan-reader");
+
+      if (planDetailTitle) {
+        planDetailTitle.textContent = `📜 سور ${activePlan.name} (${progress.memorizedCount}/${progress.totalAyahs} آية)`;
+      }
+
+      if (openPlanReaderBtn) {
+        openPlanReaderBtn.onclick = () => {
+          const surahs = hifz.getPlanSurahs(activePlan);
+          const firstIncomplete = surahs.find(s => !s.isComplete) || surahs[0];
+          if (firstIncomplete) {
+            openSurahReader(firstIncomplete.number, 1);
+          }
+        };
+      }
+
+      if (planSurahsList) {
+        planSurahsList.innerHTML = "";
+        const surahs = hifz.getPlanSurahs(activePlan);
+        surahs.forEach(s => {
+          const sRow = document.createElement("div");
+          sRow.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border-color);";
+
+          const leftWrap = document.createElement("div");
+          leftWrap.style.cssText = "display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1;";
+          leftWrap.innerHTML = `
+            <div class="surah-number-badge" style="width: 28px; height: 28px; font-size: 0.8rem;">${s.number}</div>
+            <div>
+              <strong style="color: var(--text-main); font-size: 0.9rem;">سورة ${s.name}</strong>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">${s.numberOfAyahs} آية • تم حفظ: ${s.memorizedCount} (${s.percentage}%)</div>
+            </div>
+          `;
+          leftWrap.addEventListener("click", () => {
+            openSurahReader(s.number, 1);
+          });
+
+          const rightWrap = document.createElement("div");
+          rightWrap.style.cssText = "display: flex; align-items: center; gap: 6px;";
+
+          const toggleBtn = document.createElement("button");
+          toggleBtn.className = s.isComplete ? "badge" : "custom-select";
+          toggleBtn.style.cssText = `padding: 4px 10px; font-size: 0.74rem; font-weight: 800; cursor: pointer; border-radius: 20px; ${s.isComplete ? 'background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981;' : 'background: rgba(255, 255, 255, 0.06); color: var(--text-muted); border: 1px solid var(--border-color);'}`;
+          toggleBtn.textContent = s.isComplete ? "✅ تم الحفظ" : "🔘 تحديد كـ تم الحفظ";
+
+          toggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            hifz.toggleSurahMemorized(s.number);
+            renderHifzUI();
+          });
+
+          rightWrap.appendChild(toggleBtn);
+          sRow.appendChild(leftWrap);
+          sRow.appendChild(rightWrap);
+          planSurahsList.appendChild(sRow);
         });
       }
 

@@ -25,12 +25,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=3.1.6">
-  <link rel="stylesheet" href="css/prayer.css?v=3.1.6">
-  <link rel="stylesheet" href="css/tasbeeh.css?v=3.1.6">
-  <link rel="stylesheet" href="css/quran.css?v=3.1.6">
-  <link rel="stylesheet" href="css/adhkar.css?v=3.1.6">
-  <link rel="stylesheet" href="css/hifz.css?v=3.1.6">
+  <link rel="stylesheet" href="css/style.css?v=3.2.0">
+  <link rel="stylesheet" href="css/prayer.css?v=3.2.0">
+  <link rel="stylesheet" href="css/tasbeeh.css?v=3.2.0">
+  <link rel="stylesheet" href="css/quran.css?v=3.2.0">
+  <link rel="stylesheet" href="css/adhkar.css?v=3.2.0">
+  <link rel="stylesheet" href="css/hifz.css?v=3.2.0">
 </head>
 
 <body>
@@ -234,6 +234,21 @@
         </div>
         <div class="hifz-plans-grid" id="hifz-plans-container">
           <!-- يتم ملؤها برمجياً -->
+        </div>
+
+        <!-- تفاصيل وسور خطة الحفظ النشطة -->
+        <div id="hifz-plan-detail-box" style="margin-top: 14px; padding: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="font-size: 0.95rem; font-weight: 800; color: var(--gold-light);" id="hifz-selected-plan-title">
+              📜 سور الخطة المقررة:
+            </div>
+            <button class="last-read-btn" id="btn-open-active-plan-reader" style="padding: 5px 12px; font-size: 0.78rem;">
+              📖 افتح المصحف للحفظ ↗
+            </button>
+          </div>
+          <div id="hifz-plan-surahs-list" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- يتم ملؤها برمجياً بقائمة سور الخطة مع أزرار التحقق والقراءة -->
+          </div>
         </div>
 
         <!-- لوحة مراجعة مواضع التردد والخطأ للحفاظ (Hafiz Badges Review Panel) -->
@@ -1029,21 +1044,21 @@
   </div>
 
   <!-- ==================== البرمجيات والسكربتات ==================== -->
-  <script src="js/i18n.js?v=3.1.6" charset="UTF-8"></script>
-  <script src="js/adhkar-data.js?v=3.1.6" charset="UTF-8"></script>
-  <script src="js/surah-data.js?v=3.1.6" charset="UTF-8"></script>
-  <script src="js/islamic-library-data.js?v=3.1.6" charset="UTF-8"></script>
-  <script src="js/prayer-calc.js?v=3.1.6" charset="UTF-8"></script>
-  <script src="js/tasbeeh.js?v=3.1.6" charset="UTF-8"></script>
-  <script src="js/hifz-engine.js?v=3.1.6" charset="UTF-8"></script>
-  <script src="js/quran.js?v=3.1.6" charset="UTF-8"></script>
-  <script src="js/adhkar.js?v=3.1.6" charset="UTF-8"></script>
-  <script src="js/app.js?v=3.1.6" charset="UTF-8"></script>
+  <script src="js/i18n.js?v=3.2.0" charset="UTF-8"></script>
+  <script src="js/adhkar-data.js?v=3.2.0" charset="UTF-8"></script>
+  <script src="js/surah-data.js?v=3.2.0" charset="UTF-8"></script>
+  <script src="js/islamic-library-data.js?v=3.2.0" charset="UTF-8"></script>
+  <script src="js/prayer-calc.js?v=3.2.0" charset="UTF-8"></script>
+  <script src="js/tasbeeh.js?v=3.2.0" charset="UTF-8"></script>
+  <script src="js/hifz-engine.js?v=3.2.0" charset="UTF-8"></script>
+  <script src="js/quran.js?v=3.2.0" charset="UTF-8"></script>
+  <script src="js/adhkar.js?v=3.2.0" charset="UTF-8"></script>
+  <script src="js/app.js?v=3.2.0" charset="UTF-8"></script>
 
   <!-- تسجيل الـ Service Worker لتمكين الأوفلاين -->
   <script>
     // مسح الكاش القديم فوراً عند تغيير الإصدار وتحديث نصوص السور
-    const APP_CACHE_VER = '3.1.6';
+    const APP_CACHE_VER = '3.2.0';
     if (localStorage.getItem('gs_cache_ver') !== APP_CACHE_VER) {
       localStorage.setItem('gs_cache_ver', APP_CACHE_VER);
       if ('caches' in window) {
@@ -1058,10 +1073,10 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=3.1.6')
+        navigator.serviceWorker.register('sw.js?v=3.2.0')
           .then(reg => {
             reg.update();
-            console.log('Service Worker v3.1.6 Registered & Updated!');
+            console.log('Service Worker v3.2.0 Registered & Updated!');
           })
           .catch(err => console.log('Service Worker registration failed:', err));
       });

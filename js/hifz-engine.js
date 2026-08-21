@@ -145,6 +145,45 @@ class HifzEngine {
     return !!(this.memorizedAyahs[surahNumber] && this.memorizedAyahs[surahNumber].includes(ayahNumber));
   }
 
+  getPlanSurahs(plan) {
+    if (!plan) plan = this.getActivePlan();
+    const list = [];
+    if (typeof SURAH_LIST !== "undefined") {
+      for (let s = plan.startSurah; s <= plan.endSurah; s++) {
+        const meta = SURAH_LIST.find(item => item.number === s);
+        if (meta) {
+          const memCount = (this.memorizedAyahs[s] && this.memorizedAyahs[s].length) || 0;
+          const isComplete = memCount >= meta.numberOfAyahs;
+          list.push({
+            number: meta.number,
+            name: meta.name,
+            englishName: meta.englishName,
+            numberOfAyahs: meta.numberOfAyahs,
+            memorizedCount: memCount,
+            isComplete: isComplete,
+            percentage: Math.min(100, Math.round((memCount / meta.numberOfAyahs) * 100))
+          });
+        }
+      }
+    }
+    return list;
+  }
+
+  toggleSurahMemorized(surahNumber) {
+    surahNumber = parseInt(surahNumber, 10);
+    const meta = typeof SURAH_LIST !== "undefined" ? SURAH_LIST.find(s => s.number === surahNumber) : null;
+    const totalAyahs = meta ? meta.numberOfAyahs : 7;
+
+    const currentCount = (this.memorizedAyahs[surahNumber] && this.memorizedAyahs[surahNumber].length) || 0;
+    if (currentCount >= totalAyahs) {
+      this.memorizedAyahs[surahNumber] = [];
+    } else {
+      this.memorizedAyahs[surahNumber] = Array.from({ length: totalAyahs }, (_, i) => i + 1);
+    }
+    this.saveData();
+    return this.memorizedAyahs[surahNumber].length >= totalAyahs;
+  }
+
   calculatePlanProgress(plan) {
     if (!plan) plan = this.getActivePlan();
     let memorizedCount = 0;

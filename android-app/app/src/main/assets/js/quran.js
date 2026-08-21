@@ -152,16 +152,38 @@ class QuranManager {
     return this.cleanAyahText(text, surahNumber, ayahNumber);
   }
 
-  // تنسيق وتلوين نصوص الآيات بخط المصحف الشريف المتصل بدون تقطيع الحروف
+  // تنسيق وتلوين نصوص الآيات بأحكام التجويد وخط المصحف الذهبي (Tajweed Rules Color Coding)
   formatGoldenQuranText(text) {
     if (!text) return "";
     let formatted = text;
 
-    // 1. تلوين علامات الوقف والوصل والرموز القرآنية (Waqf & Sakt Signs)
+    // 1. علامات الوقف والرموز القرآنية (Waqf & Sakt Signs - Gold)
     const waqfRegex = /([\u06D6-\u06ED\u06E9\u06DB\u06DC\u06DF\u06E0\u06E2\u06E8\u08D4-\u08E1])/g;
     formatted = formatted.replace(waqfRegex, '<span class="quran-waqf-sign">$1</span>');
 
-    // 2. إبراز لفظ الجلالة والأسماء الإلهية المقدسة باللون الذهبي البراق كالمصحف الذهبي (كلمات كاملة بدون قطع الاتصال)
+    // 2. أحكام المد باللون الأحمر الياقوتي (Red Madd: المد المتصل والمنفصل واللازم)
+    const maddRegex = /([آ]|(?:[اويىـ][\u064B-\u0652\u0670]*\u0653)|(?:[\u0670]\u0653)|\u0653)/g;
+    formatted = formatted.replace(maddRegex, '<span class="tajweed-madd">$1</span>');
+
+    // 3. أحكام القلقلة باللون الأزرق السماوي (Cyan Qalqalah: قطب جد الساكنة)
+    const qalqalahRegex = /([قطبجد]\u0652|[قطبجد](?=[\s\u06D6-\u06ED]|$))/g;
+    formatted = formatted.replace(qalqalahRegex, '<span class="tajweed-qalqalah">$1</span>');
+
+    // 4. الغنة والإخفاء والإدغام والإقلاب باللون الأخضر الزمردي (Emerald Green)
+    const ghunnahShaddahRegex = /([نم]\u0651[\u064E\u064F\u0650\u064B\u064C\u064D]?)/g;
+    formatted = formatted.replace(ghunnahShaddahRegex, '<span class="tajweed-ghunnah">$1</span>');
+
+    const ikhfaRegex = /([ن][\u0652]?|[ًٌٍ])(?=[\s]*[تثجدذزسشصضطظفقك])/g;
+    formatted = formatted.replace(ikhfaRegex, '<span class="tajweed-ikhfa">$1</span>');
+
+    const iqlabRegex = /([ن][\u06E2\u08F0-\u08F2]|(?:[\u064B-\u064D][\u06E2]))/g;
+    formatted = formatted.replace(iqlabRegex, '<span class="tajweed-iqlab">$1</span>');
+
+    // 5. الحروف التي لا تلفظ باللون الرمادي الخافت (Silent Letters: همزة الوصل والألف الزائدة)
+    const silentRegex = /([ٱ]|(?:[اوى]۟))/g;
+    formatted = formatted.replace(silentRegex, '<span class="tajweed-silent">$1</span>');
+
+    // 6. لفظ الجلالة والأسماء الحسنى باللون البرونزي الذهبي
     const divineRegex = /(\b(?:اللَّهِ|اللَّهُ|اللَّهَ|لِلَّهِ|بِاللَّهِ|فَلِلَّهِ|وَاللَّهُ|وَاللَّهِ|تَاللَّهِ|رَبِّ|رَبَّنَا|رَبَّكُمْ|رَبِّكَ|رَبِّكُمَا|ٱللَّهِ|ٱللَّهُ|ٱللَّهَ|ٱلرَّحْمَٰنِ|ٱلرَّحِيمِ|الرَّحْمَٰنِ|الرَّحِيمِ|الْغَفُورُ|الْعَزِيزُ|الْحَكِيمُ|الْعَلِيمُ|الْقَدِيرُ|الْخَبِيرُ|السَّمِيعُ|الْبَصِيرُ|الْمَلِكُ|الْقُدُّوسُ|السَّلَامُ|الْمُؤْمِنُ|الْمُهَيْمِنُ|الْجَبَّارُ|الْمُتَكَبِّرُ|الْخَالِقُ|الْبَارِئُ|الْمُصَوِّرُ|الْأَعْلَى|الْكَبِيرُ|الْمُتَعَالِ)\b)/g;
     formatted = formatted.replace(divineRegex, '<span class="quran-word-divine">$1</span>');
 
