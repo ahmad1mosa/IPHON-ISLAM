@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private float smoothedHeading = -1;
     private long lastSendTime = 0;
-    private static final float ALPHA = 0.15f; // معامل تنعيم الفلتر
+    private static final float ALPHA = 0.08f; // معامل تنعيم مهدأ وثقيل لمنع الرعشة والاهتزاز
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -110,16 +110,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 if (gravity == null) gravity = new float[3];
                 // فلترة الجاذبية
-                gravity[0] = gravity[0] * 0.8f + event.values[0] * 0.2f;
-                gravity[1] = gravity[1] * 0.8f + event.values[1] * 0.2f;
-                gravity[2] = gravity[2] * 0.8f + event.values[2] * 0.2f;
+                gravity[0] = gravity[0] * 0.85f + event.values[0] * 0.15f;
+                gravity[1] = gravity[1] * 0.85f + event.values[1] * 0.15f;
+                gravity[2] = gravity[2] * 0.85f + event.values[2] * 0.15f;
             }
             if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
                 if (geomagnetic == null) geomagnetic = new float[3];
                 // فلترة المجال المغناطيسي
-                geomagnetic[0] = geomagnetic[0] * 0.8f + event.values[0] * 0.2f;
-                geomagnetic[1] = geomagnetic[1] * 0.8f + event.values[1] * 0.2f;
-                geomagnetic[2] = geomagnetic[2] * 0.8f + event.values[2] * 0.2f;
+                geomagnetic[0] = geomagnetic[0] * 0.85f + event.values[0] * 0.15f;
+                geomagnetic[1] = geomagnetic[1] * 0.85f + event.values[1] * 0.15f;
+                geomagnetic[2] = geomagnetic[2] * 0.85f + event.values[2] * 0.15f;
             }
             if (gravity != null && geomagnetic != null) {
                 float[] R = new float[9];
@@ -134,21 +134,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (heading >= 0) {
-            // فلتر الزوايا الدائري (Circular Low-Pass Filter) لمنع الرعشة والترقص
+            // فلتر الزوايا الدائري المهدأ (Damped Circular Low-Pass Filter) لمنع الرعشة
             if (smoothedHeading < 0) {
                 smoothedHeading = heading;
             } else {
                 float diff = (heading - smoothedHeading + 540) % 360 - 180;
                 // عتبة الحركة البسيطة لإلغاء ضجيج الحساس الميكروسكوبي
-                if (Math.abs(diff) < 0.4f) {
+                if (Math.abs(diff) < 0.6f) {
                     return;
                 }
                 smoothedHeading = (smoothedHeading + ALPHA * diff + 360) % 360;
             }
 
             long now = System.currentTimeMillis();
-            // إرسال التحديث بمعدل سلس (35ms) لضمان ثبات وجمال الحركة
-            if (now - lastSendTime >= 35) {
+            // إرسال التحديث بمعدل سلس (33ms) لضمان ثبات وجمال الحركة
+            if (now - lastSendTime >= 33) {
                 lastSendTime = now;
                 final float finalHeading = smoothedHeading;
                 if (webView != null) {
