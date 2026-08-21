@@ -181,6 +181,21 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           localStorage.setItem("gs_theme", state.theme);
         } catch (e) {}
+
+        // مزامنة مظهر المصحف تلقائياً عند تغيير مظهر التطبيق العام
+        const readerModal = document.getElementById("quran-reader-modal");
+        const toggleThemeBtn = document.getElementById("btn-toggle-mushaf-theme");
+        if (readerModal) {
+          if (state.theme === "dark") {
+            readerModal.classList.remove("mushaf-paper-theme");
+            if (toggleThemeBtn) toggleThemeBtn.innerHTML = "📜";
+            localStorage.setItem("gs_mushaf_theme", "dark");
+          } else {
+            readerModal.classList.add("mushaf-paper-theme");
+            if (toggleThemeBtn) toggleThemeBtn.innerHTML = "🌙";
+            localStorage.setItem("gs_mushaf_theme", "paper");
+          }
+        }
       });
     }
   }
@@ -2422,17 +2437,23 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // ==================== مظهر المصحف الورقي العاجي الدافئ (Warm Cream Paper Mode) ====================
+    // ==================== مظهر المصحف الورقي العاجي الدافئ / الوضع الليلي الفاخر ====================
     const toggleThemeBtn = document.getElementById("btn-toggle-mushaf-theme");
-    const savedMushafTheme = localStorage.getItem("gs_mushaf_theme") || "paper";
+    const savedMushafTheme = localStorage.getItem("gs_mushaf_theme") || (state.theme === "dark" ? "dark" : "paper");
 
     if (readerModal) {
       if (savedMushafTheme === "paper") {
         readerModal.classList.add("mushaf-paper-theme");
-        if (toggleThemeBtn) toggleThemeBtn.innerHTML = "🌙";
+        if (toggleThemeBtn) {
+          toggleThemeBtn.innerHTML = "🌙";
+          toggleThemeBtn.title = "التبديل إلى الوضع الليلي المظلم";
+        }
       } else {
         readerModal.classList.remove("mushaf-paper-theme");
-        if (toggleThemeBtn) toggleThemeBtn.innerHTML = "📜";
+        if (toggleThemeBtn) {
+          toggleThemeBtn.innerHTML = "📜";
+          toggleThemeBtn.title = "التبديل إلى مظهر المصحف الورقي العاجي الدافئ";
+        }
       }
     }
 
@@ -2441,7 +2462,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const isPaper = readerModal.classList.toggle("mushaf-paper-theme");
         localStorage.setItem("gs_mushaf_theme", isPaper ? "paper" : "dark");
         toggleThemeBtn.innerHTML = isPaper ? "🌙" : "📜";
-        toggleThemeBtn.title = isPaper ? "التبديل إلى الوضع الليلي الداكن" : "التبديل إلى مظهر المصحف الورقي العاجي الدافئ";
+        toggleThemeBtn.title = isPaper ? "التبديل إلى الوضع الليلي المظلم" : "التبديل إلى مظهر المصحف الورقي العاجي الدافئ";
       });
     }
 
