@@ -1250,6 +1250,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const activePane = document.getElementById(`quran-pane-${target}`);
         if (activePane) activePane.style.display = "block";
 
+        if (target === "khatmah") renderKhatmahUI();
         if (target === "hifz") renderHifzUI();
         if (target === "recite") initRecitationUI();
         if (target === "quiz") initQuizUI();
@@ -1532,6 +1533,17 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    const quranDuaaBtn = document.getElementById("quran-duaa-btn");
+    if (quranDuaaBtn) {
+      quranDuaaBtn.addEventListener("click", () => {
+        const readerModal = document.getElementById("mushaf-reader-modal");
+        if (readerModal) readerModal.classList.remove("active");
+        switchTab("quran");
+        const khatmahTabBtn = document.getElementById("btn-subtab-khatmah");
+        if (khatmahTabBtn) khatmahTabBtn.click();
+      });
+    }
+
     if (closeTafsirModalBtn) {
       closeTafsirModalBtn.addEventListener("click", () => {
         if (tafsirModal) tafsirModal.classList.remove("active");
@@ -1685,6 +1697,143 @@ document.addEventListener("DOMContentLoaded", () => {
             badgesContainer.appendChild(row);
           });
         }
+      }
+    }
+
+    // ==================== 4.5. مدير ختمة القرآن الكريم وتتبع الأوراد ====================
+    function renderKhatmahUI() {
+      const km = window.KhatmahManager;
+      if (!km) return;
+
+      const prog = km.getProgress();
+      const wird = km.getDailyWird(km.currentDay);
+
+      // 1. تحديث عناصر بطاقة الختمة الرئيسية
+      const titleEl = document.getElementById("khatmah-active-title");
+      const datesEl = document.getElementById("khatmah-active-dates");
+      const totalBadge = document.getElementById("khatmah-completed-total-badge");
+      const barFill = document.getElementById("khatmah-progress-bar-fill");
+      const statsDays = document.getElementById("khatmah-stats-days");
+      const statsPercent = document.getElementById("khatmah-stats-percent");
+
+      if (titleEl) titleEl.textContent = `✨ ختمة القرآن الكريم (${km.targetDays} يوماً)`;
+      if (datesEl) datesEl.textContent = `بدأت في: ${km.startDate} • المتبقي: ${prog.remainingDays} يوم`;
+      if (totalBadge) totalBadge.textContent = `🏆 ختمات سابقة: ${km.totalKhatmahsCompleted}`;
+      if (barFill) barFill.style.width = `${prog.percentage}%`;
+      if (statsDays) statsDays.textContent = `أتممت: ${prog.completedDaysCount} من ${km.targetDays} يوماً`;
+      if (statsPercent) statsPercent.textContent = `نسبة الإنجاز: ${prog.percentage}%`;
+
+      // 2. تحديث بطاقة ورد اليوم
+      const wirdDayTag = document.getElementById("khatmah-wird-day-tag");
+      const wirdStatusBadge = document.getElementById("khatmah-wird-status-badge");
+      const wirdTitle = document.getElementById("khatmah-wird-title");
+      const wirdDesc = document.getElementById("khatmah-wird-desc");
+      const isTodayDone = km.isDayCompleted(km.currentDay);
+
+      if (wirdDayTag) wirdDayTag.textContent = `📅 ورد اليوم ${km.currentDay} من ${km.targetDays}:`;
+      if (wirdStatusBadge) {
+        wirdStatusBadge.textContent = isTodayDone ? "✅ تم الإنجاز" : "⏳ قيد القراءة";
+        wirdStatusBadge.style.background = isTodayDone ? "rgba(16, 185, 129, 0.2)" : "rgba(245, 158, 11, 0.2)";
+        wirdStatusBadge.style.color = isTodayDone ? "#10b981" : "#fbbf24";
+      }
+      if (wirdTitle) wirdTitle.textContent = wird.juzRangeName;
+      if (wirdDesc) wirdDesc.textContent = wird.desc;
+
+      const readTodayBtn = document.getElementById("btn-read-today-wird");
+      if (readTodayBtn) {
+        readTodayBtn.onclick = () => {
+          openSurahReader(wird.startSurah, wird.startAyah);
+        };
+      }
+
+      const toggleDoneBtn = document.getElementById("btn-toggle-today-wird-done");
+      if (toggleDoneBtn) {
+        toggleDoneBtn.onclick = () => {
+          km.toggleDayCompleted(km.currentDay);
+          renderKhatmahUI();
+        };
+      }
+
+      // 3. أزرار المدد المحددة مسبقاً (Presets)
+      document.querySelectorAll(".khatmah-preset-btn").forEach(btn => {
+        const days = parseInt(btn.getAttribute("data-days"), 10);
+        btn.classList.toggle("active", days === km.targetDays);
+        btn.onclick = () => {
+          km.startNewKhatmah(days);
+          renderKhatmahUI();
+        };
+      });
+
+      // 4. جدول الأوراد لجميع الأيام
+      const scheduleList = document.getElementById("khatmah-days-schedule-list");
+      if (scheduleList) {
+        scheduleList.innerHTML = "";
+        for (let d = 1; d <= km.targetDays; d++) {
+          const dWird = km.getDailyWird(d);
+          const isDone = km.isDayCompleted(d);
+
+          const row = document.createElement("div");
+          row.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid ${isDone ? '#10b981' : 'var(--border-color)'};`;
+
+          const leftWrap = document.createElement("div");
+          leftWrap.style.cssText = "display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1;";
+          leftWrap.innerHTML = `
+            <div class="surah-number-badge" style="width: 28px; height: 28px; font-size: 0.78rem; ${isDone ? 'background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981;' : ''}">${d}</div>
+            <div>
+              <strong style="color: var(--text-main); font-size: 0.88rem;">${dWird.juzRangeName}</strong>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">${dWird.desc}</div>
+            </div>
+          `;
+          leftWrap.addEventListener("click", () => {
+            openSurahReader(dWird.startSurah, dWird.startAyah);
+          });
+
+          const rightWrap = document.createElement("div");
+          rightWrap.style.cssText = "display: flex; align-items: center; gap: 6px;";
+
+          const chkBtn = document.createElement("button");
+          chkBtn.className = isDone ? "badge" : "custom-select";
+          chkBtn.style.cssText = `padding: 4px 10px; font-size: 0.74rem; font-weight: 800; cursor: pointer; border-radius: 20px; ${isDone ? 'background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981;' : 'background: rgba(255, 255, 255, 0.06); color: var(--text-muted); border: 1px solid var(--border-color);'}`;
+          chkBtn.textContent = isDone ? "✅ أتممت" : "🔘 إتمام";
+
+          chkBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            km.toggleDayCompleted(d);
+            renderKhatmahUI();
+          });
+
+          rightWrap.appendChild(chkBtn);
+          row.appendChild(leftWrap);
+          row.appendChild(rightWrap);
+          scheduleList.appendChild(row);
+        }
+      }
+
+      // 5. دعاء ختم القرآن
+      const duaaContent = document.getElementById("khatmah-duaa-content");
+      if (duaaContent && !duaaContent.textContent.trim()) {
+        duaaContent.textContent = km.getDuaaText();
+      }
+
+      const copyDuaaBtn = document.getElementById("btn-copy-duaa-khatm");
+      if (copyDuaaBtn) {
+        copyDuaaBtn.onclick = () => {
+          navigator.clipboard.writeText(km.getDuaaText());
+          copyDuaaBtn.textContent = "✅ تم النسخ!";
+          setTimeout(() => {
+            copyDuaaBtn.textContent = "📋 نسخ الدعاء";
+          }, 2000);
+        };
+      }
+
+      const resetBtn = document.getElementById("btn-reset-khatmah");
+      if (resetBtn) {
+        resetBtn.onclick = () => {
+          if (confirm("هل تود حقاً إعادة ضبط وتصفير الختمة الحالية للبدء من جديد؟")) {
+            km.resetKhatmah();
+            renderKhatmahUI();
+          }
+        };
       }
     }
 

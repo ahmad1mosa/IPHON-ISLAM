@@ -481,6 +481,71 @@
   gap: 12px;
 }
 
+/* ==================== 5. بطاقات وتنسيقات ختمة القرآن الكريم ==================== */
+.khatmah-card {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(16, 185, 129, 0.16) 100%), var(--bg-card);
+  border: 1.5px solid var(--gold-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.khatmah-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.khatmah-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-gold);
+}
+
+.khatmah-subtitle {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.khatmah-badge-count {
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid var(--gold-light);
+  color: var(--gold-light);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.khatmah-preset-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.khatmah-preset-btn:hover {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: var(--gold-light);
+}
+
+.khatmah-preset-btn.active {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: var(--gold-light);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
 @media (min-width: 480px) {
   .guide-cards-grid {
     grid-template-columns: 1fr 1fr;
