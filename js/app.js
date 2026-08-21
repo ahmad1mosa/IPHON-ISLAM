@@ -712,15 +712,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* -------------------------------------------------------------
-     بوصلة القبلة الذكية المعكوسة بطراز iOS المهدأ والمخمد (Damped Inverted Compass)
+     بوصلة القبلة بطراز iOS المحدّثة مع الأرقام والدرجات
   ------------------------------------------------------------- */
-  let targetCompassHeading = 0;
-  let currentVisualHeading = 0;
-  let isCompassLoopRunning = false;
-  let lastRawHeading = -1;
-
   function initQiblaCompass() {
-    // رسم علامات وتدريجات البوصلة المعكوسة باللون الأحمر
+    // رسم علامات الدرجات في SVG
     buildCompassTicks();
 
     const toggleModeBtn = document.getElementById("btn-toggle-compass-mode");
@@ -728,36 +723,54 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleModeBtn.addEventListener("click", () => {
         state.compassMode = state.compassMode === "sensor" ? "static" : "sensor";
         toggleModeBtn.textContent = state.compassMode === "sensor" ? "🔄 وضع الحساس" : "🕋 وضع ثابت";
-        onHeadingRawReceived(state.compassMode === "static" ? 0 : targetCompassHeading);
+        updateCompassNeedle();
       });
     }
 
+    let smoothedWebHeading = -1;
     const handleOrientation = (event) => {
       if (state.compassMode !== "sensor") return;
 
       let heading = null;
 
       if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
-        // iOS - قيمة مباشرة
+        // iOS - قيمة مباشرة وصحيحة
         heading = event.webkitCompassHeading;
       } else if (event.alpha !== null && event.alpha !== undefined) {
-        heading = (360 - event.alpha) % 360;
+        if (event.absolute === true) {
+          heading = (360 - event.alpha) % 360;
+        } else {
+          heading = (360 - event.alpha) % 360;
+        }
       }
 
       if (heading === null) return;
-      onHeadingRawReceived(heading);
+
+      // فلترة وتنعيم الزوايا لمنع الاهتزاز في المتصفح والآيفون
+      if (smoothedWebHeading < 0) {
+        smoothedWebHeading = heading;
+      } else {
+        const diff = (heading - smoothedWebHeading + 540) % 360 - 180;
+        if (Math.abs(diff) < 0.4) return;
+        smoothedWebHeading = (smoothedWebHeading + 0.18 * diff + 360) % 360;
+      }
+
+      state.compassHeading = Math.round(smoothedWebHeading);
+      updateCompassNeedle();
     };
 
-    // استقبال درجات البوصلة مباشرة من هاردوير الأندرويد المفلتر
+    // استقبال درجات البوصلة مباشرة من هاردوير الأندرويد الأصلي المفلتر
     window.onAndroidHeadingUpdate = (heading) => {
       if (state.compassMode !== "sensor") return;
-      onHeadingRawReceived(heading);
+      state.compassHeading = Math.round(heading);
+      updateCompassNeedle();
     };
 
-    // الاستماع للحدثين في المتصفحات والآيفون
+    // الاستماع للحدثين في المتصفحات والآيفون - مطلق أولاً ثم نسبي كبديل
     if (typeof DeviceOrientationEvent !== "undefined") {
       if (typeof DeviceOrientationEvent.requestPermission === "function") {
-        document.getElementById("btn-toggle-compass-mode")?.addEventListener("click", () => {
+        // iOS 13+ يحتاج إذناً
+        document.getElementById("btn-toggle-compass-mode").addEventListener("click", () => {
           DeviceOrientationEvent.requestPermission().then(response => {
             if (response === "granted") {
               window.addEventListener("deviceorientation", handleOrientation, true);
@@ -767,101 +780,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         window.addEventListener("deviceorientationabsolute", handleOrientation, true);
         window.addEventListener("deviceorientation", handleOrientation, true);
-      }
-    }
-
-    // بدء حلقة التنعيم والحركة السلسة
-    startCompassAnimationLoop();
-  }
-
-  // فلترة وتنعيم الزوايا لمنع الاهتزاز وجعل الحركة هادئة وبطيئة غير مفرطة الحساسية
-  function onHeadingRawReceived(rawHeading) {
-    if (rawHeading < 0 || isNaN(rawHeading)) return;
-
-    if (lastRawHeading < 0) {
-      lastRawHeading = rawHeading;
-      targetCompassHeading = rawHeading;
-      currentVisualHeading = rawHeading;
-    } else {
-      const diff = (rawHeading - lastRawHeading + 540) % 360 - 180;
-      // عتبة إلغاء الرعشة (deadband) - تجاهل التذبذبات الصغيرة جداً
-      if (Math.abs(diff) < 0.5) return;
-      lastRawHeading = rawHeading;
-      targetCompassHeading = (targetCompassHeading + diff + 360) % 360;
-    }
-
-    state.compassHeading = targetCompassHeading;
-    if (!isCompassLoopRunning) {
-      startCompassAnimationLoop();
-    }
-  }
-
-  function startCompassAnimationLoop() {
-    isCompassLoopRunning = true;
-
-    function frame() {
-      const diff = (targetCompassHeading - currentVisualHeading + 540) % 360 - 180;
-
-      if (Math.abs(diff) < 0.05) {
-        currentVisualHeading = targetCompassHeading;
-        renderCompassFrame(currentVisualHeading);
-        isCompassLoopRunning = false;
-        return;
-      }
-
-      // تنعيم ناعم وثقيل وبطيء بدون أي اهتزاز (Damping Lerp 0.065)
-      currentVisualHeading = (currentVisualHeading + diff * 0.065 + 360) % 360;
-      renderCompassFrame(currentVisualHeading);
-
-      requestAnimationFrame(frame);
-    }
-
-    requestAnimationFrame(frame);
-  }
-
-  function getInvertedDirectionLabel(deg) {
-    const d = (deg + 360) % 360;
-    if (d < 22.5 || d >= 337.5) return "S";
-    if (d < 67.5) return "SW";
-    if (d < 112.5) return "W";
-    if (d < 157.5) return "NW";
-    if (d < 202.5) return "N";
-    if (d < 247.5) return "NE";
-    if (d < 292.5) return "E";
-    return "SE";
-  }
-
-  function renderCompassFrame(heading) {
-    const compassDisc = document.getElementById("compass-dial-disc");
-    const degDisplay = document.getElementById("compass-deg-display");
-    const dirDisplay = document.getElementById("compass-dir-display");
-    const qiblaBadge = document.getElementById("qibla-degree-text");
-
-    const normalizedHeading = (heading + 360) % 360;
-    const roundedDeg = Math.round(normalizedHeading);
-
-    // دوران قرص البوصلة المتزامن 1:1 مع الأرقام أعلاه
-    if (compassDisc) {
-      compassDisc.style.transform = `rotate(${-normalizedHeading}deg)`;
-    }
-
-    if (degDisplay) {
-      degDisplay.textContent = roundedDeg;
-    }
-
-    if (dirDisplay) {
-      dirDisplay.textContent = `° ${getInvertedDirectionLabel(roundedDeg)}`;
-    }
-
-    // فحص المحاذاة الدقيقة مع القبلة المشرفة
-    if (qiblaBadge) {
-      const qiblaDiff = Math.abs(((roundedDeg - state.qiblaBearing + 540) % 360) - 180);
-      if (qiblaDiff <= 4) {
-        qiblaBadge.classList.add("aligned");
-        qiblaBadge.innerHTML = `🕋 نحو الكعبة المشرفة (${state.qiblaBearing}°) ✓`;
-      } else {
-        qiblaBadge.classList.remove("aligned");
-        qiblaBadge.innerHTML = `🧭 اتجاه القبلة: ${state.qiblaBearing}° (${state.selectedCity.name})`;
       }
     }
   }
@@ -876,7 +794,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const cx = 140, cy = 140, r = 132;
 
-    // رسم علامات وتدريجات الدرجات الدقيقة كل 2 درجة
+    // رسم علامات الدرجات الدقيقة كل 2 درجة
     for (let deg = 0; deg < 360; deg += 2) {
       const rad = (deg - 90) * (Math.PI / 180);
       const isMajor30 = deg % 30 === 0;
@@ -895,7 +813,7 @@ document.addEventListener("DOMContentLoaded", () => {
       line.setAttribute("y2", y2.toFixed(1));
 
       if (isMajor30) {
-        line.setAttribute("stroke", "#ef4444");
+        line.setAttribute("stroke", "#ffffff");
         line.setAttribute("stroke-width", "2");
       } else if (isMajor10) {
         line.setAttribute("stroke", "rgba(255, 255, 255, 0.75)");
@@ -917,20 +835,20 @@ document.addEventListener("DOMContentLoaded", () => {
         text.setAttribute("y", (ny + 4).toFixed(1));
         text.setAttribute("text-anchor", "middle");
         text.setAttribute("font-size", "11");
-        text.setAttribute("font-weight", "700");
-        text.setAttribute("fill", deg % 90 === 0 ? "#ef4444" : "#ffffff");
+        text.setAttribute("font-weight", "600");
+        text.setAttribute("fill", "#ffffff");
         text.setAttribute("font-family", "Outfit, -apple-system, sans-serif");
         text.textContent = deg.toString();
         labelsGroup.appendChild(text);
       }
     }
 
-    // الحروف الأساسية المعكوسة باللون الأحمر البارز: S عند 0°، W عند 90°، N عند 180°، E عند 270°
+    // الحروف الأساسية N, E, S, W والمثلث الأحمر
     const cardinalDefs = [
-      { letter: "S", deg: 0, color: "#ef4444", size: 17, weight: 900 },
-      { letter: "W", deg: 90, color: "#ef4444", size: 16, weight: 900 },
-      { letter: "N", deg: 180, color: "#ef4444", size: 16, weight: 900 },
-      { letter: "E", deg: 270, color: "#ef4444", size: 16, weight: 900 }
+      { letter: "N", deg: 0, color: "#ef4444", size: 16, weight: 900 },
+      { letter: "E", deg: 90, color: "#ffffff", size: 15, weight: 800 },
+      { letter: "S", deg: 180, color: "#ffffff", size: 15, weight: 800 },
+      { letter: "W", deg: 270, color: "#ffffff", size: 15, weight: 800 }
     ];
 
     cardinalDefs.forEach(c => {
@@ -945,13 +863,11 @@ document.addEventListener("DOMContentLoaded", () => {
       text.setAttribute("font-size", c.size.toString());
       text.setAttribute("font-weight", c.weight.toString());
       text.setAttribute("fill", c.color);
-      text.setAttribute("stroke", "rgba(0, 0, 0, 0.4)");
-      text.setAttribute("stroke-width", "0.5");
       text.setAttribute("font-family", "Outfit, -apple-system, sans-serif");
       text.textContent = c.letter;
       labelsGroup.appendChild(text);
 
-      // سهم ومثلث أحمر علوي عند قمة البوصلة (0°)
+      // مثلث أحمر عند 0° للشمال مثل الآيفون بالضبط (صورة 2)
       if (c.deg === 0) {
         const tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
         const p1 = `${cx},${(cy - r + 4).toFixed(1)}`;
@@ -975,7 +891,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const bearing = state.qiblaBearing || 157;
     const rad = (bearing - 90) * (Math.PI / 180);
 
-    // سهم القبلة الأخضر والذهبي يشير لمكة المكرمة
+    // سهم القبلة الذهبي والأخضر يشير لمكة المكرمة
     const arrowTipR = r - 8;
     const arrowBaseR = arrowTipR - 32;
 
@@ -1016,8 +932,53 @@ document.addEventListener("DOMContentLoaded", () => {
     qiblaGroup.appendChild(kaabaText);
   }
 
+  function getDirectionLabel(deg) {
+    if (deg < 22.5 || deg >= 337.5) return "N";
+    if (deg < 67.5) return "NE";
+    if (deg < 112.5) return "E";
+    if (deg < 157.5) return "SE";
+    if (deg < 202.5) return "S";
+    if (deg < 247.5) return "SW";
+    if (deg < 292.5) return "W";
+    return "NW";
+  }
+
   function updateCompassNeedle() {
-    renderCompassFrame(currentVisualHeading);
+    const compassDisc = document.getElementById("compass-dial-disc");
+    const degDisplay = document.getElementById("compass-deg-display");
+    const dirDisplay = document.getElementById("compass-dir-display");
+    const qiblaBadge = document.getElementById("qibla-degree-text");
+
+    let dialRotation = 0;
+
+    if (state.compassMode === "static") {
+      // وضع ثابت: القرص لا يدور
+      dialRotation = 0;
+    } else {
+      // وضع الحساس: القرص يدور عكس اتجاه الهاتف لتتوافق قمة البوصلة مع الاتجاه
+      dialRotation = -state.compassHeading;
+    }
+
+    if (compassDisc) {
+      compassDisc.style.transform = `rotate(${dialRotation}deg)`;
+    }
+
+    // تحديث رقم الدرجة الكبير
+    const currentDeg = Math.round((state.compassHeading + 360) % 360);
+    if (degDisplay) degDisplay.textContent = currentDeg;
+    if (dirDisplay) dirDisplay.textContent = `° ${getDirectionLabel(currentDeg)}`;
+
+    // فحص المحاذاة مع القبلة المشرفة
+    if (qiblaBadge) {
+      const qiblaDiff = Math.abs(((currentDeg - state.qiblaBearing + 540) % 360) - 180);
+      if (qiblaDiff <= 4) {
+        qiblaBadge.classList.add("aligned");
+        qiblaBadge.innerHTML = `🕋 نحو الكعبة المشرفة (${state.qiblaBearing}°) ✓`;
+      } else {
+        qiblaBadge.classList.remove("aligned");
+        qiblaBadge.innerHTML = `🧭 اتجاه القبلة: ${state.qiblaBearing}° (${state.selectedCity.name})`;
+      }
+    }
   }
 
   /* -------------------------------------------------------------
