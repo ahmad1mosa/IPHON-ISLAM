@@ -487,10 +487,10 @@
   color: #d97706 !important;
   font-size: 0.88em;
   font-weight: 800;
-  margin: 0 2px;
-  vertical-align: super;
+  margin: 0 3px;
+  vertical-align: baseline;
   text-shadow: 0 0 6px rgba(217, 119, 6, 0.4);
-  display: inline-block;
+  display: inline;
   user-select: none;
 }
 

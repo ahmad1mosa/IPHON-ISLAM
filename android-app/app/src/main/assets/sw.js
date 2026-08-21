@@ -1,5 +1,5 @@
 // Service Worker لتطبيق GS إسلام للعمل في وضع عدم الاتصال (Offline-First)
-const CACHE_NAME = 'gs-islam-v3.2.0';
+const CACHE_NAME = 'gs-islam-v3.2.1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

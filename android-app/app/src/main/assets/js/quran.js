@@ -140,7 +140,7 @@ class QuranManager {
 
     // في كافة السور الأخرى (مثل البقرة، آل عمران، الملك، يس...) نزيل البسملة المكررة من بداية الآية 1
     if (ayahNumber === 1) {
-      const basmalahRegex = /^[\s]*\u0628[\u0600-\u06FF\s]*?(?:\u0631[\u064B-\u065F]*\u062D[\u064B-\u065F]*[\u0645\u0646][\u0600-\u06FF\s]*?)\u0631[\u064B-\u065F]*\u062D[\u064B-\u065F]*[\u0649\u064A\u06CC\u06D0\u06D1\u06D2][\u064B-\u065F]*\u0645[\u064B-\u065F]*\s*/;
+      const basmalahRegex = /^\s*ب[\u0600-\u06FF\u08A0-\u08FF\s]*?(?:\u0631[\u0600-\u06FF\u08A0-\u08FF]*?\u062D[\u0600-\u06FF\u08A0-\u08FF]*?[\u0649\u064A\u06CC][\u0600-\u06FF\u08A0-\u08FF]*?\u0645[\u064B-\u065F\u0670\u06D6-\u06ED\u08D4-\u08FF]*)\s*/;
       cleaned = cleaned.replace(basmalahRegex, "").trim();
     }
 
@@ -157,26 +157,26 @@ class QuranManager {
     if (!text) return "";
     let formatted = text;
 
-    // 1. علامات الوقف والرموز القرآنية (Waqf & Sakt Signs - Gold)
-    const waqfRegex = /([\u06D6-\u06ED\u06E9\u06DB\u06DC\u06DF\u06E0\u06E2\u06E8\u08D4-\u08E1])/g;
+    // 1. علامات الوقف والسكت القرآنية فقط (Waqf & Sakt Signs - Gold)
+    const waqfRegex = /([\u06D6\u06D7\u06D8\u06D9\u06DA\u06DB\u06DC\u06E9\u08D4])/g;
     formatted = formatted.replace(waqfRegex, '<span class="quran-waqf-sign">$1</span>');
 
-    // 2. أحكام المد باللون الأحمر الياقوتي (Red Madd: المد المتصل والمنفصل واللازم)
-    const maddRegex = /([آ]|(?:[اويىـ][\u064B-\u0652\u0670]*\u0653)|(?:[\u0670]\u0653)|\u0653)/g;
+    // 2. أحكام المد باللون الأحمر الياقوتي (Red Madd: المد المتصل والمنفصل واللازم وعلامات المد)
+    const maddRegex = /([آ]|(?:[اويىـ][\u064B-\u065F\u0670\u06E1]*[\u0653\u06E4])|(?:[\u0670][\u0653\u06E4])|[\u0653\u06E4])/g;
     formatted = formatted.replace(maddRegex, '<span class="tajweed-madd">$1</span>');
 
     // 3. أحكام القلقلة باللون الأزرق السماوي (Cyan Qalqalah: قطب جد الساكنة)
-    const qalqalahRegex = /([قطبجد]\u0652|[قطبجد](?=[\s\u06D6-\u06ED]|$))/g;
+    const qalqalahRegex = /([قطبجد][\u0652\u06E1]|[قطبجد](?=[\s\u06D6-\u06DC]|$))/g;
     formatted = formatted.replace(qalqalahRegex, '<span class="tajweed-qalqalah">$1</span>');
 
     // 4. الغنة والإخفاء والإدغام والإقلاب باللون الأخضر الزمردي (Emerald Green)
     const ghunnahShaddahRegex = /([نم]\u0651[\u064E\u064F\u0650\u064B\u064C\u064D]?)/g;
     formatted = formatted.replace(ghunnahShaddahRegex, '<span class="tajweed-ghunnah">$1</span>');
 
-    const ikhfaRegex = /([ن][\u0652]?|[ًٌٍ])(?=[\s]*[تثجدذزسشصضطظفقك])/g;
+    const ikhfaRegex = /([ن][\u0652\u06E1]?|[ًٌٍ])(?=[\s]*[تثجدذزسشصضطظفقك])/g;
     formatted = formatted.replace(ikhfaRegex, '<span class="tajweed-ikhfa">$1</span>');
 
-    const iqlabRegex = /([ن][\u06E2\u08F0-\u08F2]|(?:[\u064B-\u064D][\u06E2]))/g;
+    const iqlabRegex = /([ن][\u06E2]|(?:[\u064B-\u064D][\u06E2]))/g;
     formatted = formatted.replace(iqlabRegex, '<span class="tajweed-iqlab">$1</span>');
 
     // 5. الحروف التي لا تلفظ باللون الرمادي الخافت (Silent Letters: همزة الوصل والألف الزائدة)

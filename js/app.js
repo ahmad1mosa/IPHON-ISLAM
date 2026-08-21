@@ -1,5 +1,5 @@
 // التطبيق الرئيسي الشامل - GS إسلام (GS ISLAM)
-const APP_VERSION = "3.2.0";
+const APP_VERSION = "3.2.1";
 
 document.addEventListener("DOMContentLoaded", () => {
   checkVersionUpdate();
@@ -1382,7 +1382,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ayahSpan.appendChild(badgeEl);
         }
 
-        const rawAyahText = quran.cleanAyahBasmalah(a.text, surahNumber, a.numberInSurah);
+        const rawAyahText = quran.cleanAyahText(a.text, surahNumber, a.numberInSurah);
         const formattedText = quran.formatGoldenQuranText(rawAyahText);
         const textNode = document.createElement("span");
         textNode.innerHTML = ` ${formattedText} `;
