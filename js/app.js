@@ -844,12 +844,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // الحروف الكاردينالية المعكوسة: S أعلى(0°)، W يمين(90°)، N أسفل(180°)، E يسار(270°)
+    // الحروف الكاردينالية باللون الأحمر البارز: N أعلى (0°)، E يمين (90°)، S أسفل (180°)، W يسار (270°)
     const cardinalDefs = [
-      { letter: "S", deg: 0,   color: "#ef4444", size: 17, weight: 900 },
-      { letter: "W", deg: 90,  color: "#ef4444", size: 16, weight: 900 },
-      { letter: "N", deg: 180, color: "#ef4444", size: 16, weight: 900 },
-      { letter: "E", deg: 270, color: "#ef4444", size: 16, weight: 900 }
+      { letter: "N", deg: 0,   color: "#ef4444", size: 17, weight: 900 },
+      { letter: "E", deg: 90,  color: "#ef4444", size: 16, weight: 900 },
+      { letter: "S", deg: 180, color: "#ef4444", size: 16, weight: 900 },
+      { letter: "W", deg: 270, color: "#ef4444", size: 16, weight: 900 }
     ];
 
     cardinalDefs.forEach(c => {
@@ -864,11 +864,13 @@ document.addEventListener("DOMContentLoaded", () => {
       text.setAttribute("font-size", c.size.toString());
       text.setAttribute("font-weight", c.weight.toString());
       text.setAttribute("fill", c.color);
+      text.setAttribute("stroke", "rgba(0, 0, 0, 0.4)");
+      text.setAttribute("stroke-width", "0.5");
       text.setAttribute("font-family", "Outfit, -apple-system, sans-serif");
       text.textContent = c.letter;
       labelsGroup.appendChild(text);
 
-      // مثلث أحمر عند 0° للشمال مثل الآيفون بالضبط (صورة 2)
+      // مثلث أحمر علوي عند قمة البوصلة (0° للشمال)
       if (c.deg === 0) {
         const tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
         const p1 = `${cx},${(cy - r + 4).toFixed(1)}`;
@@ -892,7 +894,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const bearing = state.qiblaBearing || 157;
     const rad = (bearing - 90) * (Math.PI / 180);
 
-    // سهم القبلة الذهبي والأخضر يشير لمكة المكرمة
+    // سهم القبلة الذهبي والأخضر يشير لمكة المكرمة بدقة
     const arrowTipR = r - 8;
     const arrowBaseR = arrowTipR - 32;
 
@@ -933,17 +935,17 @@ document.addEventListener("DOMContentLoaded", () => {
     qiblaGroup.appendChild(kaabaText);
   }
 
-  // دالة الاتجاه المعكوسة: 0°=S, 90°=W, 180°=N, 270°=E
+  // دالة الاتجاه الجغرافي الدقيقة المتزامنة
   function getDirectionLabel(deg) {
     const d = (deg + 360) % 360;
-    if (d < 22.5 || d >= 337.5) return "S";
-    if (d < 67.5) return "SW";
-    if (d < 112.5) return "W";
-    if (d < 157.5) return "NW";
-    if (d < 202.5) return "N";
-    if (d < 247.5) return "NE";
-    if (d < 292.5) return "E";
-    return "SE";
+    if (d < 22.5 || d >= 337.5) return "N";
+    if (d < 67.5) return "NE";
+    if (d < 112.5) return "E";
+    if (d < 157.5) return "SE";
+    if (d < 202.5) return "S";
+    if (d < 247.5) return "SW";
+    if (d < 292.5) return "W";
+    return "NW";
   }
 
   function updateCompassNeedle() {
@@ -977,7 +979,7 @@ document.addEventListener("DOMContentLoaded", () => {
         qiblaBadge.innerHTML = `🕋 نحو الكعبة المشرفة (${state.qiblaBearing}°) ✓`;
       } else {
         qiblaBadge.classList.remove("aligned");
-        qiblaBadge.innerHTML = `🧭 اتجاه القبلة: ${state.qiblaBearing}° (${state.selectedCity.name})`;
+        qiblaBadge.innerHTML = `🧭 اتجاه القبلة: ${state.qiblaBearing}° (${state.selectedCity?.name || ""})`;
       }
     }
   }
