@@ -370,45 +370,56 @@
   text-rendering: optimizeLegibility;
 }
 
-/* ترويسة السورة الذهبية الفاخرة (Golden Quran Surah Banner) */
-.golden-surah-banner {
+/* ==============================================================
+   ترويسة السورة العثمانية المزخرفة المذهبة (Ottoman Quran Surah Banner)
+   ============================================================== */
+.mushaf-surah-header-frame {
+  position: relative;
+  margin: 14px 0 20px 0;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #f7eed8 0%, #fefdf9 50%, #f7eed8 100%);
+  border: 2px solid #8c6218;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1.5px #ffffff, inset 0 0 0 3.5px #c5a059, 0 4px 14px rgba(140, 98, 24, 0.15);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(16, 185, 129, 0.12) 50%, rgba(212, 175, 55, 0.18) 100%), var(--bg-card);
-  border: 1.5px solid var(--gold-primary);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(212, 175, 55, 0.2);
   text-align: center;
+  overflow: hidden;
 }
 
-.banner-ornament {
-  font-size: 1.3rem;
-  color: var(--text-gold);
-  filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.6));
+.surah-frame-arabesque {
+  font-size: 1.25rem;
+  color: #8c6218;
+  filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.7));
+  user-select: none;
 }
 
-.banner-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+.surah-frame-center-box {
+  flex: 1;
+  margin: 0 14px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid #c5a059;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9), 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.banner-surah-title {
-  font-family: 'Amiri Quran', 'Amiri', serif;
-  font-size: 1.55rem;
-  font-weight: 700;
-  color: var(--gold-light);
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+.surah-title-calligraphy {
+  font-family: 'Amiri Quran', 'Scheherazade New', 'Amiri', serif;
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: #6b4712;
+  letter-spacing: 0.5px;
+  line-height: 1.45;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
 }
 
-.banner-surah-info {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-weight: 700;
+.surah-subtitle-meta {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #8c6218;
+  margin-top: 1px;
 }
 
 /* إطار البسملة الذهبي المزخرف */
@@ -416,13 +427,25 @@
   text-align: center;
   font-family: 'Amiri Quran', 'Amiri', serif;
   font-size: 1.5rem;
-  color: var(--text-gold);
-  margin-bottom: 22px;
-  padding: 10px 14px;
-  background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.14) 0%, transparent 80%);
-  border: 1px dashed rgba(212, 175, 55, 0.35);
+  color: #785213;
+  margin-bottom: 20px;
+  padding: 8px 14px;
+  background: radial-gradient(ellipse at center, rgba(197, 160, 89, 0.15) 0%, transparent 80%);
+  border: 1px dashed rgba(197, 160, 89, 0.45);
   border-radius: var(--radius-md);
-  text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+  text-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
+}
+
+/* إطار صفحة المصحف المزخرفة */
+.mushaf-page-frame {
+  position: relative;
+  background: #fdfbf7;
+  border: 1.5px solid #8c6218;
+  border-radius: 12px;
+  padding: 16px 18px 24px 18px;
+  margin: 6px 0;
+  box-shadow: inset 0 0 0 1.5px #fffdf9, inset 0 0 0 3px #c5a059, 0 4px 16px rgba(0, 0, 0, 0.06);
+  color: #1a1714;
 }
 
 .ayah-text {
@@ -517,32 +540,24 @@
 
 /* زهرة وفاصل رقم الآية الذهبي المزخرف المصحفي المطابق للمصحف الذهبي (Golden Quran Rosette) */
 .golden-ayah-flower {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  min-height: 32px;
-  margin: 0 6px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fefdf9 0%, #f6eee0 100%);
-  border: 1.5px solid #c5a059;
-  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.9), 0 1px 4px rgba(0, 0, 0, 0.2);
-  font-family: 'Amiri Quran', 'Scheherazade New', 'Amiri', serif;
-  font-weight: 800;
-  font-size: 0.85em;
-  color: #785213;
+  display: inline-block;
   vertical-align: middle;
+  margin: 0 4px;
   cursor: pointer;
   user-select: none;
   line-height: 1;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .golden-ayah-flower:hover {
-  transform: scale(1.18);
-  box-shadow: 0 0 10px rgba(197, 160, 89, 0.75);
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 5px rgba(197, 160, 89, 0.8));
+}
+
+.ayah-medallion-svg {
+  display: inline-block;
+  vertical-align: -0.16em;
+  transition: transform 0.2s ease;
 }
 
 .rosette-bracket {
@@ -613,19 +628,19 @@
   color: #1a1714 !important;
 }
 
-.quran-reader-modal.mushaf-paper-theme .golden-surah-banner {
+.quran-reader-modal.mushaf-paper-theme .mushaf-surah-header-frame {
   background: linear-gradient(135deg, #f5eedb 0%, #faefe0 100%) !important;
-  border-color: #c5a059 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border-color: #8c6218 !important;
+  box-shadow: inset 0 0 0 1.5px #ffffff, inset 0 0 0 3.5px #c5a059, 0 2px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
-.quran-reader-modal.mushaf-paper-theme .banner-surah-title {
-  color: #785213 !important;
+.quran-reader-modal.mushaf-paper-theme .surah-title-calligraphy {
+  color: #6b4712 !important;
   text-shadow: none !important;
 }
 
-.quran-reader-modal.mushaf-paper-theme .banner-surah-info {
-  color: #6b5735 !important;
+.quran-reader-modal.mushaf-paper-theme .surah-subtitle-meta {
+  color: #8c6218 !important;
 }
 
 .quran-reader-modal.mushaf-paper-theme .basmalah-container.golden-basmalah-frame {

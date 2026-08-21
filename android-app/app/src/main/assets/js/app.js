@@ -1437,24 +1437,24 @@ document.addEventListener("DOMContentLoaded", () => {
       contentEl.style.fontSize = `${quran.fontSize}px`;
       contentEl.innerHTML = "";
 
-      // 1. ترويسة السورة الفاخرة بطراز المصحف الذهبي
+      // 1. ترويسة السورة العثمانية المزخرفة المذهبة المطابقة للمصاحف الشريفة
       if (surahMeta) {
         const isMeccan = surahMeta.revelationType === "Meccan";
-        const typeText = isMeccan ? "مكية" : "مدنية";
+        const typeText = isMeccan ? "مَكِّيَّةٌ" : "مَدَنِيَّةٌ";
         const banner = document.createElement("div");
-        banner.className = "golden-surah-banner";
+        banner.className = "mushaf-surah-header-frame";
         banner.innerHTML = `
-          <div class="banner-ornament left">⚜️</div>
-          <div class="banner-center">
-            <div class="banner-surah-title">سُورَةُ ${surahMeta.name}</div>
-            <div class="banner-surah-info">آياتها ${surahMeta.numberOfAyahs} • ${typeText} • ترتيبها ${surahMeta.number}</div>
+          <div class="surah-frame-arabesque left-wing">⚜️</div>
+          <div class="surah-frame-center-box">
+            <div class="surah-title-calligraphy">سُورَةُ ${surahMeta.name}</div>
+            <div class="surah-subtitle-meta">آياتها ${quran.toArabicDigits(surahMeta.numberOfAyahs)} • ${typeText} • ترتيبها ${quran.toArabicDigits(surahMeta.number)}</div>
           </div>
-          <div class="banner-ornament right">⚜️</div>
+          <div class="surah-frame-arabesque right-wing">⚜️</div>
         `;
         contentEl.appendChild(banner);
       }
 
-      // 2. البسملة المباركة
+      // 2. البسملة المباركة بإطار مذهب
       if (surahNumber !== 9 && surahNumber !== 1) {
         const basmalah = document.createElement("div");
         basmalah.className = "basmalah-container golden-basmalah-frame";
@@ -1462,7 +1462,11 @@ document.addEventListener("DOMContentLoaded", () => {
         contentEl.appendChild(basmalah);
       }
 
-      // 3. عرض آيات السورة الكريمة مع شارات الحفّاظ والتلوين الذهبي
+      // حاوية صفحة المصحف المزخرفة
+      const pageFrame = document.createElement("div");
+      pageFrame.className = "mushaf-page-frame";
+
+      // 3. عرض آيات السورة الكريمة مع شارات الحفّاظ ورموز الآيات المزخرفة
       surahData.ayahs.forEach(a => {
         const ayahSpan = document.createElement("span");
         ayahSpan.className = "ayah-text";
@@ -1489,10 +1493,9 @@ document.addEventListener("DOMContentLoaded", () => {
         textNode.innerHTML = ` ${formattedText} `;
         ayahSpan.appendChild(textNode);
 
-        const arabicNum = quran.toArabicDigits(a.numberInSurah);
         const numSymbol = document.createElement("span");
         numSymbol.className = "golden-ayah-flower";
-        numSymbol.innerHTML = `<span class="rosette-digit">${arabicNum}</span>`;
+        numSymbol.innerHTML = quran.getAyahMedallionSvg(a.numberInSurah);
         numSymbol.title = `الآية ${a.numberInSurah}`;
 
         ayahSpan.appendChild(numSymbol);
@@ -1508,8 +1511,10 @@ document.addEventListener("DOMContentLoaded", () => {
           openHafizBadgeModal(surahNumber, a.numberInSurah, 0, a.text);
         });
 
-        contentEl.appendChild(ayahSpan);
+        pageFrame.appendChild(ayahSpan);
       });
+
+      contentEl.appendChild(pageFrame);
 
       quran.setLastRead(surahNumber, surahData.name, targetAyah);
 
