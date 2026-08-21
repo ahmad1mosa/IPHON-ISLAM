@@ -712,10 +712,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* -------------------------------------------------------------
-     بوصلة القبلة المعكوسة المهدأة - S أعلى، N أسفل، W يمين، E يسار
+     بوصلة القبلة بطراز iOS المحدّثة مع الأرقام والدرجات
   ------------------------------------------------------------- */
-  let _cmpTarget = 0, _cmpVisual = 0, _cmpRAF = null;
-  let _cmpLastRaw = -1;
   function initQiblaCompass() {
     // رسم علامات الدرجات في SVG
     buildCompassTicks();
@@ -761,17 +759,18 @@ document.addEventListener("DOMContentLoaded", () => {
       updateCompassNeedle();
     };
 
-    // استقبال درجات البوصلة مباشرة من هاردوير الأندرويد المفلتر
+    // استقبال درجات البوصلة مباشرة من هاردوير الأندرويد الأصلي المفلتر
     window.onAndroidHeadingUpdate = (heading) => {
       if (state.compassMode !== "sensor") return;
-      _setCompassTarget(heading);
+      state.compassHeading = Math.round(heading);
+      updateCompassNeedle();
     };
 
-    // الاستماع للحدثين في المتصفحات والآيفون
+    // الاستماع للحدثين في المتصفحات والآيفون - مطلق أولاً ثم نسبي كبديل
     if (typeof DeviceOrientationEvent !== "undefined") {
       if (typeof DeviceOrientationEvent.requestPermission === "function") {
         // iOS 13+ يحتاج إذناً
-        document.getElementById("btn-toggle-compass-mode")?.addEventListener("click", () => {
+        document.getElementById("btn-toggle-compass-mode").addEventListener("click", () => {
           DeviceOrientationEvent.requestPermission().then(response => {
             if (response === "granted") {
               window.addEventListener("deviceorientation", handleOrientation, true);
@@ -783,38 +782,6 @@ document.addEventListener("DOMContentLoaded", () => {
         window.addEventListener("deviceorientation", handleOrientation, true);
       }
     }
-  }
-
-  // ضبط الهدف مع deadband لمنع الرعشة
-  function _setCompassTarget(raw) {
-    if (raw < 0 || isNaN(raw)) return;
-    if (_cmpLastRaw < 0) {
-      _cmpLastRaw = raw; _cmpTarget = raw; _cmpVisual = raw;
-    } else {
-      const diff = (raw - _cmpLastRaw + 540) % 360 - 180;
-      if (Math.abs(diff) < 0.6) return; // deadband - تجاهل الضجيج الصغير
-      _cmpLastRaw = raw;
-      _cmpTarget = (raw + 360) % 360;
-    }
-    state.compassHeading = _cmpTarget;
-    if (!_cmpRAF) _startCompassRAF();
-  }
-
-  // حلقة الرسم المتدرج السلس (Damped Lerp rAF)
-  function _startCompassRAF() {
-    function frame() {
-      const diff = ((_cmpTarget - _cmpVisual) + 540) % 360 - 180;
-      if (Math.abs(diff) < 0.08) {
-        _cmpVisual = _cmpTarget;
-        _renderCompass(_cmpVisual);
-        _cmpRAF = null;
-        return;
-      }
-      _cmpVisual = (_cmpVisual + diff * 0.07 + 360) % 360;
-      _renderCompass(_cmpVisual);
-      _cmpRAF = requestAnimationFrame(frame);
-    }
-    _cmpRAF = requestAnimationFrame(frame);
   }
 
   function buildCompassTicks() {
@@ -845,7 +812,7 @@ document.addEventListener("DOMContentLoaded", () => {
       line.setAttribute("x2", x2.toFixed(1));
       line.setAttribute("y2", y2.toFixed(1));
 
-      // العلامات الرئيسية عند 30° بالأحمر، باقيها أبيض
+      // علامات 30° بالأحمر
       if (isMajor30) {
         line.setAttribute("stroke", "#ef4444");
         line.setAttribute("stroke-width", "2");
@@ -858,7 +825,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       ticksGroup.appendChild(line);
 
-      // الأرقام كل 30 درجة — أرقام 0،90،180،270 بالأحمر، الباقي أبيض
+      // أرقام كل 30° — 0،90،180،270 بالأحمر، الباقي أبيض
       if (isMajor30) {
         const numR = r - 26;
         const nx = cx + numR * Math.cos(rad);
@@ -897,13 +864,11 @@ document.addEventListener("DOMContentLoaded", () => {
       text.setAttribute("font-size", c.size.toString());
       text.setAttribute("font-weight", c.weight.toString());
       text.setAttribute("fill", c.color);
-      text.setAttribute("stroke", "rgba(0,0,0,0.3)");
-      text.setAttribute("stroke-width", "0.4");
       text.setAttribute("font-family", "Outfit, -apple-system, sans-serif");
       text.textContent = c.letter;
       labelsGroup.appendChild(text);
 
-      // مثلث أحمر عند 0° (قمة البوصلة = الجنوب S)
+      // مثلث أحمر عند 0° للشمال مثل الآيفون بالضبط (صورة 2)
       if (c.deg === 0) {
         const tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
         const p1 = `${cx},${(cy - r + 4).toFixed(1)}`;
@@ -981,47 +946,26 @@ document.addEventListener("DOMContentLoaded", () => {
     return "SE";
   }
 
-  // تحديث العرض المباشر من حلقة الـ rAF
-  function _renderCompass(visual) {
-    const compassDisc = document.getElementById("compass-dial-disc");
-    const degDisplay = document.getElementById("compass-deg-display");
-    const dirDisplay = document.getElementById("compass-dir-display");
-    const qiblaBadge = document.getElementById("qibla-degree-text");
-
-    const h = (visual + 360) % 360;
-    if (compassDisc) compassDisc.style.transform = `rotate(${-h}deg)`;
-    const roundH = Math.round(h);
-    if (degDisplay) degDisplay.textContent = roundH;
-    if (dirDisplay) dirDisplay.textContent = `° ${getDirectionLabel(roundH)}`;
-    if (qiblaBadge) {
-      const qiblaDiff = Math.abs(((roundH - state.qiblaBearing + 540) % 360) - 180);
-      if (qiblaDiff <= 4) {
-        qiblaBadge.classList.add("aligned");
-        qiblaBadge.innerHTML = `🕋 نحو الكعبة المشرفة (${state.qiblaBearing}°) ✓`;
-      } else {
-        qiblaBadge.classList.remove("aligned");
-        qiblaBadge.innerHTML = `🧭 اتجاه القبلة: ${state.qiblaBearing}° (${state.selectedCity?.name || ""})`;
-      }
-    }
-  }
-
   function updateCompassNeedle() {
-    // استدعاء مباشر عند الوضع الثابت
-    if (state.compassMode === "static") {
-      _cmpTarget = 0; _cmpVisual = 0;
-      _renderCompass(0);
-      return;
-    }
-    _setCompassTarget(state.compassHeading);
-
     const compassDisc = document.getElementById("compass-dial-disc");
     const degDisplay = document.getElementById("compass-deg-display");
     const dirDisplay = document.getElementById("compass-dir-display");
     const qiblaBadge = document.getElementById("qibla-degree-text");
 
-    // fallback مباشر إذا لم تبدأ الحلقة
+    let dialRotation = 0;
+
+    if (state.compassMode === "static") {
+      dialRotation = 0;
+    } else {
+      dialRotation = -state.compassHeading;
+    }
+
+    if (compassDisc) {
+      compassDisc.style.transform = `rotate(${dialRotation}deg)`;
+    }
+
+    // تحديث رقم الدرجة الكبير
     const currentDeg = Math.round((state.compassHeading + 360) % 360);
-    if (compassDisc) compassDisc.style.transform = `rotate(${-currentDeg}deg)`;
     if (degDisplay) degDisplay.textContent = currentDeg;
     if (dirDisplay) dirDisplay.textContent = `° ${getDirectionLabel(currentDeg)}`;
 
